@@ -15,16 +15,16 @@ public class Endpoint: Codable {
     // Technically unique, but not marked or enforced as such due to CloudKit restrictions
     private(set) public var id = UUID()
     
-    @Attribute(.allowsCloudEncryption) private(set) public var name: String
-    @Attribute(.allowsCloudEncryption) private(set) public var active: Bool
+    @Attribute(.allowsCloudEncryption) private(set) public var name: String!
+    @Attribute(.allowsCloudEncryption) private(set) public var active: Bool!
     
-    @Attribute(.allowsCloudEncryption) private(set) public var url: URL
+    @Attribute(.allowsCloudEncryption) private(set) public var url: URL!
     
-    @Attribute(.allowsCloudEncryption) private(set) var _routes: [String]
-    @Attribute(.allowsCloudEncryption) private(set) var _addresses: [String]
+    @Attribute(.allowsCloudEncryption) private(set) var _routes: [String]!
+    @Attribute(.allowsCloudEncryption) private(set) var _addresses: [String]!
     
-    @Attribute(.allowsCloudEncryption) private(set) public var publicKey: Data
-    @Attribute(.allowsCloudEncryption) private(set) public var privateKey: Data
+    @Attribute(.allowsCloudEncryption) private(set) public var publicKey: Data!
+    @Attribute(.allowsCloudEncryption) private(set) public var privateKey: Data!
     @Attribute(.allowsCloudEncryption) private(set) public var preSharedKey: Data?
     
     @Attribute(.allowsCloudEncryption) private(set) var _dns: [Data]?

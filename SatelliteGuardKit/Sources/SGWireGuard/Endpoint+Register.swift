@@ -8,8 +8,3 @@
 import Foundation
 import SwiftData
 import Network
-import SGPersistence
-
-public extension Endpoint {
-    
-}

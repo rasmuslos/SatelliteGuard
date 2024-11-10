@@ -20,9 +20,11 @@ let package = Package(
             .byName(name: "SGPersistence")
         ]),
         .target(name: "SGPersistence", dependencies: [
-            .product(name: "WireGuardKit", package: "WireGuard")
+            .product(name: "WireGuardKit", package: "WireGuard"),
         ]),
         .target(name: "SGWireGuard", dependencies: [
+            .target(name: "SGPersistence"),
+            
             .product(name: "WireGuardKit", package: "WireGuard")
         ]),
     ]
