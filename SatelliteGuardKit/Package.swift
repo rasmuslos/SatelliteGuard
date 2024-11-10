@@ -10,7 +10,7 @@ let package = Package(
         .tvOS(.v18),
     ],
     products: [
-        .library(name: "SatelliteGuardKit", targets: ["SatelliteGuardKit", "SGPersistence"]),
+        .library(name: "SatelliteGuardKit", targets: ["SatelliteGuardKit", "SGPersistence", "SGWireGuard"]),
     ],
     dependencies: [
         .package(name: "WireGuard", path: "../WireGuard"),
@@ -20,6 +20,9 @@ let package = Package(
             .byName(name: "SGPersistence")
         ]),
         .target(name: "SGPersistence", dependencies: [
+            .product(name: "WireGuardKit", package: "WireGuard")
+        ]),
+        .target(name: "SGWireGuard", dependencies: [
             .product(name: "WireGuardKit", package: "WireGuard")
         ]),
     ]

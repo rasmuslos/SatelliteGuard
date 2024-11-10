@@ -12,23 +12,26 @@ import WireGuardKit
 
 @Model
 public class Endpoint: Codable {
-    private(set) public var name: String
-    private(set) public var active: Bool
+    // Technically unique, but not marked or enforced as such due to CloudKit restrictions
+    private(set) public var id = UUID()
     
-    private(set) public var url: URL
+    @Attribute(.allowsCloudEncryption) private(set) public var name: String
+    @Attribute(.allowsCloudEncryption) private(set) public var active: Bool
     
-    private(set) var _routes: [String]
-    private(set) var _addresses: [String]
+    @Attribute(.allowsCloudEncryption) private(set) public var url: URL
     
-    private(set) public var publicKey: Data
-    private(set) public var privateKey: Data
-    private(set) public var preSharedKey: Data?
+    @Attribute(.allowsCloudEncryption) private(set) var _routes: [String]
+    @Attribute(.allowsCloudEncryption) private(set) var _addresses: [String]
     
-    private(set) var _dns: [Data]?
-    private(set) public var listenPort: UInt16?
+    @Attribute(.allowsCloudEncryption) private(set) public var publicKey: Data
+    @Attribute(.allowsCloudEncryption) private(set) public var privateKey: Data
+    @Attribute(.allowsCloudEncryption) private(set) public var preSharedKey: Data?
     
-    private(set) public var mtu: UInt16?
-    private(set) public var persistentKeepAlive: UInt16?
+    @Attribute(.allowsCloudEncryption) private(set) var _dns: [Data]?
+    @Attribute(.allowsCloudEncryption) private(set) public var listenPort: UInt16?
+    
+    @Attribute(.allowsCloudEncryption) private(set) public var mtu: UInt16?
+    @Attribute(.allowsCloudEncryption) private(set) public var persistentKeepAlive: UInt16?
     
     public init(name: String, url: URL, routes: [IPAddressRange], addresses: [IPAddressRange], publicKey: Data, privateKey: Data, preSharedKey: Data? = nil, dns: [IPAddress]? = nil, listenPort: UInt16? = nil, mtu: UInt16? = nil, persistentKeepAlive: UInt16? = nil) {
         self.name = name
@@ -48,6 +51,8 @@ public class Endpoint: Codable {
     
     public required init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        id = try container.decode(UUID.self, forKey: ._id)
         
         name = try container.decode(String.self, forKey: ._name)
         active = try container.decode(Bool.self, forKey: ._active)
@@ -70,6 +75,8 @@ public class Endpoint: Codable {
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
+        try container.encode(id, forKey: ._id)
+        
         try container.encode(name, forKey: ._name)
         try container.encode(active, forKey: ._active)
         
@@ -90,6 +97,7 @@ public class Endpoint: Codable {
     }
     
     enum CodingKeys: CodingKey {
+        case _id
         case _name
         case _active
         case _url
@@ -127,14 +135,9 @@ public extension Endpoint {
     }
 }
 
-extension Endpoint: Identifiable {
-    public var id: String {
-        url.absoluteString.appending(_addresses.joined(separator: ":"))
-    }
-}
-
 extension Endpoint: Hashable {}
 extension Endpoint: Equatable {}
+extension Endpoint: Identifiable {}
 
 #if DEBUG
 public extension Endpoint {

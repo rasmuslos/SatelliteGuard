@@ -18,7 +18,7 @@ public class PersistenceManager {
             Endpoint.self
         ], version: .init(1, 0, 0))
         
-        modelConfiguration = .init("SatelliteGuard", schema: schema, isStoredInMemoryOnly: false, allowsSave: true, groupContainer: .automatic, cloudKitDatabase: .none)
+        modelConfiguration = .init("SatelliteGuard", schema: schema, isStoredInMemoryOnly: false, allowsSave: true, groupContainer: .automatic, cloudKitDatabase: .automatic)
         modelContainer = try! ModelContainer(for: schema, configurations: [modelConfiguration])
     }
     

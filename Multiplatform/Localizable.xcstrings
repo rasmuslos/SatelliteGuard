@@ -7,6 +7,9 @@
     "connect" : {
 
     },
+    "endpoint.activate" : {
+
+    },
     "endpoint.addresses" : {
 
     },
