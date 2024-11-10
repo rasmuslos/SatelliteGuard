@@ -100,8 +100,10 @@ private struct Row: View {
     }
 }
 
+#if DEBUG
 #Preview {
     NavigationStack {
         EndpointView(endpoint: .fixture)
     }
 }
+#endif

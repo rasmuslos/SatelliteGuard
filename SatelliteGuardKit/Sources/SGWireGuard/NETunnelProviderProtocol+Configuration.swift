@@ -10,7 +10,7 @@ import Network
 import NetworkExtension
 
 public extension NETunnelProviderProtocol {
-    var id: UUID {
-        return providerConfiguration!["id"] as! UUID
+    var id: UUID? {
+        return providerConfiguration?["id"] as? UUID
     }
 }

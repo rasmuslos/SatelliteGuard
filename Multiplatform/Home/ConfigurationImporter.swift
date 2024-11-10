@@ -27,7 +27,9 @@ struct ConfigurationImporter: View {
     }
 }
 
+#if DEBUG
 #Preview {
     ConfigurationImporter()
         .satellite()
 }
+#endif

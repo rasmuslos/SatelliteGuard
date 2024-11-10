@@ -17,7 +17,8 @@ let package = Package(
     ],
     targets: [
         .target(name: "SatelliteGuardKit", dependencies: [
-            .byName(name: "SGPersistence")
+            .byName(name: "SGPersistence"),
+            .byName(name: "SGWireGuard"),
         ]),
         .target(name: "SGPersistence", dependencies: [
             .product(name: "WireGuardKit", package: "WireGuard"),

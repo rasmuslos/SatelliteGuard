@@ -40,9 +40,11 @@ struct HomeView: View {
     }
 }
 
+#if DEBUG
 #Preview {
     NavigationStack {
         HomeView()
             .satellite()
     }
 }
+#endif
