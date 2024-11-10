@@ -1,0 +1,33 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "configuration.import" : {
+
+    },
+    "connect" : {
+
+    },
+    "endpoint.addresses" : {
+
+    },
+    "endpoint.dns" : {
+
+    },
+    "endpoint.keys" : {
+
+    },
+    "endpoint.routes" : {
+
+    },
+    "home" : {
+
+    },
+    "home.active" : {
+
+    },
+    "home.inactive" : {
+
+    }
+  },
+  "version" : "1.0"
+}

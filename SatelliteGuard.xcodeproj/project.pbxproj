@@ -7,90 +7,97 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3A6882672CE0FFC600F9E434 /* WireGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3A6882662CE0FFC600F9E434 /* WireGuardKit */; };
-		3AE90CA12CE0FF4C00FDCFB5 /* Wireguard in Resources */ = {isa = PBXBuildFile; fileRef = 3AE90CA02CE0FF4C00FDCFB5 /* Wireguard */; };
 		3AF173192CE10749002D8B1C /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AF173182CE10749002D8B1C /* NetworkExtension.framework */; };
-		3AF173212CE10749002D8B1C /* WireguardExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3AF173172CE10749002D8B1C /* WireguardExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		3AF173702CE115DE002D8B1C /* WireGuardExtension.appex in Resources */ = {isa = PBXBuildFile; fileRef = 3AF173172CE10749002D8B1C /* WireGuardExtension.appex */; };
+		3AF173782CE117B8002D8B1C /* WireGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3AF173772CE117B8002D8B1C /* WireGuardKit */; };
+		3AF1737A2CE117CB002D8B1C /* SatelliteGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3AF173792CE117CB002D8B1C /* SatelliteGuardKit */; };
+		3AF1737C2CE117D0002D8B1C /* SatelliteGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3AF1737B2CE117D0002D8B1C /* SatelliteGuardKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		3AF173112CE1062F002D8B1C /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 3A2E12BA2CE0F75900A6060F /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 3A2E12D52CE0F8F700A6060F;
-			remoteInfo = "Wireguard tvOS";
-		};
-		3AF1731F2CE10749002D8B1C /* PBXContainerItemProxy */ = {
+		3AF1736E2CE115C2002D8B1C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 3A2E12BA2CE0F75900A6060F /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 3AF173162CE10749002D8B1C;
 			remoteInfo = WireguardExtension;
 		};
+		3AF173712CE115F9002D8B1C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3A2E12BA2CE0F75900A6060F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3AF173682CE1159D002D8B1C;
+			remoteInfo = "Wireguard iOS";
+		};
+		3AF173732CE115F9002D8B1C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3A2E12BA2CE0F75900A6060F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3A2E12D52CE0F8F700A6060F;
+			remoteInfo = "Wireguard tvOS";
+		};
 /* End PBXContainerItemProxy section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		3AF173262CE10749002D8B1C /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				3AF173212CE10749002D8B1C /* WireguardExtension.appex in Embed Foundation Extensions */,
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
-		3A2E12C22CE0F75900A6060F /* SatelliteGuard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SatelliteGuard.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AE90CA02CE0FF4C00FDCFB5 /* Wireguard */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Wireguard; sourceTree = "<group>"; };
-		3AF173172CE10749002D8B1C /* WireguardExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WireguardExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		3AF173172CE10749002D8B1C /* WireGuardExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WireGuardExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AF173182CE10749002D8B1C /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
+		3AF1735A2CE11530002D8B1C /* Multiplatform.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Multiplatform.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3AF173762CE11729002D8B1C /* SatelliteGuardKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = SatelliteGuardKit; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		3AF173222CE10749002D8B1C /* Exceptions for "WireguardExtension" folder in "WireguardExtension" target */ = {
+		3AF173222CE10749002D8B1C /* Exceptions for "WireguardExtension" folder in "WireGuardExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 3AF173162CE10749002D8B1C /* WireguardExtension */;
+			target = 3AF173162CE10749002D8B1C /* WireGuardExtension */;
+		};
+		3AF1738B2CE12A59002D8B1C /* Exceptions for "Multiplatform" folder in "Multiplatform" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 3AF173592CE11530002D8B1C /* Multiplatform */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		3A2E12C42CE0F75900A6060F /* SatelliteGuard */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = SatelliteGuard;
-			sourceTree = "<group>";
-		};
 		3AF1731A2CE10749002D8B1C /* WireguardExtension */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				3AF173222CE10749002D8B1C /* Exceptions for "WireguardExtension" folder in "WireguardExtension" target */,
+				3AF173222CE10749002D8B1C /* Exceptions for "WireguardExtension" folder in "WireGuardExtension" target */,
 			);
 			path = WireguardExtension;
+			sourceTree = "<group>";
+		};
+		3AF1735B2CE11530002D8B1C /* Multiplatform */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				3AF1738B2CE12A59002D8B1C /* Exceptions for "Multiplatform" folder in "Multiplatform" target */,
+			);
+			path = Multiplatform;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		3A2E12BF2CE0F75900A6060F /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				3A6882672CE0FFC600F9E434 /* WireGuardKit in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		3AF173142CE10749002D8B1C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3AF173782CE117B8002D8B1C /* WireGuardKit in Frameworks */,
+				3AF1737C2CE117D0002D8B1C /* SatelliteGuardKit in Frameworks */,
 				3AF173192CE10749002D8B1C /* NetworkExtension.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3AF173572CE11530002D8B1C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3AF1737A2CE117CB002D8B1C /* SatelliteGuardKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -100,9 +107,10 @@
 		3A2E12B92CE0F75900A6060F = {
 			isa = PBXGroup;
 			children = (
-				3AE90CA02CE0FF4C00FDCFB5 /* Wireguard */,
-				3A2E12C42CE0F75900A6060F /* SatelliteGuard */,
+				3AF1735B2CE11530002D8B1C /* Multiplatform */,
 				3AF1731A2CE10749002D8B1C /* WireguardExtension */,
+				3AE90CA02CE0FF4C00FDCFB5 /* Wireguard */,
+				3AF173762CE11729002D8B1C /* SatelliteGuardKit */,
 				3A6882652CE0FFC600F9E434 /* Frameworks */,
 				3A2E12C32CE0F75900A6060F /* Products */,
 			);
@@ -111,8 +119,8 @@
 		3A2E12C32CE0F75900A6060F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				3A2E12C22CE0F75900A6060F /* SatelliteGuard.app */,
-				3AF173172CE10749002D8B1C /* WireguardExtension.appex */,
+				3AF173172CE10749002D8B1C /* WireGuardExtension.appex */,
+				3AF1735A2CE11530002D8B1C /* Multiplatform.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -128,54 +136,44 @@
 /* End PBXGroup section */
 
 /* Begin PBXLegacyTarget section */
-		3A2E12D52CE0F8F700A6060F /* Wireguard tvOS */ = {
+		3A2E12D52CE0F8F700A6060F /* WireGuard tvOS */ = {
 			isa = PBXLegacyTarget;
 			buildArgumentsString = "$(ACTION)";
-			buildConfigurationList = 3A2E12D62CE0F8F700A6060F /* Build configuration list for PBXLegacyTarget "Wireguard tvOS" */;
+			buildConfigurationList = 3A2E12D62CE0F8F700A6060F /* Build configuration list for PBXLegacyTarget "WireGuard tvOS" */;
 			buildPhases = (
 			);
 			buildToolPath = /usr/bin/make;
 			buildWorkingDirectory = "$(PROJECT_DIR)/Wireguard/Sources/WireGuardKitGo/";
 			dependencies = (
 			);
-			name = "Wireguard tvOS";
+			name = "WireGuard tvOS";
 			packageProductDependencies = (
 			);
 			passBuildSettingsInEnvironment = 1;
 			productName = "Wireguard tvOS";
 		};
+		3AF173682CE1159D002D8B1C /* WireGuard iOS */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 3AF173692CE1159D002D8B1C /* Build configuration list for PBXLegacyTarget "WireGuard iOS" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(PROJECT_DIR)/Wireguard/Sources/WireGuardKitGo/";
+			dependencies = (
+			);
+			name = "WireGuard iOS";
+			packageProductDependencies = (
+			);
+			passBuildSettingsInEnvironment = 1;
+			productName = "Wireguard iOS";
+		};
 /* End PBXLegacyTarget section */
 
 /* Begin PBXNativeTarget section */
-		3A2E12C12CE0F75900A6060F /* SatelliteGuard */ = {
+		3AF173162CE10749002D8B1C /* WireGuardExtension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3A2E12D02CE0F75A00A6060F /* Build configuration list for PBXNativeTarget "SatelliteGuard" */;
-			buildPhases = (
-				3A2E12BE2CE0F75900A6060F /* Sources */,
-				3A2E12BF2CE0F75900A6060F /* Frameworks */,
-				3A2E12C02CE0F75900A6060F /* Resources */,
-				3AF173262CE10749002D8B1C /* Embed Foundation Extensions */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				3AF173122CE1062F002D8B1C /* PBXTargetDependency */,
-				3AF173202CE10749002D8B1C /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				3A2E12C42CE0F75900A6060F /* SatelliteGuard */,
-			);
-			name = SatelliteGuard;
-			packageProductDependencies = (
-				3A6882662CE0FFC600F9E434 /* WireGuardKit */,
-			);
-			productName = SatelliteGuard;
-			productReference = 3A2E12C22CE0F75900A6060F /* SatelliteGuard.app */;
-			productType = "com.apple.product-type.application";
-		};
-		3AF173162CE10749002D8B1C /* WireguardExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 3AF173232CE10749002D8B1C /* Build configuration list for PBXNativeTarget "WireguardExtension" */;
+			buildConfigurationList = 3AF173232CE10749002D8B1C /* Build configuration list for PBXNativeTarget "WireGuardExtension" */;
 			buildPhases = (
 				3AF173132CE10749002D8B1C /* Sources */,
 				3AF173142CE10749002D8B1C /* Frameworks */,
@@ -184,16 +182,44 @@
 			buildRules = (
 			);
 			dependencies = (
+				3AF173722CE115F9002D8B1C /* PBXTargetDependency */,
+				3AF173742CE115F9002D8B1C /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				3AF1731A2CE10749002D8B1C /* WireguardExtension */,
 			);
-			name = WireguardExtension;
+			name = WireGuardExtension;
 			packageProductDependencies = (
+				3AF173772CE117B8002D8B1C /* WireGuardKit */,
+				3AF1737B2CE117D0002D8B1C /* SatelliteGuardKit */,
 			);
 			productName = WireguardExtension;
-			productReference = 3AF173172CE10749002D8B1C /* WireguardExtension.appex */;
+			productReference = 3AF173172CE10749002D8B1C /* WireGuardExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
+		};
+		3AF173592CE11530002D8B1C /* Multiplatform */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3AF173652CE11531002D8B1C /* Build configuration list for PBXNativeTarget "Multiplatform" */;
+			buildPhases = (
+				3AF173562CE11530002D8B1C /* Sources */,
+				3AF173572CE11530002D8B1C /* Frameworks */,
+				3AF173582CE11530002D8B1C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3AF1736F2CE115C2002D8B1C /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				3AF1735B2CE11530002D8B1C /* Multiplatform */,
+			);
+			name = Multiplatform;
+			packageProductDependencies = (
+				3AF173792CE117CB002D8B1C /* SatelliteGuardKit */,
+			);
+			productName = Multiplatform;
+			productReference = 3AF1735A2CE11530002D8B1C /* Multiplatform.app */;
+			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
@@ -205,13 +231,16 @@
 				LastSwiftUpdateCheck = 1610;
 				LastUpgradeCheck = 1610;
 				TargetAttributes = {
-					3A2E12C12CE0F75900A6060F = {
-						CreatedOnToolsVersion = 16.1;
-					};
 					3A2E12D52CE0F8F700A6060F = {
 						CreatedOnToolsVersion = 16.1;
 					};
 					3AF173162CE10749002D8B1C = {
+						CreatedOnToolsVersion = 16.1;
+					};
+					3AF173592CE11530002D8B1C = {
+						CreatedOnToolsVersion = 16.1;
+					};
+					3AF173682CE1159D002D8B1C = {
 						CreatedOnToolsVersion = 16.1;
 					};
 				};
@@ -226,28 +255,22 @@
 			mainGroup = 3A2E12B92CE0F75900A6060F;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				3AF173412CE114CD002D8B1C /* XCRemoteSwiftPackageReference "keychain-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3A2E12C32CE0F75900A6060F /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				3A2E12C12CE0F75900A6060F /* SatelliteGuard */,
-				3AF173162CE10749002D8B1C /* WireguardExtension */,
-				3A2E12D52CE0F8F700A6060F /* Wireguard tvOS */,
+				3AF173592CE11530002D8B1C /* Multiplatform */,
+				3AF173162CE10749002D8B1C /* WireGuardExtension */,
+				3AF173682CE1159D002D8B1C /* WireGuard iOS */,
+				3A2E12D52CE0F8F700A6060F /* WireGuard tvOS */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		3A2E12C02CE0F75900A6060F /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				3AE90CA12CE0FF4C00FDCFB5 /* Wireguard in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		3AF173152CE10749002D8B1C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -255,17 +278,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3AF173582CE11530002D8B1C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3AF173702CE115DE002D8B1C /* WireGuardExtension.appex in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		3A2E12BE2CE0F75900A6060F /* Sources */ = {
+		3AF173132CE10749002D8B1C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		3AF173132CE10749002D8B1C /* Sources */ = {
+		3AF173562CE11530002D8B1C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -275,15 +306,24 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		3AF173122CE1062F002D8B1C /* PBXTargetDependency */ = {
+		3AF1736F2CE115C2002D8B1C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 3A2E12D52CE0F8F700A6060F /* Wireguard tvOS */;
-			targetProxy = 3AF173112CE1062F002D8B1C /* PBXContainerItemProxy */;
+			target = 3AF173162CE10749002D8B1C /* WireGuardExtension */;
+			targetProxy = 3AF1736E2CE115C2002D8B1C /* PBXContainerItemProxy */;
 		};
-		3AF173202CE10749002D8B1C /* PBXTargetDependency */ = {
+		3AF173722CE115F9002D8B1C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 3AF173162CE10749002D8B1C /* WireguardExtension */;
-			targetProxy = 3AF1731F2CE10749002D8B1C /* PBXContainerItemProxy */;
+			platformFilter = ios;
+			target = 3AF173682CE1159D002D8B1C /* WireGuard iOS */;
+			targetProxy = 3AF173712CE115F9002D8B1C /* PBXContainerItemProxy */;
+		};
+		3AF173742CE115F9002D8B1C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilters = (
+				tvos,
+			);
+			target = 3A2E12D52CE0F8F700A6060F /* WireGuard tvOS */;
+			targetProxy = 3AF173732CE115F9002D8B1C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -347,6 +387,7 @@
 				SDKROOT = "";
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TVOS_DEPLOYMENT_TARGET = 18.1;
 			};
@@ -404,130 +445,9 @@
 				SDKROOT = "";
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				TVOS_DEPLOYMENT_TARGET = 18.1;
 				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
-		3A2E12D12CE0F75A00A6060F /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = SatelliteGuard/SatelliteGuard.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"SatelliteGuard/Preview Content\"";
-				DEVELOPMENT_TEAM = N8AA4S3S96;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo/.tmp/wireguard-go-bridge",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo/.tmp/wireguard-go-bridge/goroot/src/go/internal/gccgoimporter/testdata",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo/.tmp/wireguard-go-bridge/goroot/src/cmd/objdump/testdata",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo/out",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge/goroot/src/cmd/objdump/testdata",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge/goroot/src/go/internal/gccgoimporter/testdata",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/out",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge/goroot/src/go/internal/gccgoimporter/testdata",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge/goroot/src/cmd/objdump/testdata",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/out",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.rfk.SatelliteGuard;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 3;
-			};
-			name = Debug;
-		};
-		3A2E12D22CE0F75A00A6060F /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = SatelliteGuard/SatelliteGuard.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"SatelliteGuard/Preview Content\"";
-				DEVELOPMENT_TEAM = N8AA4S3S96;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo/.tmp/wireguard-go-bridge",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo/.tmp/wireguard-go-bridge/goroot/src/go/internal/gccgoimporter/testdata",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo/.tmp/wireguard-go-bridge/goroot/src/cmd/objdump/testdata",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo/out",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge/goroot/src/cmd/objdump/testdata",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge/goroot/src/go/internal/gccgoimporter/testdata",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/.tmp/wireguard-go-bridge",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 2/out",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge/goroot/src/go/internal/gccgoimporter/testdata",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge/goroot/src/cmd/objdump/testdata",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/out",
-					"$(PROJECT_DIR)/Wireguard/WireGuardKitGo\\ 3/.tmp/wireguard-go-bridge/goroot/src/go/internal/gcimporter/testdata/versions",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.rfk.SatelliteGuard;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 3;
 			};
 			name = Release;
 		};
@@ -567,26 +487,29 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = WireguardExtension/WireguardExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = DEVELOPMENT;
 				DEVELOPMENT_TEAM = N8AA4S3S96;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WireguardExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = WireguardExtension;
+				INFOPLIST_KEY_CFBundleDisplayName = WireGuardExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.rfk.SatelliteGuard.WireguardExtension;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.rfk.SatelliteGuard.WireGuardExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 3;
+				TARGETED_DEVICE_FAMILY = "1,3";
+				TVOS_DEPLOYMENT_TARGET = 18.0;
 			};
 			name = Debug;
 		};
@@ -595,26 +518,138 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = WireguardExtension/WireguardExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = DEVELOPMENT;
 				DEVELOPMENT_TEAM = N8AA4S3S96;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WireguardExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = WireguardExtension;
+				INFOPLIST_KEY_CFBundleDisplayName = WireGuardExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.rfk.SatelliteGuard.WireguardExtension;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.rfk.SatelliteGuard.WireGuardExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 3;
+				TARGETED_DEVICE_FAMILY = "1,3";
+				TVOS_DEPLOYMENT_TARGET = 18.0;
+			};
+			name = Release;
+		};
+		3AF173662CE11531002D8B1C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Multiplatform/Multiplatform.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = DEVELOPMENT;
+				DEVELOPMENT_TEAM = N8AA4S3S96;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Multiplatform/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.rfk.SatelliteGuard.Multiplatform;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		3AF173672CE11531002D8B1C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Multiplatform/Multiplatform.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = DEVELOPMENT;
+				DEVELOPMENT_TEAM = N8AA4S3S96;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Multiplatform/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.rfk.SatelliteGuard.Multiplatform;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		3AF1736A2CE1159D002D8B1C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEBUGGING_SYMBOLS = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = N8AA4S3S96;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PATH = "${PATH}:/opt/homebrew/bin";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+			};
+			name = Debug;
+		};
+		3AF1736B2CE1159D002D8B1C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = N8AA4S3S96;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PATH = "${PATH}:/opt/homebrew/bin";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 			};
 			name = Release;
 		};
@@ -630,16 +665,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		3A2E12D02CE0F75A00A6060F /* Build configuration list for PBXNativeTarget "SatelliteGuard" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				3A2E12D12CE0F75A00A6060F /* Debug */,
-				3A2E12D22CE0F75A00A6060F /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		3A2E12D62CE0F8F700A6060F /* Build configuration list for PBXLegacyTarget "Wireguard tvOS" */ = {
+		3A2E12D62CE0F8F700A6060F /* Build configuration list for PBXLegacyTarget "WireGuard tvOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3A2E12D72CE0F8F700A6060F /* Debug */,
@@ -648,7 +674,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		3AF173232CE10749002D8B1C /* Build configuration list for PBXNativeTarget "WireguardExtension" */ = {
+		3AF173232CE10749002D8B1C /* Build configuration list for PBXNativeTarget "WireGuardExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3AF173242CE10749002D8B1C /* Debug */,
@@ -657,12 +683,49 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		3AF173652CE11531002D8B1C /* Build configuration list for PBXNativeTarget "Multiplatform" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3AF173662CE11531002D8B1C /* Debug */,
+				3AF173672CE11531002D8B1C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3AF173692CE1159D002D8B1C /* Build configuration list for PBXLegacyTarget "WireGuard iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3AF1736A2CE1159D002D8B1C /* Debug */,
+				3AF1736B2CE1159D002D8B1C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		3AF173412CE114CD002D8B1C /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/evgenyneu/keychain-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 24.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
-		3A6882662CE0FFC600F9E434 /* WireGuardKit */ = {
+		3AF173772CE117B8002D8B1C /* WireGuardKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = WireGuardKit;
+		};
+		3AF173792CE117CB002D8B1C /* SatelliteGuardKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SatelliteGuardKit;
+		};
+		3AF1737B2CE117D0002D8B1C /* SatelliteGuardKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SatelliteGuardKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
