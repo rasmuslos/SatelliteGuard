@@ -8,6 +8,7 @@
 import Foundation
 import SwiftData
 import Network
+import OSLog
 import WireGuardKit
 
 @Model
@@ -16,7 +17,7 @@ public class Endpoint: Codable {
     private(set) public var id = UUID()
     
     @Attribute(.allowsCloudEncryption) private(set) public var name: String!
-    @Attribute(.allowsCloudEncryption) private(set) public var active: Bool!
+    @Attribute(.allowsCloudEncryption) public var active: Bool!
     
     @Attribute(.allowsCloudEncryption) private(set) public var url: URL!
     
@@ -32,6 +33,17 @@ public class Endpoint: Codable {
     
     @Attribute(.allowsCloudEncryption) private(set) public var mtu: UInt16?
     @Attribute(.allowsCloudEncryption) private(set) public var persistentKeepAlive: UInt16?
+    
+    @Attribute(.allowsCloudEncryption) private(set) public var disconnectsOnSleep = true
+    
+    @Attribute(.allowsCloudEncryption) private(set) public var excludeAPN = false
+    @Attribute(.allowsCloudEncryption) private(set) public var enforceRoutes = false
+    @Attribute(.allowsCloudEncryption) private(set) public var includeAllNetworks = false
+    @Attribute(.allowsCloudEncryption) private(set) public var excludeCellularServices = false
+    @Attribute(.allowsCloudEncryption) private(set) public var allowAccessToLocalNetwork = false
+    @Attribute(.allowsCloudEncryption) private(set) public var excludeDeviceCommunication = false
+    
+    public static let logger = Logger(subsystem: "SatelliteGuardKit", category: "Endpoint")
     
     public init(name: String, url: URL, routes: [IPAddressRange], addresses: [IPAddressRange], publicKey: Data, privateKey: Data, preSharedKey: Data? = nil, dns: [IPAddress]? = nil, listenPort: UInt16? = nil, mtu: UInt16? = nil, persistentKeepAlive: UInt16? = nil) {
         self.name = name
@@ -132,6 +144,10 @@ public extension Endpoint {
         let port = url.port?.description ?? "?"
         
         return "\(host):\(port)"
+    }
+    
+    enum EndpointError: Error {
+        case managerMissing
     }
 }
 
