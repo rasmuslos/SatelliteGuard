@@ -59,28 +59,28 @@ struct EndpointView: View {
             
             Section("endpoint.addresses") {
                 ForEach(viewModel.endpoint.addresses) { range in
-                    Row(range.stringRepresentation)
+                    Row(string: range.stringRepresentation)
                 }
             }
             
             if let dns = viewModel.endpoint.dns {
                 Section("endpoint.dns") {
                     ForEach(dns, id: \.rawValue) { server in
-                        Row("\(server)")
+                        Row(string: "\(server)")
                     }
                 }
             }
             
             ForEach(viewModel.endpoint.peers) { peer in
                 Section("endpoint.peer") {
-                    Row(peer.endpoint)
-                    Row(peer.routes.map(\.stringRepresentation).joined(separator: ", "))
+                    Row(string: peer.endpoint)
+                    Row(string: peer.routes.map(\.stringRepresentation).joined(separator: ", "))
                     
                     Group {
-                        Row(peer.publicKey.base64EncodedString())
+                        Row(string: peer.publicKey.base64EncodedString())
                         
                         if let preSharedKey = peer.preSharedKey {
-                            Row(preSharedKey.base64EncodedString())
+                            Row(string: preSharedKey.base64EncodedString())
                         }
                     }
                     .privacySensitive()
@@ -92,7 +92,7 @@ struct EndpointView: View {
             }
             
             Section("endpoint.interface") {
-                Row(viewModel.endpoint.privateKey.base64EncodedString())
+                Row(string: viewModel.endpoint.privateKey.base64EncodedString())
                     .privacySensitive()
                 
                 if let listenPort = viewModel.endpoint.listenPort {
@@ -102,25 +102,33 @@ struct EndpointView: View {
                     Row("endpoint.mtu \(mtu.formatted(.number.grouping(.never)))")
                 }
             }
-            
-            Section("endpoint.settings") {
+        }
+        .animation(.smooth, value: isActive)
+        .navigationTitle(viewModel.endpoint.name)
+        .sheet(isPresented: $viewModel.editSheetPresented) {
+            EndpointEditView(endpoint: viewModel.endpoint)
+        }
+        .toolbar {
+            #if !os(tvOS)
+            ToolbarItem(placement: .secondaryAction) {
                 Button {
-                    
+                    viewModel.editSheetPresented.toggle()
                 } label: {
                     Label("endpoint.edit", systemImage: "pencil")
                 }
                 .disabled(isActive)
             }
-        }
-        .animation(.smooth, value: isActive)
-        .navigationTitle(viewModel.endpoint.name)
-        .toolbar {
+            #endif
+            
             ToolbarItem(placement: toolbarPlacement) {
                 if viewModel.endpoint.isActive {
                     Button(role: .destructive) {
                         viewModel.deactivate()
                     } label: {
                         Label("endpoint.deactivate", systemImage: "minus.diamond")
+                            #if os(tvOS)
+                            .labelStyle(.titleOnly)
+                            #endif
                     }
                 }
             }
@@ -131,15 +139,27 @@ struct EndpointView: View {
 }
 
 private struct Row: View {
-    let text: String
+    let text: LocalizedStringKey?
+    let string: String?
     
-    init(_ text: String) {
+    init(string: String) {
+        text = nil
+        self.string = string
+    }
+    init(_ text: LocalizedStringKey) {
         self.text = text
+        string = nil
     }
     
     var body: some View {
-        Text(text)
-            .fontDesign(.monospaced)
+        Group {
+            if let text {
+                Text(text)
+            } else if let string {
+                Text(string)
+            }
+        }
+        .fontDesign(.monospaced)
     }
 }
 
@@ -148,5 +168,6 @@ private struct Row: View {
     NavigationStack {
         EndpointView(endpoint: .fixture)
     }
+    .previewEnvironment()
 }
 #endif

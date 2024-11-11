@@ -56,6 +56,9 @@ struct HomeView: View {
                     }
                 } label: {
                     Label("home.edit", systemImage: "pencil")
+                        #if os(tvOS)
+                        .labelStyle(.titleOnly)
+                        #endif
                 }
             }
             #if !os(tvOS)

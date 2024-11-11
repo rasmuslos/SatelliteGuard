@@ -16,18 +16,18 @@ public class Endpoint: Codable {
     // Technically unique, but not marked or enforced as such due to CloudKit restrictions
     private(set) public var id = UUID()
     
-    @Attribute(.allowsCloudEncryption) private(set) public var name: String!
+    @Attribute(.allowsCloudEncryption) public var name: String!
     @Attribute(.allowsCloudEncryption) public var active: [UUID]!
     
-    @Attribute(.allowsCloudEncryption) private(set) public var peers: [Peer]!
-    @Attribute(.allowsCloudEncryption) private(set) var _addresses: [String]!
+    @Attribute(.allowsCloudEncryption) public var peers: [Peer]!
+    @Attribute(.allowsCloudEncryption) private var _addresses: [String]!
     
-    @Attribute(.allowsCloudEncryption) private(set) public var privateKey: Data!
+    @Attribute(.allowsCloudEncryption) public var privateKey: Data!
     
-    @Attribute(.allowsCloudEncryption) private(set) var _dns: [Data]?
-    @Attribute(.allowsCloudEncryption) private(set) public var listenPort: UInt16?
+    @Attribute(.allowsCloudEncryption) private var _dns: [Data]?
+    @Attribute(.allowsCloudEncryption) public var listenPort: UInt16?
     
-    @Attribute(.allowsCloudEncryption) private(set) public var mtu: UInt16?
+    @Attribute(.allowsCloudEncryption) public var mtu: UInt16?
     @Attribute(.allowsCloudEncryption) public var disconnectsOnSleep = true
     
     @Attribute(.allowsCloudEncryption) public var excludeAPN = false

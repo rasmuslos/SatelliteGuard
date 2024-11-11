@@ -17,6 +17,7 @@ class EndpointViewModel {
     var endpoint: Endpoint
     
     @MainActor var pondering: Bool
+    @MainActor var editSheetPresented: Bool
     
     @MainActor var notifyError: Bool
     @MainActor var notifySuccess: Bool
@@ -26,6 +27,7 @@ class EndpointViewModel {
         self.endpoint = endpoint
         
         pondering = false
+        editSheetPresented = false
         
         notifyError = false
         notifySuccess = false
