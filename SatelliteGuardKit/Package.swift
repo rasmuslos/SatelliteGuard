@@ -25,7 +25,6 @@ let package = Package(
         ]),
         .target(name: "SGWireGuard", dependencies: [
             .target(name: "SGPersistence"),
-            
             .product(name: "WireGuardKit", package: "WireGuard")
         ]),
     ]

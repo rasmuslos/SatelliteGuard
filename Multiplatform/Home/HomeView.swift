@@ -13,6 +13,8 @@ struct HomeView: View {
     @Query(filter: #Predicate<Endpoint> { $0.active == true }) private var activeEndpoints: [Endpoint]
     @Query(filter: #Predicate<Endpoint> { $0.active == false }) private var inactiveEndpoints: [Endpoint]
     
+    @State private var editMode: EditMode = .inactive
+    
     var body: some View {
         List {
             if !activeEndpoints.isEmpty {
@@ -28,14 +30,35 @@ struct HomeView: View {
                     ForEach(inactiveEndpoints) {
                         EndpointCell(endpoint: $0)
                     }
+                    .onDelete {
+                        for index in $0 {
+                            try? inactiveEndpoints[index].remove()
+                        }
+                    }
                 }
             }
         }
         .navigationTitle("home")
+        .environment(\.editMode, $editMode)
+        .animation(.smooth, value: editMode)
         .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    if editMode == .active {
+                        editMode = .inactive
+                    } else {
+                        editMode = .active
+                    }
+                } label: {
+                    Label("home.edit", systemImage: "pencil")
+                }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 ConfigurationImporter()
             }
+        }
+        .task {
+            try? await Endpoint.checkActive()
         }
     }
 }
@@ -44,7 +67,7 @@ struct HomeView: View {
 #Preview {
     NavigationStack {
         HomeView()
-            .satellite()
+            .previewEnvironment()
     }
 }
 #endif

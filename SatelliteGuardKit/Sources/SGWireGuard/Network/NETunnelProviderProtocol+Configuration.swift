@@ -11,6 +11,10 @@ import NetworkExtension
 
 public extension NETunnelProviderProtocol {
     var id: UUID? {
-        return providerConfiguration?["id"] as? UUID
+        guard let uuid = providerConfiguration?["id"] as? String else {
+            return nil
+        }
+        
+        return .init(uuidString: uuid)
     }
 }

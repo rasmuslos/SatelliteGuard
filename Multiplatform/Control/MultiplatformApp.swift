@@ -13,9 +13,19 @@ import SatelliteGuardKit
 struct MultiplatformApp: App {
     @State private var satellite = Satellite()
     
+    init() {
+        WireGuardMonitor.shared.ping()
+        
+        Task {
+            try await Endpoint.checkActive()
+        }
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .sensoryFeedback(.error, trigger: satellite.notifyError)
+                .sensoryFeedback(.success, trigger: satellite.notifySuccess)
                 .environment(satellite)
                 .modelContainer(PersistenceManager.shared.modelContainer)
         }

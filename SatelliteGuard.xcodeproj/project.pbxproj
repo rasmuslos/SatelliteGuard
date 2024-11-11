@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3A293F8F2CE1F7870052D6BF /* WireGuardExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3AF173172CE10749002D8B1C /* WireGuardExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		3AF173192CE10749002D8B1C /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AF173182CE10749002D8B1C /* NetworkExtension.framework */; };
-		3AF173702CE115DE002D8B1C /* WireGuardExtension.appex in Resources */ = {isa = PBXBuildFile; fileRef = 3AF173172CE10749002D8B1C /* WireGuardExtension.appex */; };
 		3AF173782CE117B8002D8B1C /* WireGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3AF173772CE117B8002D8B1C /* WireGuardKit */; };
 		3AF1737A2CE117CB002D8B1C /* SatelliteGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3AF173792CE117CB002D8B1C /* SatelliteGuardKit */; };
 		3AF1737C2CE117D0002D8B1C /* SatelliteGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3AF1737B2CE117D0002D8B1C /* SatelliteGuardKit */; };
@@ -37,6 +37,20 @@
 			remoteInfo = "Wireguard tvOS";
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		3A293F8E2CE1F7810052D6BF /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				3A293F8F2CE1F7870052D6BF /* WireGuardExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		3AE90CA02CE0FF4C00FDCFB5 /* Wireguard */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Wireguard; sourceTree = "<group>"; };
@@ -205,6 +219,7 @@
 				3AF173562CE11530002D8B1C /* Sources */,
 				3AF173572CE11530002D8B1C /* Frameworks */,
 				3AF173582CE11530002D8B1C /* Resources */,
+				3A293F8E2CE1F7810052D6BF /* Embed Foundation Extensions */,
 				3A293F682CE179C60052D6BF /* ShellScript */,
 			);
 			buildRules = (
@@ -253,6 +268,7 @@
 			knownRegions = (
 				en,
 				Base,
+				de,
 			);
 			mainGroup = 3A2E12B92CE0F75900A6060F;
 			minimizedProjectReferenceProxies = 1;
@@ -283,7 +299,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3AF173702CE115DE002D8B1C /* WireGuardExtension.appex in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

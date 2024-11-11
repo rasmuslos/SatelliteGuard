@@ -14,9 +14,9 @@ import SatelliteGuardKit
 
 @Observable
 class EndpointViewModel {
-    let endpoint: Endpoint
+    var endpoint: Endpoint
     
-    @MainActor var activating: Bool
+    @MainActor var pondering: Bool
     
     @MainActor var notifyError: Bool
     @MainActor var notifySuccess: Bool
@@ -25,16 +25,22 @@ class EndpointViewModel {
     init(endpoint: Endpoint) {
         self.endpoint = endpoint
         
-        activating = false
+        pondering = false
         
         notifyError = false
         notifySuccess = false
     }
     
+    // May I present: Thread Safe, Concurrent Swift 6 code
+    // If any goofballs comments, that i could mark this view model
+    // as @MainActor: No, it would defeat the entire point. Then the
+    // main actor would be blocked waiting for said async (long) operation
+    // this here spawns a new task somewhere and blocks nothing
+    
     func activate() {
         Task {
             await MainActor.withAnimation {
-                self.activating = true
+                self.pondering = true
             }
             
             do {
@@ -50,7 +56,31 @@ class EndpointViewModel {
             }
             
             await MainActor.withAnimation {
-                self.activating = false
+                self.pondering = false
+            }
+        }
+    }
+    
+    func deactivate() {
+        Task {
+            await MainActor.withAnimation {
+                self.pondering = true
+            }
+            
+            do {
+                try await endpoint.deactivate()
+                
+                await MainActor.withAnimation {
+                    self.notifySuccess.toggle()
+                }
+            } catch {
+                await MainActor.withAnimation {
+                    self.notifyError.toggle()
+                }
+            }
+            
+            await MainActor.withAnimation {
+                self.pondering = false
             }
         }
     }

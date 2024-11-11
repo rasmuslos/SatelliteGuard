@@ -12,17 +12,16 @@ import NetworkExtension
 import SGPersistence
 
 private extension Endpoint {
-    func updateManager(_ manager: NETunnelProviderManager) async throws {
-        let encoder = JSONEncoder()
-        let encoded = try encoder.encode(self)
-        let endpoint = try JSONSerialization.jsonObject(with: encoded) as! [String: Any]
-        
+    func updateManager(_  manager: NETunnelProviderManager) async throws {
         let providerProtocol = NETunnelProviderProtocol()
         
-        providerProtocol.providerBundleIdentifier = Bundle.main.bundleIdentifier
-        providerProtocol.providerConfiguration = endpoint
+        providerProtocol.providerBundleIdentifier = Bundle.main.networkExtensionIdentifier
+        providerProtocol.providerConfiguration = [
+            "id": id.uuidString,
+        ]
         
-        providerProtocol.serverAddress = friendlyURL
+        providerProtocol.username = name
+        providerProtocol.serverAddress = peers.map(\.endpoint).joined(separator: ", ")
         providerProtocol.disconnectOnSleep = disconnectsOnSleep
         
         providerProtocol.excludeAPNs = excludeAPN
@@ -34,9 +33,14 @@ private extension Endpoint {
         
         manager.protocolConfiguration = providerProtocol
         
+        manager.localizedDescription = name
+        manager.isEnabled = active
+        
         try await manager.saveToPreferences()
     }
-    
+}
+
+internal extension Endpoint {
     var manager: NETunnelProviderManager? {
         get async {
             guard let managers = try? await NETunnelProviderManager.loadAllFromPreferences() else {
@@ -65,8 +69,6 @@ private extension Endpoint {
                 return nil
             }
             
-            manager.isEnabled = active
-            
             return manager
         }
     }
@@ -75,6 +77,7 @@ private extension Endpoint {
 public extension Endpoint {
     func notifySystem() async throws {
         active = true
+        try modelContext?.save()
         
         guard let manager = await manager else {
             Self.logger.fault("Could not create manager for \(self.id) while updating")
@@ -82,5 +85,46 @@ public extension Endpoint {
         }
         
         try await updateManager(manager)
+    }
+    
+    func deactivate() async throws {
+        active = false
+        try modelContext?.save()
+        
+        try await manager?.removeFromPreferences()
+    }
+    
+    static func checkActive() async throws {
+        let managers = (try? await NETunnelProviderManager.loadAllFromPreferences()) ?? []
+        let context = ModelContext(PersistenceManager.shared.modelContainer)
+        let endpoints = try context.fetch(FetchDescriptor<Endpoint>())
+        
+        let activeIDs = managers.compactMap(\.id)
+        let endpointIDs = endpoints.map(\.id)
+        
+        let outdated = managers.filter {
+            guard let id = $0.id else {
+                return true
+            }
+            
+            return !endpointIDs.contains(id)
+        }
+        
+        for manager in outdated {
+            try? await manager.removeFromPreferences()
+        }
+        
+        let active = endpoints.filter { activeIDs.contains($0.id) }
+        let invalidInactive = endpoints.filter { $0.active && !active.contains($0) }
+        let invalidActive = endpoints.filter { !$0.active && active.contains($0) }
+        
+        for endpoint in invalidInactive {
+            try? await endpoint.deactivate()
+        }
+        for endpoint in invalidActive {
+            try? await endpoint.notifySystem()
+        }
+        
+        try context.save()
     }
 }
