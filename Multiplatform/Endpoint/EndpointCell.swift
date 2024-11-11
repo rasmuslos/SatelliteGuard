@@ -27,12 +27,28 @@ struct EndpointCell: View {
     }
     
     @MainActor
+    private var isActive: Bool {
+        satellite.connectedID == endpoint.id
+    }
+    
+    @MainActor
     private var toggle: Binding<Bool> {
-        .init() { satellite.connectedID == endpoint.id } set: { $0 ? satellite.launch(endpoint) : satellite.land(endpoint) }
+        .init() { isActive } set: { $0 ? satellite.launch(endpoint) : satellite.land(endpoint) }
     }
     
     var body: some View {
         NavigationLink(destination: EndpointView(endpoint: endpoint)) {
+            #if os(tvOS)
+            HStack(spacing: 0) {
+                label
+                
+                if isActive {
+                    Spacer(minLength: 12)
+                    Image(systemName: "circle.fill")
+                        .foregroundStyle(.green)
+                }
+            }
+            #else
             if endpoint.isActive {
                 Toggle(isOn: toggle) {
                     label
@@ -41,6 +57,7 @@ struct EndpointCell: View {
             } else {
                 label
             }
+            #endif
         }
     }
 }
@@ -52,5 +69,6 @@ struct EndpointCell: View {
             EndpointCell(endpoint: .fixture)
         }
     }
+    .previewEnvironment()
 }
 #endif

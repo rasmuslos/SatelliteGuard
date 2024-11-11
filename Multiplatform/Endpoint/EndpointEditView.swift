@@ -69,7 +69,9 @@ struct EndpointEditView: View {
                 }
             }
             .navigationTitle("endpoint.edit")
+            #if !os(tvOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .interactiveDismissDisabled()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

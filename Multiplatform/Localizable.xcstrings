@@ -465,6 +465,38 @@
         }
       }
     },
+    "home.empty" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Konfigurationen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No configurations"
+          }
+        }
+      }
+    },
+    "home.empty.description" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konfigurationen werden Ende-zu-Ende-Verschlüsselt mit CloudKit synchronisiert"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurations are synced end-to-end-encrypted through CloudKit"
+          }
+        }
+      }
+    },
     "home.inactive" : {
       "localizations" : {
         "de" : {

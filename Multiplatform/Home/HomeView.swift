@@ -20,53 +20,82 @@ struct HomeView: View {
         endpoints.filter { !$0.isActive }
     }
     
-    var body: some View {
-        List {
-            if !activeEndpoints.isEmpty {
-                Section("home.active") {
-                    ForEach(activeEndpoints) {
-                        EndpointCell(endpoint: $0)
+    @ViewBuilder
+    private var content: some View {
+        if endpoints.isEmpty {
+            #if os(tvOS)
+            VStack(alignment: .leading, spacing: 12) {
+                Text("home.empty")
+                    .font(.title3)
+                Text("home.empty.description")
+                    .foregroundStyle(.secondary)
+            }
+            #else
+            ContentUnavailableView("home.empty", systemImage: "network", description: Text("home.empty.description"))
+            #endif
+        } else {
+            List {
+                if !activeEndpoints.isEmpty {
+                    Section("home.active") {
+                        ForEach(activeEndpoints) {
+                            EndpointCell(endpoint: $0)
+                        }
                     }
                 }
-            }
-            
-            if !inactiveEndpoints.isEmpty {
-                Section("home.inactive") {
-                    ForEach(inactiveEndpoints) {
-                        EndpointCell(endpoint: $0)
-                    }
-                    .onDelete {
-                        for index in $0 {
-                            try? inactiveEndpoints[index].remove()
+                
+                if !inactiveEndpoints.isEmpty {
+                    Section("home.inactive") {
+                        ForEach(inactiveEndpoints) {
+                            EndpointCell(endpoint: $0)
+                        }
+                        .onDelete {
+                            for index in $0 {
+                                try? inactiveEndpoints[index].remove()
+                            }
                         }
                     }
                 }
             }
-        }
-        .navigationTitle("home")
-        .environment(\.editMode, $editMode)
-        .animation(.smooth, value: editMode)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    if editMode == .active {
-                        editMode = .inactive
-                    } else {
-                        editMode = .active
-                    }
-                } label: {
-                    Label("home.edit", systemImage: "pencil")
-                        #if os(tvOS)
-                        .labelStyle(.titleOnly)
-                        #endif
-                }
-            }
-            #if !os(tvOS)
-            ToolbarItem(placement: .topBarTrailing) {
-                ConfigurationImporter()
-            }
+            #if os(tvOS)
+            .listStyle(.grouped)
+            .scrollClipDisabled()
             #endif
         }
+    }
+    
+    var body: some View {
+        Group {
+            #if os(tvOS)
+            TwoColumn() {
+                Image(systemName: "network")
+                    .foregroundStyle(.secondary)
+                    .font(.system(size: 500))
+            } trailing: {
+                content
+            }
+            #else
+            content
+                .environment(\.editMode, $editMode)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            if editMode == .active {
+                                editMode = .inactive
+                            } else {
+                                editMode = .active
+                            }
+                        } label: {
+                            Label("home.edit", systemImage: "pencil")
+                        }
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        ConfigurationImporter()
+                    }
+                }
+            #endif
+        }
+        .animation(.smooth, value: editMode)
+        .navigationTitle("home")
         .task {
             try? await Endpoint.checkActive()
         }
