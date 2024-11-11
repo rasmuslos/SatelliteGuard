@@ -53,6 +53,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3AAEAFEA2CE28BA300FDA9DE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		3AE90CA02CE0FF4C00FDCFB5 /* Wireguard */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Wireguard; sourceTree = "<group>"; };
 		3AF173172CE10749002D8B1C /* WireGuardExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WireGuardExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AF173182CE10749002D8B1C /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
@@ -121,6 +122,7 @@
 		3A2E12B92CE0F75900A6060F = {
 			isa = PBXGroup;
 			children = (
+				3AAEAFEA2CE28BA300FDA9DE /* README.md */,
 				3AF1735B2CE11530002D8B1C /* Multiplatform */,
 				3AF1731A2CE10749002D8B1C /* WireguardExtension */,
 				3AE90CA02CE0FF4C00FDCFB5 /* Wireguard */,

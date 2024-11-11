@@ -10,10 +10,15 @@ import SwiftData
 import SatelliteGuardKit
 
 struct HomeView: View {
-    @Query(filter: #Predicate<Endpoint> { $0.isActive }) private var activeEndpoints: [Endpoint]
-    @Query(filter: #Predicate<Endpoint> { $0.isActive }) private var inactiveEndpoints: [Endpoint]
-    
+    @Query private var endpoints: [Endpoint]
     @State private var editMode: EditMode = .inactive
+    
+    private var activeEndpoints: [Endpoint] {
+        endpoints.filter(\.isActive)
+    }
+    private var inactiveEndpoints: [Endpoint] {
+        endpoints.filter { !$0.isActive }
+    }
     
     var body: some View {
         List {
