@@ -18,6 +18,13 @@ struct EndpointView: View {
         _viewModel = .init(initialValue: .init(endpoint: endpoint))
     }
     
+    private var toolbarPlacement: ToolbarItemPlacement {
+        #if os(tvOS)
+        .topBarTrailing
+        #else
+        .secondaryAction
+        #endif
+    }
     private var isActive: Bool {
         satellite.connectedID == viewModel.endpoint.id
     }
@@ -26,7 +33,7 @@ struct EndpointView: View {
         List {
             if viewModel.pondering || satellite.busy {
                 ProgressView()
-            } else if !viewModel.endpoint.active {
+            } else if !viewModel.endpoint.isActive {
                 Button {
                     viewModel.activate()
                 } label: {
@@ -108,8 +115,8 @@ struct EndpointView: View {
         .animation(.smooth, value: isActive)
         .navigationTitle(viewModel.endpoint.name)
         .toolbar {
-            ToolbarItem(placement: .secondaryAction) {
-                if viewModel.endpoint.active {
+            ToolbarItem(placement: toolbarPlacement) {
+                if viewModel.endpoint.isActive {
                     Button(role: .destructive) {
                         viewModel.deactivate()
                     } label: {

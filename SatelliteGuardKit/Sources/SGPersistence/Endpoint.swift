@@ -17,7 +17,7 @@ public class Endpoint: Codable {
     private(set) public var id = UUID()
     
     @Attribute(.allowsCloudEncryption) private(set) public var name: String!
-    @Attribute(.allowsCloudEncryption) public var active: Bool!
+    @Attribute(.allowsCloudEncryption) public var active: [UUID]!
     
     @Attribute(.allowsCloudEncryption) private(set) public var peers: [Peer]!
     @Attribute(.allowsCloudEncryption) private(set) var _addresses: [String]!
@@ -41,7 +41,7 @@ public class Endpoint: Codable {
     
     public init(name: String, peers: [Peer], addresses: [IPAddressRange], privateKey: Data, dns: [IPAddress]? = nil, listenPort: UInt16? = nil, mtu: UInt16? = nil) {
         self.name = name
-        active = false
+        active = []
         
         self.peers = peers
         _addresses = addresses.map(\.stringRepresentation)
@@ -60,7 +60,7 @@ public class Endpoint: Codable {
         id = try container.decode(UUID.self, forKey: ._id)
         
         name = try container.decode(String.self, forKey: ._name)
-        active = try container.decode(Bool.self, forKey: ._active)
+        active = try container.decode([UUID].self, forKey: ._active)
         
         peers = try container.decode([Peer].self, forKey: ._peers)
         _addresses = try container.decode([String].self, forKey: .__addresses)
@@ -105,6 +105,10 @@ public class Endpoint: Codable {
 }
 
 public extension Endpoint {
+    var isActive: Bool {
+        active.contains { $0 == PersistenceManager.shared.uuid }
+    }
+    
     var addresses: [IPAddressRange] {
         _addresses.compactMap { IPAddressRange(from: $0) }
     }

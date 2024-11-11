@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@available(tvOS, unavailable)
 struct ConfigurationImporter: View {
     @Environment(Satellite.self) private var satellite
     
@@ -27,7 +28,7 @@ struct ConfigurationImporter: View {
     }
 }
 
-#if DEBUG
+#if DEBUG && !os(tvOS)
 #Preview {
     ConfigurationImporter()
         .previewEnvironment()

@@ -33,7 +33,7 @@ struct EndpointCell: View {
     
     var body: some View {
         NavigationLink(destination: EndpointView(endpoint: endpoint)) {
-            if endpoint.active {
+            if endpoint.isActive {
                 Toggle(isOn: toggle) {
                     label
                 }

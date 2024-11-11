@@ -10,8 +10,8 @@ import SwiftData
 import SatelliteGuardKit
 
 struct HomeView: View {
-    @Query(filter: #Predicate<Endpoint> { $0.active == true }) private var activeEndpoints: [Endpoint]
-    @Query(filter: #Predicate<Endpoint> { $0.active == false }) private var inactiveEndpoints: [Endpoint]
+    @Query(filter: #Predicate<Endpoint> { $0.isActive }) private var activeEndpoints: [Endpoint]
+    @Query(filter: #Predicate<Endpoint> { $0.isActive }) private var inactiveEndpoints: [Endpoint]
     
     @State private var editMode: EditMode = .inactive
     
@@ -53,9 +53,11 @@ struct HomeView: View {
                     Label("home.edit", systemImage: "pencil")
                 }
             }
+            #if !os(tvOS)
             ToolbarItem(placement: .topBarTrailing) {
                 ConfigurationImporter()
             }
+            #endif
         }
         .task {
             try? await Endpoint.checkActive()

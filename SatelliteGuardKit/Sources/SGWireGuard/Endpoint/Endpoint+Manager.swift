@@ -24,17 +24,19 @@ private extension Endpoint {
         providerProtocol.serverAddress = peers.map(\.endpoint).joined(separator: ", ")
         providerProtocol.disconnectOnSleep = disconnectsOnSleep
         
+        #if !os(tvOS)
         providerProtocol.excludeAPNs = excludeAPN
         providerProtocol.enforceRoutes = enforceRoutes
         providerProtocol.includeAllNetworks = includeAllNetworks
         providerProtocol.excludeLocalNetworks = allowAccessToLocalNetwork
         providerProtocol.excludeCellularServices = excludeCellularServices
         providerProtocol.excludeDeviceCommunication = excludeDeviceCommunication
+        #endif
         
         manager.protocolConfiguration = providerProtocol
         
         manager.localizedDescription = name
-        manager.isEnabled = active
+        manager.isEnabled = isActive
         
         try await manager.saveToPreferences()
     }
@@ -50,12 +52,12 @@ internal extension Endpoint {
             let manager: NETunnelProviderManager
             
             if let existing = managers.first(where: { $0.identified(by: id) }) {
-                if !active {
+                if !isActive {
                     Self.logger.fault("Manager found even though endpoint is not active")
                 }
                 
                 manager = existing
-            } else if active {
+            } else if isActive {
                 manager = .init()
                 
                 do {
@@ -76,7 +78,7 @@ internal extension Endpoint {
 
 public extension Endpoint {
     func notifySystem() async throws {
-        active = true
+        active.append(PersistenceManager.shared.uuid)
         try modelContext?.save()
         
         guard let manager = await manager else {
@@ -88,7 +90,7 @@ public extension Endpoint {
     }
     
     func deactivate() async throws {
-        active = false
+        active.removeAll { $0 == PersistenceManager.shared.uuid }
         try modelContext?.save()
         
         try await manager?.removeFromPreferences()
@@ -115,8 +117,8 @@ public extension Endpoint {
         }
         
         let active = endpoints.filter { activeIDs.contains($0.id) }
-        let invalidInactive = endpoints.filter { $0.active && !active.contains($0) }
-        let invalidActive = endpoints.filter { !$0.active && active.contains($0) }
+        let invalidInactive = endpoints.filter { $0.isActive && !active.contains($0) }
+        let invalidActive = endpoints.filter { !$0.isActive && active.contains($0) }
         
         for endpoint in invalidInactive {
             try? await endpoint.deactivate()

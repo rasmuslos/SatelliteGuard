@@ -13,6 +13,22 @@ public class PersistenceManager {
     let modelConfiguration: ModelConfiguration
     public let modelContainer: ModelContainer
     
+    private var _uuid: UUID?
+    public var uuid: UUID {
+        if let _uuid {
+            return _uuid
+        }
+        
+        if let uuid = UserDefaults.standard.string(forKey: "uuid") {
+            _uuid = UUID(uuidString: uuid)!
+        } else {
+            _uuid = .init()
+            UserDefaults.standard.set(_uuid?.uuidString, forKey: "uuid")
+        }
+        
+        return _uuid!
+    }
+    
     private init() {
         schema = .init([
             Endpoint.self
