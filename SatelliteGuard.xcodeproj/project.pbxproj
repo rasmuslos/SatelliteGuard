@@ -50,6 +50,16 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3A6F78642CE3726400948636 /* Copy Resources */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+			);
+			name = "Copy Resources";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -57,7 +67,7 @@
 		3AE90CA02CE0FF4C00FDCFB5 /* Wireguard */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Wireguard; sourceTree = "<group>"; };
 		3AF173172CE10749002D8B1C /* WireGuardExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WireGuardExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AF173182CE10749002D8B1C /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
-		3AF1735A2CE11530002D8B1C /* Multiplatform.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Multiplatform.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3AF1735A2CE11530002D8B1C /* SatelliteGuard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SatelliteGuard.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AF173762CE11729002D8B1C /* SatelliteGuardKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = SatelliteGuardKit; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -73,10 +83,21 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				Utility/SatelliteGuard.icns,
 			);
 			target = 3AF173592CE11530002D8B1C /* Multiplatform */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		3A6F78662CE3726B00948636 /* Exceptions for "Multiplatform" folder in "Copy Resources" phase from "Multiplatform" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 3A6F78642CE3726400948636 /* Copy Resources */;
+			membershipExceptions = (
+				Utility/SatelliteGuard.icns,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		3AF1731A2CE10749002D8B1C /* WireguardExtension */ = {
@@ -91,6 +112,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				3AF1738B2CE12A59002D8B1C /* Exceptions for "Multiplatform" folder in "Multiplatform" target */,
+				3A6F78662CE3726B00948636 /* Exceptions for "Multiplatform" folder in "Copy Resources" phase from "Multiplatform" target */,
 			);
 			path = Multiplatform;
 			sourceTree = "<group>";
@@ -136,7 +158,7 @@
 			isa = PBXGroup;
 			children = (
 				3AF173172CE10749002D8B1C /* WireGuardExtension.appex */,
-				3AF1735A2CE11530002D8B1C /* Multiplatform.app */,
+				3AF1735A2CE11530002D8B1C /* SatelliteGuard.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -220,6 +242,7 @@
 			buildPhases = (
 				3AF173562CE11530002D8B1C /* Sources */,
 				3AF173572CE11530002D8B1C /* Frameworks */,
+				3A6F78642CE3726400948636 /* Copy Resources */,
 				3AF173582CE11530002D8B1C /* Resources */,
 				3A293F8E2CE1F7810052D6BF /* Embed Foundation Extensions */,
 				3A293F682CE179C60052D6BF /* ShellScript */,
@@ -237,7 +260,7 @@
 				3AF173792CE117CB002D8B1C /* SatelliteGuardKit */,
 			);
 			productName = Multiplatform;
-			productReference = 3AF1735A2CE11530002D8B1C /* Multiplatform.app */;
+			productReference = 3AF1735A2CE11530002D8B1C /* SatelliteGuard.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -388,6 +411,7 @@
 		3A2E12CE2CE0F75A00A6060F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -442,17 +466,18 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = "";
-				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
+				SUPPORTED_PLATFORMS = "xrsimulator xros watchsimulator watchos macosx iphonesimulator iphoneos driverkit appletvsimulator appletvos";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				TVOS_DEPLOYMENT_TARGET = 18.1;
 			};
 			name = Debug;
 		};
 		3A2E12CF2CE0F75A00A6060F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -500,10 +525,10 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = "";
-				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
+				SUPPORTED_PLATFORMS = "xrsimulator xros watchsimulator watchos macosx iphonesimulator iphoneos driverkit appletvsimulator appletvos";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				TVOS_DEPLOYMENT_TARGET = 18.1;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -613,6 +638,7 @@
 				INFOPLIST_FILE = Multiplatform/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SatelliteGuard;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = NO;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -625,8 +651,7 @@
 				);
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = io.rfk.SatelliteGuard;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
+				PRODUCT_NAME = SatelliteGuard;
 				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -652,6 +677,7 @@
 				INFOPLIST_FILE = Multiplatform/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SatelliteGuard;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = NO;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -664,8 +690,7 @@
 				);
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = io.rfk.SatelliteGuard;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
+				PRODUCT_NAME = SatelliteGuard;
 				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;

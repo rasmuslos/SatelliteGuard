@@ -31,7 +31,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "3AF173592CE11530002D8B1C"
-               BuildableName = "Multiplatform.app"
+               BuildableName = "SatelliteGuard.app"
                BlueprintName = "Multiplatform"
                ReferencedContainer = "container:SatelliteGuard.xcodeproj">
             </BuildableReference>
@@ -66,7 +66,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "3AF173592CE11530002D8B1C"
-            BuildableName = "Multiplatform.app"
+            BuildableName = "SatelliteGuard.app"
             BlueprintName = "Multiplatform"
             ReferencedContainer = "container:SatelliteGuard.xcodeproj">
          </BuildableReference>
@@ -95,7 +95,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "3AF173592CE11530002D8B1C"
-            BuildableName = "Multiplatform.app"
+            BuildableName = "SatelliteGuard.app"
             BlueprintName = "Multiplatform"
             ReferencedContainer = "container:SatelliteGuard.xcodeproj">
          </BuildableReference>

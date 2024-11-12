@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
@@ -11,6 +9,8 @@
 			<array>
 				<string>conf</string>
 			</array>
+			<key>CFBundleTypeIconSystemGenerated</key>
+			<integer>0</integer>
 			<key>CFBundleTypeName</key>
 			<string>WireGuard Configuration</string>
 			<key>CFBundleTypeRole</key>
@@ -23,6 +23,10 @@
 			</array>
 		</dict>
 	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
@@ -36,16 +40,23 @@
 			</array>
 			<key>UTTypeDescription</key>
 			<string>WireGuard Configuration</string>
+			<key>UTTypeIcons</key>
+			<dict>
+				<key>UTTypeIconBadgeName</key>
+				<string>SatelliteGuard</string>
+				<key>UTTypeIconText</key>
+				<string>Wireguard</string>
+			</dict>
 			<key>UTTypeIdentifier</key>
 			<string>com.wireguard.config.quick</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
-				<string>conf</string>
+				<array>
+					<string>conf</string>
+				</array>
 			</dict>
 		</dict>
 	</array>
-	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<false/>
 </dict>
 </plist>
