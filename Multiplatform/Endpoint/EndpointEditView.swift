@@ -15,6 +15,8 @@ struct EndpointEditView: View {
     let endpoint: Endpoint
     
     @State private var privateKeyMalformed = false
+    @State private var listenPortMalformed = false
+    @State private var mtuMalformed = false
     
     private var privateKey: Binding<String> {
         .init(get: { endpoint.privateKey.base64EncodedString() }, set: {
@@ -25,6 +27,54 @@ struct EndpointEditView: View {
             
             privateKeyMalformed = false
             endpoint.privateKey = data
+        })
+    }
+    private var listenPort: Binding<String> {
+        .init(get: {
+            if let listenPort = endpoint.listenPort {
+                return String(listenPort)
+            } else {
+                return ""
+            }
+        }, set: {
+            if $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                endpoint.listenPort = nil
+                listenPortMalformed = false
+                
+                return
+            }
+            
+            guard let unsignedInteger = UInt16($0) else {
+                listenPortMalformed = true
+                return
+            }
+            
+            listenPortMalformed = false
+            endpoint.listenPort = unsignedInteger
+        })
+    }
+    private var mtu: Binding<String> {
+        .init(get: {
+            if let mtu = endpoint.mtu {
+                return String(mtu)
+            } else {
+                return ""
+            }
+        }, set: {
+            if $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                endpoint.mtu = nil
+                mtuMalformed = false
+                
+                return
+            }
+            
+            guard let unsignedInteger = UInt16($0) else {
+                mtuMalformed = true
+                return
+            }
+            
+            mtuMalformed = false
+            endpoint.mtu = unsignedInteger
         })
     }
     
@@ -39,13 +89,33 @@ struct EndpointEditView: View {
             List {
                 Section {
                     TextField("endpoint.edit.name", text: $endpoint.name)
-                    TextField("endpoint.edit.privateKey", text: privateKey)
-                } footer: {
-                    if privateKeyMalformed {
-                        Text("endpoint.edit.key.malformed")
-                            .foregroundStyle(.red)
+                }
+                
+                Group {
+                    Section {
+                        TextField("endpoint.edit.privateKey", text: privateKey)
+                        Group {
+                            TextField("endpoint.edit.listenPort", text: listenPort)
+                            TextField("endpoint.edit.mtu", text: mtu)
+                        }
+                            .keyboardType(.numberPad)
+                    } footer: {
+                        VStack {
+                            if privateKeyMalformed {
+                                Text("endpoint.edit.key.malformed")
+                            }
+                            if listenPortMalformed {
+                                Text("endpoint.edit.listenPort.malformed")
+                            }
+                            if mtuMalformed {
+                                Text("endpoint.edit.mtu.malformed")
+                            }
+                        }
+                        .foregroundStyle(.red)
                     }
                 }
+                .autocorrectionDisabled()
+                .textInputAutocapitalization(.never)
                 
                 Section {
                     Toggle("endpoint.edit.disconnectsOnSleep", isOn: $endpoint.disconnectsOnSleep)

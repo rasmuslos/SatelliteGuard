@@ -305,6 +305,18 @@
         }
       }
     },
+    "endpoint.edit.listenPort" : {
+
+    },
+    "endpoint.edit.listenPort.malformed" : {
+
+    },
+    "endpoint.edit.mtu" : {
+
+    },
+    "endpoint.edit.mtu.malformed" : {
+
+    },
     "endpoint.edit.name" : {
       "localizations" : {
         "de" : {

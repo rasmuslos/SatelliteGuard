@@ -18,7 +18,7 @@ struct TwoColumn<LeadingContent: View, TrailingContent: View>: View {
     
     var body: some View {
         GeometryReader { proxy in
-            let width = proxy.size.width / 2 - 40
+            let width = max(0, proxy.size.width / 2 - 40)
             
             HStack(spacing: 80) {
                 VStack {
@@ -29,6 +29,7 @@ struct TwoColumn<LeadingContent: View, TrailingContent: View>: View {
                     Spacer()
                 }
                 .frame(width: width)
+                .ignoresSafeArea()
                 
                 trailing()
                     .frame(width: width)
