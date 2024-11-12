@@ -13,14 +13,14 @@ import SwiftData
 import SatelliteGuardKit
 
 @Observable
-class EndpointViewModel {
+final class EndpointViewModel {
     var endpoint: Endpoint
     
-    @MainActor var pondering: Bool
+    @MainActor private(set) var pondering: Bool
     @MainActor var editSheetPresented: Bool
     
-    @MainActor var notifyError: Bool
-    @MainActor var notifySuccess: Bool
+    @MainActor private(set) var notifyError: Bool
+    @MainActor private(set) var notifySuccess: Bool
     
     @MainActor
     init(endpoint: Endpoint) {

@@ -13,7 +13,7 @@ import OSLog
 import SatelliteGuardKit
 
 @Observable
-internal class Satellite {
+final class Satellite {
     @MainActor private var orbitingID: UUID?
     @MainActor private(set) var status: NEVPNStatus
     
@@ -85,6 +85,10 @@ internal extension Satellite {
             }
             
             do {
+                if let orbitingID = await orbitingID, await connectedID != orbitingID.id, let current = Endpoint.identified(by: orbitingID) {
+                    await current.disconnect()
+                }
+                
                 try await endpoint.connect()
                 
                 await MainActor.withAnimation {
@@ -142,6 +146,10 @@ private extension Satellite {
     func setupObservers() -> [Any] {
         [WireGuardMonitor.shared.statusPublisher.sink { (id, status) in
             Task { @MainActor in
+                guard status.isConnected && self.orbitingID == id else {
+                    return
+                }
+                
                 self.orbitingID = id
                 self.status = status
             }

@@ -12,102 +12,36 @@ import SatelliteGuardKit
 struct EndpointEditView: View {
     @Environment(\.dismiss) private var dismiss
     
-    let endpoint: Endpoint
+    @State private var viewModel: EndpointEditViewModel
     
-    @State private var privateKeyMalformed = false
-    @State private var listenPortMalformed = false
-    @State private var mtuMalformed = false
-    
-    private var privateKey: Binding<String> {
-        .init(get: { endpoint.privateKey.base64EncodedString() }, set: {
-            guard let data = Data(base64Encoded: $0), data.count == 32 else {
-                privateKeyMalformed = true
-                return
-            }
-            
-            privateKeyMalformed = false
-            endpoint.privateKey = data
-        })
-    }
-    private var listenPort: Binding<String> {
-        .init(get: {
-            if let listenPort = endpoint.listenPort {
-                return String(listenPort)
-            } else {
-                return ""
-            }
-        }, set: {
-            if $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                endpoint.listenPort = nil
-                listenPortMalformed = false
-                
-                return
-            }
-            
-            guard let unsignedInteger = UInt16($0) else {
-                listenPortMalformed = true
-                return
-            }
-            
-            listenPortMalformed = false
-            endpoint.listenPort = unsignedInteger
-        })
-    }
-    private var mtu: Binding<String> {
-        .init(get: {
-            if let mtu = endpoint.mtu {
-                return String(mtu)
-            } else {
-                return ""
-            }
-        }, set: {
-            if $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                endpoint.mtu = nil
-                mtuMalformed = false
-                
-                return
-            }
-            
-            guard let unsignedInteger = UInt16($0) else {
-                mtuMalformed = true
-                return
-            }
-            
-            mtuMalformed = false
-            endpoint.mtu = unsignedInteger
-        })
-    }
-    
-    private var isValid: Bool {
-        !privateKeyMalformed
+    init(endpoint: Endpoint) {
+        _viewModel = .init(initialValue: .init(endpoint: endpoint))
     }
     
     var body: some View {
-        @Bindable var endpoint = endpoint
-        
         NavigationStack {
             List {
                 Section {
-                    TextField("endpoint.edit.name", text: $endpoint.name)
+                    TextField("endpoint.edit.name", text: $viewModel.endpoint.name)
                 }
                 
                 Group {
                     Section {
-                        TextField("endpoint.edit.privateKey", text: privateKey)
+                        TextField("endpoint.edit.privateKey", text: viewModel.privateKey)
                         Group {
-                            TextField("endpoint.edit.listenPort", text: listenPort)
-                            TextField("endpoint.edit.mtu", text: mtu)
+                            TextField("endpoint.edit.listenPort", text: viewModel.listenPort)
+                            TextField("endpoint.edit.mtu", text: viewModel.mtu)
                         }
                             .keyboardType(.numberPad)
                     } footer: {
                         VStack {
-                            if privateKeyMalformed {
+                            if viewModel.privateKeyMalformed {
                                 Text("endpoint.edit.key.malformed")
                             }
-                            if listenPortMalformed {
+                            if viewModel.listenPortMalformed {
                                 Text("endpoint.edit.listenPort.malformed")
                             }
-                            if mtuMalformed {
+                            if viewModel.mtuMalformed {
                                 Text("endpoint.edit.mtu.malformed")
                             }
                         }
@@ -118,21 +52,21 @@ struct EndpointEditView: View {
                 .textInputAutocapitalization(.never)
                 
                 Section {
-                    Toggle("endpoint.edit.disconnectsOnSleep", isOn: $endpoint.disconnectsOnSleep)
+                    Toggle("endpoint.edit.disconnectsOnSleep", isOn: $viewModel.endpoint.disconnectsOnSleep)
                     
-                    Toggle("endpoint.edit.excludeAPN", isOn: $endpoint.excludeAPN)
-                    Toggle("endpoint.edit.enforceRoutes", isOn: $endpoint.enforceRoutes)
-                    Toggle("endpoint.edit.includeAllNetworks", isOn: $endpoint.includeAllNetworks)
-                    Toggle("endpoint.edit.excludeCellularServices", isOn: $endpoint.excludeCellularServices)
-                    Toggle("endpoint.edit.allowAccessToLocalNetwork", isOn: $endpoint.allowAccessToLocalNetwork)
-                    Toggle("endpoint.edit.excludeDeviceCommunication", isOn: $endpoint.excludeDeviceCommunication)
+                    Toggle("endpoint.edit.excludeAPN", isOn: $viewModel.endpoint.excludeAPN)
+                    Toggle("endpoint.edit.enforceRoutes", isOn: $viewModel.endpoint.enforceRoutes)
+                    Toggle("endpoint.edit.includeAllNetworks", isOn: $viewModel.endpoint.includeAllNetworks)
+                    Toggle("endpoint.edit.excludeCellularServices", isOn: $viewModel.endpoint.excludeCellularServices)
+                    Toggle("endpoint.edit.allowAccessToLocalNetwork", isOn: $viewModel.endpoint.allowAccessToLocalNetwork)
+                    Toggle("endpoint.edit.excludeDeviceCommunication", isOn: $viewModel.endpoint.excludeDeviceCommunication)
                 }
                 
                 Section {} header: {
                     Text("endpoint.edit.active")
                 } footer: {
                     VStack(alignment: .leading) {
-                        ForEach(endpoint.active) {
+                        ForEach(viewModel.endpoint.active) {
                             Text($0.uuidString)
                         }
                     }
@@ -146,29 +80,27 @@ struct EndpointEditView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        endpoint.modelContext?.rollback()
                         dismiss()
                     } label: {
                         Text("endpoint.edit.cancel")
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        try? endpoint.modelContext?.save()
-                        dismiss()
-                    } label: {
-                        Text("endpoint.edit.save")
+                    if viewModel.isSaving {
+                        ProgressView()
+                    } else {
+                        Button {
+                            viewModel.save()
+                        } label: {
+                            Text("endpoint.edit.save")
+                        }
+                        .disabled(!viewModel.isValid)
                     }
-                    .disabled(!isValid)
                 }
             }
         }
         .onAppear {
-            try? PersistenceManager.shared.modelContainer.mainContext.save()
-            PersistenceManager.shared.modelContainer.mainContext.autosaveEnabled = false
-        }
-        .onDisappear {
-            PersistenceManager.shared.modelContainer.mainContext.autosaveEnabled = true
+            viewModel.dismissAction = dismiss
         }
     }
 }

@@ -12,7 +12,7 @@ import NetworkExtension
 import SGPersistence
 
 private extension Endpoint {
-    func updateManager(_  manager: NETunnelProviderManager) async throws {
+    func updateManager(_ manager: NETunnelProviderManager) async throws {
         let providerProtocol = NETunnelProviderProtocol()
         
         providerProtocol.providerBundleIdentifier = Bundle.main.networkExtensionIdentifier
@@ -33,10 +33,8 @@ private extension Endpoint {
         providerProtocol.excludeDeviceCommunication = excludeDeviceCommunication
         #endif
         
-        manager.protocolConfiguration = providerProtocol
-        
         manager.localizedDescription = name
-        manager.isEnabled = isActive
+        manager.protocolConfiguration = providerProtocol
         
         try await manager.saveToPreferences()
     }
@@ -59,6 +57,7 @@ internal extension Endpoint {
                 manager = existing
             } else if isActive {
                 manager = .init()
+                manager.isEnabled = true
                 
                 do {
                     try await updateManager(manager)
@@ -78,7 +77,10 @@ internal extension Endpoint {
 
 public extension Endpoint {
     func notifySystem() async throws {
-        active.append(PersistenceManager.shared.uuid)
+        if !isActive {
+            active.append(PersistenceManager.shared.uuid)
+        }
+        
         try modelContext?.save()
         
         guard let manager = await manager else {

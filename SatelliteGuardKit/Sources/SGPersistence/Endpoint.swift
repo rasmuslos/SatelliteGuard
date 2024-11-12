@@ -162,7 +162,7 @@ public extension Endpoint {
     nonisolated(unsafe) static let fixture = Endpoint(name: "Vault 7",
                                                       peers: [.init(publicKey: .init(count: 32),
                                                                     preSharedKey: .init(count: 32),
-                                                                    endpoint: "gia.gov:12345",
+                                                                    endpoint: "cia.gov:12345",
                                                                     routes: [.init(from: "0.0.0.0/0")!],
                                                                     persistentKeepAlive: 40)],
                                                       addresses: [.init(from: "192.0.0.1/24")!],

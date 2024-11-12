@@ -113,7 +113,7 @@ internal extension Satellite {
 private protocol ParseCache {
     var isValid: Bool { get }
 }
-private class InterfaceCache: ParseCache {
+private final class InterfaceCache: ParseCache {
     var addresses: [IPAddressRange]!
     var privateKey: Data!
     
@@ -126,7 +126,7 @@ private class InterfaceCache: ParseCache {
         addresses != nil && privateKey != nil
     }
 }
-private class PeerCache: ParseCache {
+private final class PeerCache: ParseCache {
     var publicKey: Data!
     var preSharedKey: Data?
     

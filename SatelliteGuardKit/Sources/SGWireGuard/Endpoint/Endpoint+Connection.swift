@@ -26,6 +26,11 @@ public extension Endpoint {
     }
     
     func connect() async throws {
+        if let manager = await manager, !manager.isEnabled {
+            manager.isEnabled = true
+            try await manager.saveToPreferences()
+        }
+        
         try await connection?.startVPNTunnel(options: [:])
     }
     func disconnect() async {
