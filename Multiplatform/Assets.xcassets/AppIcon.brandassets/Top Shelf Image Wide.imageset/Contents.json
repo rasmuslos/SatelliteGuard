@@ -1,0 +1,18 @@
+{
+  "images" : [
+    {
+      "filename" : "SatelliteGuard tvOS (TopShelf-Wide) 1.png",
+      "idiom" : "tv",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "SatelliteGuard tvOS (TopShelf-Wide).png",
+      "idiom" : "tv",
+      "scale" : "2x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

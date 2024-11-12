@@ -1,11 +1,12 @@
 {
   "images" : [
     {
+      "filename" : "SatelliteGuard tvOS (TopShelf) 1.png",
       "idiom" : "tv",
       "scale" : "1x"
     },
     {
-      "filename" : "Middle.png",
+      "filename" : "SatelliteGuard tvOS (TopShelf).png",
       "idiom" : "tv",
       "scale" : "2x"
     }
