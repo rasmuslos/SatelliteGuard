@@ -12,32 +12,26 @@ import SatelliteGuardKit
 
 struct EndpointView: View {
     @Environment(Satellite.self) private var satellite
-    @State private var viewModel: EndpointViewModel
     
-    init(endpoint: Endpoint) {
-        _viewModel = .init(initialValue: .init(endpoint: endpoint))
+    let endpoint: Endpoint
+    
+    init(_ endpoint: Endpoint) {
+        self.endpoint = endpoint
     }
     
-    private var toolbarPlacement: ToolbarItemPlacement {
-        #if os(tvOS)
-        .topBarTrailing
-        #else
-        .secondaryAction
-        #endif
-    }
     private var isActive: Bool {
-        satellite.connectedID == viewModel.endpoint.id
+        satellite.connectedID == endpoint.id
     }
     
     @ViewBuilder
     private var rows: some View {
         Section("endpoint.addresses") {
-            ForEach(viewModel.endpoint.addresses) { range in
+            ForEach(endpoint.addresses) { range in
                 Row(string: range.stringRepresentation)
             }
         }
         
-        if let dns = viewModel.endpoint.dns {
+        if let dns = endpoint.dns {
             Section("endpoint.dns") {
                 ForEach(dns, id: \.rawValue) { server in
                     Row(string: "\(server)")
@@ -45,7 +39,7 @@ struct EndpointView: View {
             }
         }
         
-        ForEach(viewModel.endpoint.peers) { peer in
+        ForEach(endpoint.peers) { peer in
             Section("endpoint.peer") {
                 Row(string: peer.endpoint)
                 Row(string: peer.routes.map(\.stringRepresentation).joined(separator: ", "))
@@ -66,16 +60,16 @@ struct EndpointView: View {
         }
         
         Section("endpoint.interface") {
-            Row(string: viewModel.endpoint.privateKey.base64EncodedString())
+            Row(string: endpoint.privateKey.base64EncodedString())
                 .privacySensitive()
                 #if os(tvOS)
                 .focusable()
                 #endif
             
-            if let listenPort = viewModel.endpoint.listenPort {
+            if let listenPort = endpoint.listenPort {
                 Row("endpoint.listenPort \(listenPort.formatted(.number.grouping(.never)))")
             }
-            if let mtu = viewModel.endpoint.mtu {
+            if let mtu = endpoint.mtu {
                 Row("endpoint.mtu \(mtu.formatted(.number.grouping(.never)))")
             }
         }
@@ -90,7 +84,7 @@ struct EndpointView: View {
                     .foregroundStyle(.secondary)
                     .font(.system(size: 500))
                 
-                Text("endpoint.connected")
+                Text(satellite.connectedLabel)
                     .overlay(alignment: .leading) {
                         Image(systemName: "circle.fill")
                             .symbolEffect(.pulse)
@@ -101,25 +95,8 @@ struct EndpointView: View {
                     .opacity(isActive ? 1 : 0)
             } trailing: {
                 List {
-                    Button {
-                        if !viewModel.endpoint.isActive {
-                            viewModel.activate()
-                        } else if isActive {
-                            satellite.land(viewModel.endpoint)
-                        } else {
-                            satellite.launch(viewModel.endpoint)
-                        }
-                    } label: {
-                        Text(!viewModel.endpoint.isActive ? "endpoint.activate" : isActive ? "disconnect" : "connect")
-                    }
-                    
-                    if viewModel.endpoint.isActive {
-                        Button(role: .destructive) {
-                            viewModel.deactivate()
-                        } label: {
-                            Text("endpoint.deactivate")
-                        }
-                    }
+                    EndpointPrimaryButton(endpoint)
+                    EndpointDeactivateButton(endpoint)
                     
                     rows
                 }
@@ -128,62 +105,32 @@ struct EndpointView: View {
             }
             #else
             List {
-                if viewModel.pondering || satellite.busy {
-                    ProgressView()
-                } else if !viewModel.endpoint.isActive {
-                    Button {
-                        viewModel.activate()
-                    } label: {
-                        Label("endpoint.activate", systemImage: "diamond")
-                    }
-                } else {
-                    Button {
-                        if isActive {
-                            satellite.land(viewModel.endpoint)
-                        } else {
-                            satellite.launch(viewModel.endpoint)
-                        }
-                    } label: {
-                        Label(isActive ? "disconnect" : "connect", systemImage: isActive ? "diamond.fill" : "diamond.bottomhalf.filled")
-                    }
-                }
+                EndpointPrimaryButton(endpoint)
                 
                 if isActive {
-                    Label("endpoint.connected", systemImage: "circle.fill")
+                    Label(satellite.connectedLabel, systemImage: "circle.fill")
+                        .symbolEffect(.pulse)
                         .foregroundStyle(.green)
+                } else {
+                    EndpointDeactivateButton(endpoint)
                 }
                 
                 rows
             }
-            .sheet(isPresented: $viewModel.editSheetPresented) {
-                EndpointEditView(endpoint: viewModel.endpoint)
-            }
             .toolbar {
-                ToolbarItem(placement: .secondaryAction) {
-                    Button {
-                        viewModel.editSheetPresented.toggle()
-                    } label: {
-                        Label("endpoint.edit", systemImage: "pencil")
-                    }
-                    .disabled(isActive)
-                }
-                
-                ToolbarItem(placement: toolbarPlacement) {
-                    if viewModel.endpoint.isActive {
-                        Button(role: .destructive) {
-                            viewModel.deactivate()
-                        } label: {
-                            Label("endpoint.deactivate", systemImage: "minus.diamond")
-                        }
-                    }
+                ToolbarItemGroup(placement: .secondaryAction) {
+                    EndpointPrimaryButton(endpoint)
+                    
+                    Divider()
+                    
+                    EndpointEditButton(endpoint)
+                    EndpointDeactivateButton(endpoint)
                 }
             }
             #endif
         }
-        .navigationTitle(viewModel.endpoint.name)
+        .navigationTitle(endpoint.name)
         .animation(.smooth, value: isActive)
-        .sensoryFeedback(.error, trigger: viewModel.notifyError)
-        .sensoryFeedback(.success, trigger: viewModel.notifySuccess)
     }
 }
 
@@ -215,7 +162,7 @@ private struct Row: View {
 #if DEBUG
 #Preview {
     NavigationStack {
-        EndpointView(endpoint: .fixture)
+        EndpointView(.fixture)
     }
     .previewEnvironment()
 }

@@ -15,7 +15,7 @@ import SGPersistence
 public class WireGuardMonitor {
     static let logger = Logger(subsystem: "WireGuard", category: "Monitor")
     
-    private var _statusPublisher: PassthroughSubject<(UUID, NEVPNStatus), Never>
+    private var _statusPublisher: PassthroughSubject<(UUID, NEVPNStatus, Date?), Never>
     
     private var tokens: [AnyCancellable]
     
@@ -31,7 +31,7 @@ public class WireGuardMonitor {
                 return
             }
             
-            self?._statusPublisher.send((id, manager.connection.status))
+            self?._statusPublisher.send((id, manager.connection.status, manager.connection.connectedDate))
         }]
     }
 }
@@ -39,7 +39,7 @@ public class WireGuardMonitor {
 public extension WireGuardMonitor {
     nonisolated(unsafe) static let shared = WireGuardMonitor()
     
-    var statusPublisher: AnyPublisher<(UUID, NEVPNStatus), Never> {
+    var statusPublisher: AnyPublisher<(UUID, NEVPNStatus, Date?), Never> {
         _statusPublisher.eraseToAnyPublisher()
     }
     

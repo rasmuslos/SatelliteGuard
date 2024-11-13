@@ -1,6 +1,25 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "about" : {
+
+    },
+    "about.gitHub" : {
+
+    },
+    "about.satelliteGuard %@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "about.satelliteGuard %1$@ %2$@"
+          }
+        }
+      }
+    },
+    "about.wireGuard %@" : {
+
+    },
     "configuration.import" : {
       "localizations" : {
         "de" : {
@@ -32,6 +51,12 @@
           }
         }
       }
+    },
+    "connected" : {
+
+    },
+    "connected.since %@" : {
+
     },
     "disconnect" : {
       "localizations" : {
@@ -82,6 +107,7 @@
       }
     },
     "endpoint.connected" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -524,6 +550,9 @@
           }
         }
       }
+    },
+    "security" : {
+
     }
   },
   "version" : "1.0"

@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import SatelliteGuardKit
 
+@available(tvOS, unavailable)
 struct EndpointEditView: View {
     @Environment(\.dismiss) private var dismiss
     

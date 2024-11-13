@@ -92,6 +92,8 @@ public extension Endpoint {
     }
     
     func deactivate() async throws {
+        await disconnect()
+        
         active.removeAll { $0 == PersistenceManager.shared.uuid }
         try modelContext?.save()
         

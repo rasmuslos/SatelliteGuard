@@ -14,13 +14,29 @@ struct ConfigurationImporter: View {
     @State private var pickerPresented = false
     
     var body: some View {
-        Button {
-            pickerPresented.toggle()
+        Menu {
+            Button {
+                pickerPresented.toggle()
+            } label: {
+                Label("configuration.import", systemImage: "plus")
+            }
+            
+            Divider()
+            
+            Link(destination: .init(string: "https://github.com/rasmuslos/SatelliteGuard/blob/main/SECURITY.md")!) {
+                Label("security", systemImage: "lock")
+            }
+            Button {
+                satellite.aboutSheetPresented.toggle()
+            } label: {
+                Label("about", systemImage: "key.viewfinder")
+            }
         } label: {
             if satellite.importing {
                 ProgressView()
             } else {
                 Label("configuration.import", systemImage: "plus")
+                    .labelStyle(.iconOnly)
             }
         }
         .disabled(satellite.importing)

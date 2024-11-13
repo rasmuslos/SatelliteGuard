@@ -37,7 +37,7 @@ struct EndpointCell: View {
     }
     
     var body: some View {
-        NavigationLink(destination: EndpointView(endpoint: endpoint)) {
+        NavigationLink(destination: EndpointView(endpoint)) {
             #if os(tvOS)
             HStack(spacing: 0) {
                 label
@@ -58,6 +58,12 @@ struct EndpointCell: View {
                 label
             }
             #endif
+        }
+        .contextMenu {
+            EndpointPrimaryButton(endpoint)
+            EndpointDeactivateButton(endpoint)
+            
+            EndpointEditButton(endpoint)
         }
     }
 }

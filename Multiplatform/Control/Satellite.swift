@@ -16,6 +16,10 @@ import SatelliteGuardKit
 final class Satellite {
     @MainActor private var orbitingID: UUID?
     @MainActor private(set) var status: NEVPNStatus
+    @MainActor private(set) var connectedSince: Date?
+    
+    @MainActor var editingEndpoint: Endpoint?
+    @MainActor var aboutSheetPresented: Bool
     
     @MainActor private(set) var importing: Bool
     @MainActor private(set) var transmitting: Int
@@ -31,6 +35,9 @@ final class Satellite {
         orbitingID = nil
         status = .invalid
         
+        editingEndpoint = nil
+        aboutSheetPresented = false
+        
         importing = false
         transmitting = 0
         
@@ -39,9 +46,22 @@ final class Satellite {
         
         tokens = setupObservers()
     }
+}
+
+extension Satellite {
+    @MainActor
+    var connectedLabel: String {
+        if let connectedSince {
+            let friendlyDate = connectedSince.formatted(date: .abbreviated, time: .shortened)
+            
+            return .init(localized: "connected.since \(friendlyDate)")
+        }
+        
+        return .init(localized: "connected")
+    }
     
     @MainActor
-    var busy: Bool {
+    var pondering: Bool {
         transmitting > 0
     }
     
@@ -76,7 +96,7 @@ final class Satellite {
     }
 }
 
-internal extension Satellite {
+extension Satellite {
     func launch(_ endpoint: Endpoint, _ status: Binding<Bool>? = nil, _ notifySuccess: Binding<Bool>? = nil, _ notifyError: Binding<Bool>? = nil) {
         Task {
             await MainActor.withAnimation {
@@ -122,14 +142,79 @@ internal extension Satellite {
             await endpoint.disconnect()
             await MainActor.withAnimation {
                 self.orbitingID = nil
+                
+                self.notifySuccess.toggle()
+                notifySuccess?.wrappedValue.toggle()
+                
+                self.transmitting -= 1
+                status?.wrappedValue = false
+            }
+        }
+    }
+    
+    func activate(_ endpoint: Endpoint, _ status: Binding<Bool>? = nil, _ notifySuccess: Binding<Bool>? = nil, _ notifyError: Binding<Bool>? = nil) {
+        Task {
+            await MainActor.withAnimation {
+                self.transmitting += 1
+                status?.wrappedValue = true
+            }
+            
+            do {
+                try await endpoint.notifySystem()
+                
+                await MainActor.withAnimation {
+                    self.orbitingID = endpoint.id
+                    
+                    self.notifySuccess.toggle()
+                    notifySuccess?.wrappedValue.toggle()
+                }
+            } catch {
+                await MainActor.withAnimation {
+                    self.notifyError.toggle()
+                    notifyError?.wrappedValue.toggle()
+                    
+                    self.transmitting -= 1
+                }
             }
             
             await MainActor.withAnimation {
                 self.notifySuccess.toggle()
                 notifySuccess?.wrappedValue.toggle()
+                
+                self.transmitting -= 1
+                status?.wrappedValue = false
+            }
+        }
+    }
+    func deactivate(_ endpoint: Endpoint, _ status: Binding<Bool>? = nil, _ notifySuccess: Binding<Bool>? = nil, _ notifyError: Binding<Bool>? = nil) {
+        Task {
+            await MainActor.withAnimation {
+                self.transmitting += 1
+                status?.wrappedValue = true
+            }
+            
+            do {
+                try await endpoint.notifySystem()
+                
+                await MainActor.withAnimation {
+                    self.orbitingID = endpoint.id
+                    
+                    self.notifySuccess.toggle()
+                    notifySuccess?.wrappedValue.toggle()
+                }
+            } catch {
+                await MainActor.withAnimation {
+                    self.notifyError.toggle()
+                    notifyError?.wrappedValue.toggle()
+                    
+                    self.transmitting -= 1
+                }
             }
             
             await MainActor.withAnimation {
+                self.notifySuccess.toggle()
+                notifySuccess?.wrappedValue.toggle()
+                
                 self.transmitting -= 1
                 status?.wrappedValue = false
             }
@@ -144,7 +229,7 @@ internal extension Satellite {
 
 private extension Satellite {
     func setupObservers() -> [Any] {
-        [WireGuardMonitor.shared.statusPublisher.sink { (id, status) in
+        [WireGuardMonitor.shared.statusPublisher.sink { (id, status, connectedSince) in
             Task { @MainActor in
                 guard status.isConnected && self.orbitingID == id else {
                     return
@@ -152,6 +237,7 @@ private extension Satellite {
                 
                 self.orbitingID = id
                 self.status = status
+                self.connectedSince = connectedSince
             }
         }]
     }

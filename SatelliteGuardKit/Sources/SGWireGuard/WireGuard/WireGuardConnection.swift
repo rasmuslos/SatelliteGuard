@@ -26,6 +26,10 @@ public class WireGuardConnection {
         
         adapter = .init(with: provider, logHandler: Self.log)
     }
+    
+    public class var wireGuardVersion: String {
+        WireGuardAdapter.backendVersion
+    }
 }
 
 public extension WireGuardConnection {
