@@ -10,6 +10,8 @@ import SwiftData
 import SatelliteGuardKit
 
 struct HomeView: View {
+    @Environment(Satellite.self) private var satellite
+    
     @Query private var endpoints: [Endpoint]
     @State private var editMode: EditMode = .inactive
     
@@ -70,6 +72,9 @@ struct HomeView: View {
                 Image(systemName: "network")
                     .foregroundStyle(.secondary)
                     .font(.system(size: 500))
+                
+                EndpointView.ConnectedLabel()
+                    .opacity(satellite.connectedID == nil ? 0 : 1)
             } trailing: {
                 content
             }
@@ -77,7 +82,7 @@ struct HomeView: View {
             content
                 .environment(\.editMode, $editMode)
                 .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
+                    ToolbarItemGroup(placement: .topBarTrailing) {
                         Button {
                             if editMode == .active {
                                 editMode = .inactive
@@ -87,9 +92,12 @@ struct HomeView: View {
                         } label: {
                             Label("home.edit", systemImage: "pencil")
                         }
-                    }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        ConfigurationImporter()
+                        
+                        if satellite.pondering {
+                            ProgressView()
+                        } else {
+                            ConfigurationImporter()
+                        }
                     }
                 }
             #endif

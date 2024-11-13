@@ -59,11 +59,20 @@ struct EndpointCell: View {
             }
             #endif
         }
+        #if !os(tvOS)
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            if endpoint.isActive {
+                EndpointDeactivateButton(endpoint)
+            }
+        }
+        #endif
         .contextMenu {
             EndpointPrimaryButton(endpoint)
             EndpointDeactivateButton(endpoint)
             
+            #if !os(tvOS)
             EndpointEditButton(endpoint)
+            #endif
         }
     }
 }

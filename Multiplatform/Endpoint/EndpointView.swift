@@ -79,19 +79,12 @@ struct EndpointView: View {
         Group {
             #if os(tvOS)
             TwoColumn() {
-                Image(systemName: viewModel.endpoint.isActive ? isActive ? "diamond.fill" : "diamond.bottomhalf.filled" : "diamond")
-                    .symbolEffect(.pulse, isActive: viewModel.pondering || satellite.busy)
+                Image(systemName: endpoint.isActive ? isActive ? "diamond.fill" : "diamond.bottomhalf.filled" : "diamond")
+                    .symbolEffect(.pulse, isActive: satellite.pondering)
                     .foregroundStyle(.secondary)
                     .font(.system(size: 500))
                 
-                Text(satellite.connectedLabel)
-                    .overlay(alignment: .leading) {
-                        Image(systemName: "circle.fill")
-                            .symbolEffect(.pulse)
-                            .font(.system(size: 16))
-                            .foregroundStyle(.green)
-                            .offset(x: -30)
-                    }
+                ConnectedLabel()
                     .opacity(isActive ? 1 : 0)
             } trailing: {
                 List {
@@ -131,6 +124,23 @@ struct EndpointView: View {
         }
         .navigationTitle(endpoint.name)
         .animation(.smooth, value: isActive)
+    }
+}
+
+extension EndpointView {
+    struct ConnectedLabel: View {
+        @Environment(Satellite.self) private var satellite
+        
+        var body: some View {
+            Text(satellite.connectedLabel)
+                .overlay(alignment: .leading) {
+                    Image(systemName: "circle.fill")
+                        .symbolEffect(.pulse)
+                        .font(.system(size: 16))
+                        .foregroundStyle(.green)
+                        .offset(x: -30)
+                }
+        }
     }
 }
 

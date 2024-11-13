@@ -106,7 +106,7 @@ struct EndpointEditView: View {
     }
 }
 
-#if DEBUG
+#if DEBUG && !os(tvOS)
 #Preview {
     Text(verbatim: ":)")
         .sheet(isPresented: .constant(true)) {

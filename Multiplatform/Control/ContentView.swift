@@ -18,9 +18,11 @@ struct ContentView: View {
         NavigationStack {
             HomeView()
         }
+        #if !os(tvOS)
         .sheet(item: $satellite.editingEndpoint) {
             EndpointEditView(endpoint: $0)
         }
+        #endif
         .sheet(isPresented: $satellite.aboutSheetPresented) {
             AboutSheet()
         }

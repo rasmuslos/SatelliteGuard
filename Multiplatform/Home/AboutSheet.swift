@@ -29,7 +29,9 @@ struct AboutSheet: View {
                 }
             }
             .navigationTitle("about.title")
+            #if !os(tvOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
         }
     }
 }
