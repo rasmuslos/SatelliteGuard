@@ -149,6 +149,11 @@ extension Endpoint: Equatable {}
 extension Endpoint: Identifiable {}
 
 public extension Endpoint {
+    static var all: [Endpoint]? {
+        get async {
+            try? ModelContext(PersistenceManager.shared.modelContainer).fetch(.init())
+        }
+    }
     static func identified(by id: UUID) -> Endpoint? {
         let context = ModelContext(PersistenceManager.shared.modelContainer)
         let descriptor = FetchDescriptor<Endpoint>(predicate: #Predicate { $0.id == id })

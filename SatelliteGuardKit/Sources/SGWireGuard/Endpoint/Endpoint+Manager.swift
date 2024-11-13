@@ -100,10 +100,12 @@ public extension Endpoint {
         try await manager?.removeFromPreferences()
     }
     
-    static func checkActive() async throws {
+    static func checkActive() async {
         let managers = (try? await NETunnelProviderManager.loadAllFromPreferences()) ?? []
-        let context = ModelContext(PersistenceManager.shared.modelContainer)
-        let endpoints = try context.fetch(FetchDescriptor<Endpoint>())
+        
+        guard let endpoints = await Endpoint.all else {
+            return
+        }
         
         let activeIDs = managers.compactMap(\.id)
         let endpointIDs = endpoints.map(\.id)
@@ -130,7 +132,5 @@ public extension Endpoint {
         for endpoint in invalidActive {
             try? await endpoint.notifySystem()
         }
-        
-        try context.save()
     }
 }

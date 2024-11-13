@@ -2,26 +2,84 @@
   "sourceLanguage" : "en",
   "strings" : {
     "about" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Über"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About"
+          }
+        }
+      }
     },
     "about.gitHub" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub"
+          }
+        }
+      }
     },
     "about.satelliteGuard %@ %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SatelliteGuard %1$@ (%2$@)"
+          }
+        },
         "en" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "about.satelliteGuard %1$@ %2$@"
+            "state" : "translated",
+            "value" : "SatelliteGuard %1$@ (%2$@)"
           }
         }
       }
     },
     "about.title" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Über"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About"
+          }
+        }
+      }
     },
     "about.wireGuard %@" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WireGuard: %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WireGuard: %@"
+          }
+        }
+      }
     },
     "configuration.import" : {
       "localizations" : {
@@ -56,10 +114,36 @@
       }
     },
     "connected" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbunden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connected"
+          }
+        }
+      }
     },
     "connected.since %@" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbunden seit: %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connected since: %@"
+          }
+        }
+      }
     },
     "disconnect" : {
       "localizations" : {
@@ -105,23 +189,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Addresses"
-          }
-        }
-      }
-    },
-    "endpoint.connected" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verbunden"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connected"
           }
         }
       }
@@ -202,6 +269,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Allow access to local network"
+          }
+        }
+      }
+    },
+    "endpoint.edit.appleTVDisclaimer" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur die erste Option is auf dem AppleTV verfügbar"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only the first option is available on AppleTV"
           }
         }
       }
@@ -335,16 +418,68 @@
       }
     },
     "endpoint.edit.listenPort" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listen-Port"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listen-Port"
+          }
+        }
+      }
     },
     "endpoint.edit.listenPort.malformed" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listen-Port fehlerhaft"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listen-Port malformed"
+          }
+        }
+      }
     },
     "endpoint.edit.mtu" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MTU"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MTU"
+          }
+        }
+      }
     },
     "endpoint.edit.mtu.malformed" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MTU fehlerhaft"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MTU malformed"
+          }
+        }
+      }
     },
     "endpoint.edit.name" : {
       "localizations" : {
@@ -555,7 +690,20 @@
       }
     },
     "security" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sicherheit"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Security"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

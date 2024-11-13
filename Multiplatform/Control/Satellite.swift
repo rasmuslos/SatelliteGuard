@@ -239,6 +239,34 @@ private extension Satellite {
                 self.status = status
                 self.connectedSince = connectedSince
             }
+        }, NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification).sink { _ in
+            Task {
+                guard let endpoints = await Endpoint.all else {
+                    return
+                }
+                
+                let orbitingID = await self.orbitingID
+                
+                for endpoint in endpoints {
+                    let status = await endpoint.status
+                    
+                    if status.isConnected {
+                        await MainActor.withAnimation {
+                            self.orbitingID = endpoint.id
+                            self.status = status
+                        }
+                    } else if !status.isConnected && orbitingID == endpoint.id {
+                        await MainActor.withAnimation {
+                            self.orbitingID = nil
+                            self.status = .invalid
+                        }
+                    } else {
+                        continue
+                    }
+                    
+                    break
+                }
+            }
         }]
     }
 }

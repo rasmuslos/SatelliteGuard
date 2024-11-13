@@ -61,6 +61,8 @@ struct EndpointEditView: View {
                     Toggle("endpoint.edit.excludeCellularServices", isOn: $viewModel.endpoint.excludeCellularServices)
                     Toggle("endpoint.edit.allowAccessToLocalNetwork", isOn: $viewModel.endpoint.allowAccessToLocalNetwork)
                     Toggle("endpoint.edit.excludeDeviceCommunication", isOn: $viewModel.endpoint.excludeDeviceCommunication)
+                } footer: {
+                    Text("endpoint.edit.appleTVDisclaimer")
                 }
                 
                 Section {} header: {
