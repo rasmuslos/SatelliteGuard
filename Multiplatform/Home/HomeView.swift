@@ -73,7 +73,7 @@ struct HomeView: View {
                     .foregroundStyle(.secondary)
                     .font(.system(size: 500))
                 
-                EndpointView.ConnectedLabel()
+                ConnectedLabel(indicator: true)
                     .opacity(satellite.connectedID == nil ? 0 : 1)
             } trailing: {
                 content
@@ -105,7 +105,7 @@ struct HomeView: View {
         .animation(.smooth, value: editMode)
         .navigationTitle("home")
         .task {
-            try? await Endpoint.checkActive()
+            await Endpoint.checkActive()
         }
     }
 }

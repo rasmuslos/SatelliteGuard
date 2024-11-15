@@ -50,17 +50,6 @@ final class Satellite {
 
 extension Satellite {
     @MainActor
-    var connectedLabel: String {
-        if let connectedSince {
-            let friendlyDate = connectedSince.formatted(date: .abbreviated, time: .shortened)
-            
-            return .init(localized: "connected.since \(friendlyDate)")
-        }
-        
-        return .init(localized: "connected")
-    }
-    
-    @MainActor
     var pondering: Bool {
         transmitting > 0
     }
@@ -194,11 +183,9 @@ extension Satellite {
             }
             
             do {
-                try await endpoint.notifySystem()
+                try await endpoint.deactivate()
                 
                 await MainActor.withAnimation {
-                    self.orbitingID = endpoint.id
-                    
                     self.notifySuccess.toggle()
                     notifySuccess?.wrappedValue.toggle()
                 }

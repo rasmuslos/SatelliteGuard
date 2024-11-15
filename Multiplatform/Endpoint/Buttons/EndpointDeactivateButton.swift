@@ -28,7 +28,7 @@ struct EndpointDeactivateButton: View {
         } label: {
             Label("endpoint.deactivate", systemImage: "minus.diamond")
                 #if os(tvOS)
-                .labelStyle(.iconOnly)
+                .labelStyle(.titleOnly)
                 #endif
         }
         .disabled(isActive)

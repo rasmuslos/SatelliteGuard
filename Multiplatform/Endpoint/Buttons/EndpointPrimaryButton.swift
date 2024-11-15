@@ -56,7 +56,7 @@ struct EndpointPrimaryButton: View {
             } label: {
                 Label(label, systemImage: icon)
                     #if os(tvOS)
-                    .labelStyle(.iconOnly)
+                    .labelStyle(.titleOnly)
                     #endif
             }
         }

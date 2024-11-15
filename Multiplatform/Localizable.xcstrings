@@ -129,18 +129,18 @@
         }
       }
     },
-    "connected.since %@" : {
+    "connected.since" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verbunden seit: %@"
+            "value" : "Verbunden seit"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connected since: %@"
+            "value" : "Cnnected since"
           }
         }
       }

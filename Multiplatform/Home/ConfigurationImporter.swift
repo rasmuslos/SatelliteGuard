@@ -36,7 +36,6 @@ struct ConfigurationImporter: View {
                 ProgressView()
             } else {
                 Label("configuration.import", systemImage: "plus")
-                    .labelStyle(.iconOnly)
             }
         }
         .disabled(satellite.importing)

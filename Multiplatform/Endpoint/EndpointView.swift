@@ -84,7 +84,7 @@ struct EndpointView: View {
                     .foregroundStyle(.secondary)
                     .font(.system(size: 500))
                 
-                ConnectedLabel()
+                ConnectedLabel(indicator: true)
                     .opacity(isActive ? 1 : 0)
             } trailing: {
                 List {
@@ -101,9 +101,13 @@ struct EndpointView: View {
                 EndpointPrimaryButton(endpoint)
                 
                 if isActive {
-                    Label(satellite.connectedLabel, systemImage: "circle.fill")
-                        .symbolEffect(.pulse)
-                        .foregroundStyle(.green)
+                    Label {
+                        ConnectedLabel()
+                    } icon: {
+                        Image(systemName: "circle.fill")
+                            .symbolEffect(.pulse)
+                    }
+                    .foregroundStyle(.green)
                 } else {
                     EndpointDeactivateButton(endpoint)
                 }
@@ -124,23 +128,6 @@ struct EndpointView: View {
         }
         .navigationTitle(endpoint.name)
         .animation(.smooth, value: isActive)
-    }
-}
-
-extension EndpointView {
-    struct ConnectedLabel: View {
-        @Environment(Satellite.self) private var satellite
-        
-        var body: some View {
-            Text(satellite.connectedLabel)
-                .overlay(alignment: .leading) {
-                    Image(systemName: "circle.fill")
-                        .symbolEffect(.pulse)
-                        .font(.system(size: 16))
-                        .foregroundStyle(.green)
-                        .offset(x: -30)
-                }
-        }
     }
 }
 
