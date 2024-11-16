@@ -17,7 +17,7 @@ struct MultiplatformApp: App {
         WireGuardMonitor.shared.ping()
         
         Task {
-            try await Endpoint.checkActive()
+            await Endpoint.checkActive()
         }
     }
     

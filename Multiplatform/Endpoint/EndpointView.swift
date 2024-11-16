@@ -23,83 +23,14 @@ struct EndpointView: View {
         satellite.connectedID == endpoint.id
     }
     
-    @ViewBuilder
-    private var rows: some View {
-        Section("endpoint.addresses") {
-            ForEach(endpoint.addresses) { range in
-                Row(string: range.stringRepresentation)
-            }
-        }
-        
-        if let dns = endpoint.dns {
-            Section("endpoint.dns") {
-                ForEach(dns, id: \.rawValue) { server in
-                    Row(string: "\(server)")
-                }
-            }
-        }
-        
-        ForEach(endpoint.peers) { peer in
-            Section("endpoint.peer") {
-                Row(string: peer.endpoint)
-                Row(string: peer.routes.map(\.stringRepresentation).joined(separator: ", "))
-                
-                Group {
-                    Row(string: peer.publicKey.base64EncodedString())
-                    
-                    if let preSharedKey = peer.preSharedKey {
-                        Row(string: preSharedKey.base64EncodedString())
-                    }
-                }
-                .privacySensitive()
-                
-                if let persistentKeepAlive = peer.persistentKeepAlive {
-                    Row("endpoint.mtu \(persistentKeepAlive.formatted(.number.grouping(.never)))")
-                }
-            }
-        }
-        
-        Section("endpoint.interface") {
-            Row(string: endpoint.privateKey.base64EncodedString())
-                .privacySensitive()
-                #if os(tvOS)
-                .focusable()
-                #endif
-            
-            if let listenPort = endpoint.listenPort {
-                Row("endpoint.listenPort \(listenPort.formatted(.number.grouping(.never)))")
-            }
-            if let mtu = endpoint.mtu {
-                Row("endpoint.mtu \(mtu.formatted(.number.grouping(.never)))")
-            }
-        }
-    }
-    
     var body: some View {
         Group {
-            #if os(tvOS)
-            TwoColumn() {
-                Image(systemName: endpoint.isActive ? isActive ? "diamond.fill" : "diamond.bottomhalf.filled" : "diamond")
-                    .symbolEffect(.pulse, isActive: satellite.pondering)
-                    .foregroundStyle(.secondary)
-                    .font(.system(size: 500))
-                
-                ConnectedLabel(indicator: true)
-                    .opacity(isActive ? 1 : 0)
-            } trailing: {
-                List {
-                    EndpointPrimaryButton(endpoint)
-                    EndpointDeactivateButton(endpoint)
-                    
-                    rows
-                }
-                .listStyle(.grouped)
-                .scrollClipDisabled()
-            }
-            #else
             List {
                 EndpointPrimaryButton(endpoint)
                 
+                #if os(tvOS)
+                EndpointDeactivateButton(endpoint)
+                #else
                 if isActive {
                     Label {
                         ConnectedLabel()
@@ -111,9 +42,60 @@ struct EndpointView: View {
                 } else {
                     EndpointDeactivateButton(endpoint)
                 }
+                #endif
                 
-                rows
+                Section("endpoint.addresses") {
+                    ForEach(endpoint.addresses) { range in
+                        Row(string: range.stringRepresentation)
+                    }
+                }
+                
+                if let dns = endpoint.dns {
+                    Section("endpoint.dns") {
+                        ForEach(dns, id: \.rawValue) { server in
+                            Row(string: "\(server)")
+                        }
+                    }
+                }
+                
+                ForEach(endpoint.peers) { peer in
+                    Section("endpoint.peer") {
+                        Row(string: peer.endpoint)
+                        Row(string: peer.routes.map(\.stringRepresentation).joined(separator: ", "))
+                        
+                        Group {
+                            Row(string: peer.publicKey.base64EncodedString())
+                            
+                            if let preSharedKey = peer.preSharedKey {
+                                Row(string: preSharedKey.base64EncodedString())
+                            }
+                        }
+                        .privacySensitive()
+                        
+                        if let persistentKeepAlive = peer.persistentKeepAlive {
+                            Row("endpoint.mtu \(persistentKeepAlive.formatted(.number.grouping(.never)))")
+                        }
+                    }
+                }
+                
+                Section("endpoint.interface") {
+                    Row(string: endpoint.privateKey.base64EncodedString())
+                        .privacySensitive()
+                        #if os(tvOS)
+                        .focusable()
+                        #endif
+                    
+                    if let listenPort = endpoint.listenPort {
+                        Row("endpoint.listenPort \(listenPort.formatted(.number.grouping(.never)))")
+                    }
+                    if let mtu = endpoint.mtu {
+                        Row("endpoint.mtu \(mtu.formatted(.number.grouping(.never)))")
+                    }
+                }
             }
+            .listStyle(.grouped)
+            .scrollClipDisabled()
+            #if !os(tvOS)
             .toolbar {
                 ToolbarItemGroup(placement: .secondaryAction) {
                     EndpointPrimaryButton(endpoint)
