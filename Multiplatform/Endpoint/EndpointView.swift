@@ -28,9 +28,7 @@ struct EndpointView: View {
             List {
                 EndpointPrimaryButton(endpoint)
                 
-                #if os(tvOS)
-                EndpointDeactivateButton(endpoint)
-                #else
+                #if !os(tvOS)
                 if isActive {
                     Label {
                         ConnectedLabel()
@@ -39,10 +37,11 @@ struct EndpointView: View {
                             .symbolEffect(.pulse)
                     }
                     .foregroundStyle(.green)
-                } else {
-                    EndpointDeactivateButton(endpoint)
                 }
                 #endif
+                if !isActive {
+                    EndpointDeactivateButton(endpoint)
+                }
                 
                 Section("endpoint.addresses") {
                     ForEach(endpoint.addresses) { range in

@@ -26,16 +26,20 @@ struct ContentView: View {
     }
     
     private var image: String {
-        switch navigationContext {
-        case .unknown, .home:
-            "network.badge.shield.half.filled"
-        case .endpoint(let endpoint):
-            if !endpoint.isActive {
-                "diamond"
-            } else if satellite.connectedID == endpoint.id {
-                "diamond.fill"
-            } else {
-                "diamond.bottomhalf.filled"
+        if satellite.pondering {
+            "satellite.guard"
+        } else {
+            switch navigationContext {
+            case .unknown, .home:
+                "satellite.guard"
+            case .endpoint(let endpoint):
+                if !endpoint.isActive {
+                    "diamond"
+                } else if satellite.connectedID == endpoint.id {
+                    "diamond.fill"
+                } else {
+                    "diamond.bottomhalf.filled"
+                }
             }
         }
     }
@@ -60,10 +64,12 @@ struct ContentView: View {
                     VStack {
                         Spacer()
                         
-                        Image(systemName: image)
+                        Image(image)
                             .foregroundStyle(.secondary)
                             .font(.system(size: 500))
-                            .contentTransition(.symbolEffect(.replace.upUp))
+                            .symbolEffect(.wiggle, value: satellite.notifyError)
+                            .symbolEffect(.variableColor.iterative.dimInactiveLayers.reversing, value: satellite.pondering)
+                            .contentTransition(.symbolEffect(.replace.downUp))
                             .animation(.smooth, value: image)
                         
                         ConnectedLabel(indicator: true)
