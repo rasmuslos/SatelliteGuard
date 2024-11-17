@@ -83,12 +83,12 @@ struct ContentView: View {
                                 
                                 Image(image)
                                     .foregroundStyle(.secondary)
-                                    .font(.system(size: 500))
                                     .symbolEffect(.wiggle, value: satellite.notifyError)
                                     .symbolEffect(.variableColor.iterative.dimInactiveLayers.reversing, value: satellite.pondering)
                                     .contentTransition(.symbolEffect(.replace.byLayer.offUp))
                                     .animation(.smooth, value: image)
                             }
+                            .font(.system(size: 500))
                             
                             ConnectedLabel(indicator: true)
                                 .opacity(isConnected ? 1 : 0)
