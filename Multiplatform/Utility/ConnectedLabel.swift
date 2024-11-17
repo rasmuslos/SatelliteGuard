@@ -23,6 +23,7 @@ struct ConnectedLabel: View {
                 Text("connected")
             }
         }
+        .animation(.smooth, value: satellite.connectedSince)
         .compositingGroup()
         .overlay(alignment: .leading) {
             if indicator {

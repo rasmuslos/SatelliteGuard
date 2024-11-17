@@ -94,8 +94,11 @@ struct EndpointView: View {
                 }
             }
             .listStyle(.grouped)
+            #if os(tvOS)
+            .padding(.leading, ContentView.gap * 2)
             .scrollClipDisabled()
-            #if !os(tvOS)
+            #else
+            .navigationTitle(endpoint.name)
             .toolbar {
                 ToolbarItemGroup(placement: .secondaryAction) {
                     EndpointPrimaryButton(endpoint)
@@ -108,7 +111,7 @@ struct EndpointView: View {
             }
             #endif
         }
-        .navigationTitle(endpoint.name)
+        .preference(key: NavigationContextPreferenceKey.self, value: .endpoint(endpoint))
         .animation(.smooth, value: isActive)
     }
 }

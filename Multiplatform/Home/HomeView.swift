@@ -58,10 +58,12 @@ struct HomeView: View {
                         }
                     }
                 }
-                #if os(tvOS)
                 .listStyle(.grouped)
+                #if os(tvOS)
                 .scrollClipDisabled()
+                .padding(.leading, ContentView.gap * 2)
                 #else
+                .navigationTitle("home")
                 .environment(\.editMode, $editMode)
                 .toolbar {
                     ToolbarItemGroup(placement: .topBarTrailing) {
@@ -86,7 +88,6 @@ struct HomeView: View {
             }
         }
         .animation(.smooth, value: editMode)
-        .navigationTitle("home")
         .task {
             await Endpoint.checkActive()
         }

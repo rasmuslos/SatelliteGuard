@@ -19,6 +19,16 @@ struct MultiplatformApp: App {
         Task {
             await Endpoint.checkActive()
         }
+        
+        #if DEBUG && os(tvOS)
+        Task.detached {
+            if await Endpoint.all?.isEmpty ?? true {
+                await MainActor.run {
+                    PersistenceManager.shared.modelContainer.mainContext.insert(Endpoint.fixture)
+                }
+            }
+        }
+        #endif
     }
     
     var body: some Scene {
