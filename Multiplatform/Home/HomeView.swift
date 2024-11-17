@@ -58,11 +58,11 @@ struct HomeView: View {
                         }
                     }
                 }
-                .listStyle(.grouped)
                 #if os(tvOS)
+                .listStyle(.grouped)
                 .scrollClipDisabled()
-                .padding(.leading, ContentView.gap * 2)
                 #else
+                .listStyle(.insetGrouped)
                 .navigationTitle("home")
                 .environment(\.editMode, $editMode)
                 .toolbar {
@@ -87,6 +87,9 @@ struct HomeView: View {
                 #endif
             }
         }
+        #if os(tvOS)
+        .padding(.leading, ContentView.gap)
+        #endif
         .animation(.smooth, value: editMode)
         .task {
             await Endpoint.checkActive()

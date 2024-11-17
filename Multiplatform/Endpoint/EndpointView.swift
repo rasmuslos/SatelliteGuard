@@ -39,7 +39,7 @@ struct EndpointView: View {
                     .foregroundStyle(.green)
                 }
                 #endif
-                if !isActive {
+                if endpoint.isActive {
                     EndpointDeactivateButton(endpoint)
                 }
                 
@@ -92,11 +92,12 @@ struct EndpointView: View {
                     }
                 }
             }
-            .listStyle(.grouped)
             #if os(tvOS)
-            .padding(.leading, ContentView.gap * 2)
+            .listStyle(.grouped)
+            .padding(.leading, ContentView.gap)
             .scrollClipDisabled()
             #else
+            .listStyle(.insetGrouped)
             .navigationTitle(endpoint.name)
             .toolbar {
                 ToolbarItemGroup(placement: .secondaryAction) {

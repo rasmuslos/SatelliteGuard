@@ -12,7 +12,7 @@ import SatelliteGuardKit
 struct ContentView: View {
     @Environment(Satellite.self) private var satellite
     
-    static let gap: CGFloat = 60
+    static let gap: CGFloat = 80
     
     #if os(tvOS)
     @State private var navigationContext: NavigationContextPreferenceKey.NavigationContext = .unknown
@@ -26,20 +26,16 @@ struct ContentView: View {
     }
     
     private var image: String {
-        if satellite.pondering {
+        switch navigationContext {
+        case .unknown, .home:
             "satellite.guard"
-        } else {
-            switch navigationContext {
-            case .unknown, .home:
-                "satellite.guard"
-            case .endpoint(let endpoint):
-                if !endpoint.isActive {
-                    "diamond"
-                } else if satellite.connectedID == endpoint.id {
-                    "diamond.fill"
-                } else {
-                    "diamond.bottomhalf.filled"
-                }
+        case .endpoint(let endpoint):
+            if !endpoint.isActive {
+                "diamond"
+            } else if satellite.connectedID == endpoint.id {
+                "diamond.fill"
+            } else {
+                "diamond.bottomhalf.filled"
             }
         }
     }
@@ -58,31 +54,46 @@ struct ContentView: View {
         Group {
             #if os(tvOS)
             GeometryReader { geometry in
-                let width = max(0, geometry.size.width / 2)
+                let width = max(0, geometry.size.width / 2) - 40
                 
-                HStack(spacing: 0) {
-                    VStack {
-                        Spacer()
-                        
-                        Image(image)
-                            .foregroundStyle(.secondary)
-                            .font(.system(size: 500))
-                            .symbolEffect(.wiggle, value: satellite.notifyError)
-                            .symbolEffect(.variableColor.iterative.dimInactiveLayers.reversing, value: satellite.pondering)
-                            .contentTransition(.symbolEffect(.replace.downUp))
-                            .animation(.smooth, value: image)
-                        
-                        ConnectedLabel(indicator: true)
-                            .opacity(isConnected ? 1 : 0)
-                            .animation(.smooth, value: isConnected)
-                        
-                        Spacer()
+                ZStack(alignment: .topLeading) {
+                    #if DEBUG
+                    HStack(spacing: geometry.safeAreaInsets.leading) {
+                        Rectangle()
+                            .fill(.red)
+                        Rectangle()
+                            .fill(.blue)
                     }
-                    .frame(width: width - Self.gap)
-                    .ignoresSafeArea()
+                    .frame(width: geometry.size.width)
+                    #endif
                     
-                    mainContent
-                        .frame(width: width + Self.gap)
+                    HStack(spacing: 0) {
+                        VStack {
+                            Spacer()
+                            
+                            Image(image)
+                                .foregroundStyle(.secondary)
+                                .font(.system(size: 500))
+                                .symbolEffect(.wiggle, value: satellite.notifyError)
+                                .symbolEffect(.variableColor.iterative.dimInactiveLayers.reversing, value: satellite.pondering)
+                                .contentTransition(.symbolEffect(.replace.downUp))
+                                .animation(.smooth, value: image)
+                            
+                            ConnectedLabel(indicator: true)
+                                .opacity(isConnected ? 1 : 0)
+                                .animation(.smooth, value: isConnected)
+                            
+                            Spacer()
+                        }
+                        .frame(width: width)
+                        .border(.cyan)
+                        
+                        Spacer(minLength: geometry.safeAreaInsets.leading)
+                        
+                        mainContent
+                            .frame(width: width + Self.gap)
+                            .offset(x: -Self.gap)
+                    }
                 }
             }
             .onPreferenceChange(NavigationContextPreferenceKey.self) {
