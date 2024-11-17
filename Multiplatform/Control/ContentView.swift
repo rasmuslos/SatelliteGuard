@@ -68,25 +68,35 @@ struct ContentView: View {
                     #endif
                     
                     HStack(spacing: 0) {
-                        VStack {
-                            Spacer()
+                        VStack(spacing: 40) {
+                            Spacer(minLength: 0)
                             
-                            Image(image)
-                                .foregroundStyle(.secondary)
-                                .font(.system(size: 500))
-                                .symbolEffect(.wiggle, value: satellite.notifyError)
-                                .symbolEffect(.variableColor.iterative.dimInactiveLayers.reversing, value: satellite.pondering)
-                                .contentTransition(.symbolEffect(.replace.downUp))
-                                .animation(.smooth, value: image)
+                            ZStack {
+                                Group {
+                                    Image("satellite.guard")
+                                    
+                                    Image("diamond")
+                                    Image("diamond.fill")
+                                    Image("diamond.bottomhalf.filled")
+                                }
+                                .hidden()
+                                
+                                Image(image)
+                                    .foregroundStyle(.secondary)
+                                    .font(.system(size: 500))
+                                    .symbolEffect(.wiggle, value: satellite.notifyError)
+                                    .symbolEffect(.variableColor.iterative.dimInactiveLayers.reversing, value: satellite.pondering)
+                                    .contentTransition(.symbolEffect(.replace.byLayer.offUp))
+                                    .animation(.smooth, value: image)
+                            }
                             
                             ConnectedLabel(indicator: true)
                                 .opacity(isConnected ? 1 : 0)
                                 .animation(.smooth, value: isConnected)
                             
-                            Spacer()
+                            Spacer(minLength: 0)
                         }
                         .frame(width: width)
-                        .border(.cyan)
                         
                         Spacer(minLength: geometry.safeAreaInsets.leading)
                         
