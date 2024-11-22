@@ -30,5 +30,6 @@ struct EndpointEditButton: View {
             Label("endpoint.edit", systemImage: "pencil")
         }
         .disabled(isActive)
+        .foregroundColor(isActive ? .secondary : .primary)
     }
 }
