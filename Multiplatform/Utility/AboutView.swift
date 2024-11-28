@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import SatelliteGuardKit
 
-struct AboutSheet: View {
+struct AboutView: View {
     var body: some View {
         NavigationStack {
             List {
@@ -37,5 +37,5 @@ struct AboutSheet: View {
 }
 
 #Preview {
-    AboutSheet()
+    AboutView()
 }

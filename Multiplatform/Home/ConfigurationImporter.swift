@@ -36,6 +36,7 @@ extension ConfigurationImporter {
             } label: {
                 Label("configuration.import", systemImage: "plus")
             }
+            .keyboardShortcut("i", modifiers: .command)
             .disabled(satellite.importing)
             .fileImporter(isPresented: $pickerPresented, allowedContentTypes: [.init(exportedAs: "com.wireguard.config.quick")], allowsMultipleSelection: true, onCompletion: satellite.handleFileSelection)
             
@@ -44,11 +45,14 @@ extension ConfigurationImporter {
             Link(destination: .init(string: "https://github.com/rasmuslos/SatelliteGuard/blob/main/SECURITY.md")!) {
                 Label("security", systemImage: "lock")
             }
+            
+            #if !os(macOS)
             Button {
                 satellite.aboutSheetPresented.toggle()
             } label: {
                 Label("about", systemImage: "key.viewfinder")
             }
+            #endif
         }
     }
 }

@@ -118,7 +118,7 @@ struct ContentView: View {
             #endif
         }
         .sheet(isPresented: $satellite.aboutSheetPresented) {
-            AboutSheet()
+            AboutView()
         }
     }
 }

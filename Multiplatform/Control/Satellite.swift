@@ -15,8 +15,7 @@ import SatelliteGuardKit
 @Observable
 final class Satellite {
     @MainActor private var orbitingID: UUID?
-    @MainActor private(set) var status: NEVPNStatus
-    @MainActor private(set) var connectedSince: Date?
+    @MainActor private(set) var status: VPNStatus?
     
     @MainActor var editingEndpoint: Endpoint?
     @MainActor var aboutSheetPresented: Bool
@@ -33,7 +32,7 @@ final class Satellite {
     @MainActor
     init() {
         orbitingID = nil
-        status = .invalid
+        status = nil
         
         editingEndpoint = nil
         aboutSheetPresented = false
@@ -46,6 +45,12 @@ final class Satellite {
         
         tokens = setupObservers()
     }
+    
+    enum VPNStatus: Equatable {
+        case disconnected
+        case establishing
+        case connected(since: Date)
+    }
 }
 
 extension Satellite {
@@ -56,7 +61,11 @@ extension Satellite {
     
     @MainActor
     var connectedID: UUID? {
-        status.isConnected ? orbitingID : nil
+        if let status, case VPNStatus.connected = status {
+            orbitingID
+        } else {
+            nil
+        }
     }
     
     func handleFileSelection(_ result: Result<[URL], any Error>) {
@@ -218,13 +227,22 @@ private extension Satellite {
     func setupObservers() -> [Any] {
         var tokens = [WireGuardMonitor.shared.statusPublisher.sink { [weak self] (id, status, connectedSince) in
             Task { @MainActor in
+                
+                print(status.rawValue)
+                
                 guard status.isConnected && self?.orbitingID == id else {
                     return
                 }
                 
                 self?.orbitingID = id
-                self?.status = status
-                self?.connectedSince = connectedSince
+                switch status {
+                case .connected:
+                    self?.status = .connected(since: connectedSince ?? .now)
+                case .connecting:
+                    self?.status = .establishing
+                default:
+                    self?.status = .disconnected
+                }
             }
         }]
         #if !os(macOS)

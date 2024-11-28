@@ -117,6 +117,7 @@
       }
     },
     "connected" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -147,6 +148,9 @@
           }
         }
       }
+    },
+    "connecting" : {
+
     },
     "disconnect" : {
       "localizations" : {
@@ -596,6 +600,9 @@
         }
       }
     },
+    "endpoint.remove" : {
+
+    },
     "home" : {
       "localizations" : {
         "de" : {
@@ -691,6 +698,9 @@
           }
         }
       }
+    },
+    "quit" : {
+
     },
     "security" : {
       "localizations" : {

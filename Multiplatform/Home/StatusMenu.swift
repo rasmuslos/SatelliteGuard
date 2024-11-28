@@ -10,6 +10,10 @@ import SwiftUI
 import SwiftData
 import SatelliteGuardKit
 
+@available(iOS, unavailable)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+@available(visionOS, unavailable)
 struct StatusMenu: View {
     @Environment(Satellite.self) private var satellite
     
@@ -24,7 +28,9 @@ struct StatusMenu: View {
     }
     
     var body: some View {
-        VStack(spacing: 12) {
+        @Bindable var satellite = satellite
+        
+        VStack(spacing: 8) {
             HStack(alignment: .top, spacing: 0) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("home")
@@ -40,9 +46,22 @@ struct StatusMenu: View {
                 
                 Spacer(minLength: 12)
                 
-                Image("satellite.guard")
-                    .foregroundStyle(.secondary)
-                    .symbolEffect(.pulse, isActive: satellite.pondering)
+                Menu {
+                    ConfigurationImporter.Inner()
+                    
+                    Divider()
+                    
+                    Button("quit") {
+                        exit(0)
+                    }
+                    .keyboardShortcut("q", modifiers: .command)
+                } label: {
+                    Image("satellite.guard")
+                        .foregroundStyle(.secondary)
+                        .symbolEffect(.pulse, isActive: satellite.pondering)
+                }
+                .menuStyle(.button)
+                .buttonStyle(.plain)
             }
             .animation(.smooth, value: satellite.connectedID)
             
@@ -66,18 +85,14 @@ struct StatusMenu: View {
             }
         }
         .foregroundStyle(.primary)
-        .padding(16)
+        .padding(12)
         .frame(width: 300)
     }
 }
 
 private struct StatusSection: View {
-    @Environment(Satellite.self) private var satellite
-    
     let title: LocalizedStringKey
     let endpoints: [Endpoint]
-    
-    @State private var hovered = false
     
     var body: some View {
         VStack(spacing: 4) {
@@ -90,117 +105,73 @@ private struct StatusSection: View {
                 Spacer()
             }
             
-            ForEach(endpoints) { endpoint in
-                HStack(spacing: 8) {
-                    Button {
-                        if !endpoint.isActive {
-                            satellite.activate(endpoint)
-                        } else if satellite.connectedID == endpoint.id {
-                            satellite.land(endpoint)
-                        } else {
-                            satellite.launch(endpoint)
-                        }
-                    } label: {
-                        Circle()
-                            .fill(satellite.connectedID == endpoint.id ? .green : .gray.opacity(0.4))
-                            .overlay {
-                                Image(systemName: !endpoint.isActive ? "diamond" : satellite.connectedID == endpoint.id ? "diamond.fill" : "diamond.bottomhalf.filled")
-                                    .font(.system(size: 12))
-                                    .foregroundStyle(.white)
-                            }
-                            .frame(width: 24, height: 24)
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(satellite.pondering)
-                    
-                    Text(endpoint.name)
-                    
-                    Spacer()
-                }
-                .padding(4)
-                .background(hovered ? Color.gray.opacity(0.2) : .clear, in: RoundedRectangle(cornerRadius: 8))
-                .padding(-4)
-                .onHover {
-                    hovered = $0
-                }
-                .animation(.smooth, value: hovered)
+            ForEach(endpoints) {
+                StatusMenuCell(endpoint: $0)
             }
         }
     }
 }
 
-/*
- if endpoints.isEmpty {
-     Text("home.empty")
-         .foregroundStyle(.secondary)
-     
-     ConfigurationImporter.Inner()
-     exitButton
- } else {
-     if !activeEndpoints.isEmpty {
-         Section("home.active") {
-             ForEach(Array(activeEndpoints.enumerated()), id: \.element) {
-                 MenuCell(endpoint: $1, index: $0)
-             }
-         }
-     }
-     if !inactiveEndpoints.isEmpty {
-         Section("home.inactive") {
-             ForEach(Array(inactiveEndpoints.enumerated()), id: \.element) {
-                 MenuCell(endpoint: $1, index: $0)
-             }
-         }
-     }
-     
-     if menuExpanded {
-         Section("more") {
-             ConfigurationImporter.Inner()
-             exitButton
-         }
-     } else {
-         Button {
-             withAnimation {
-                 menuExpanded.toggle()
-             }
-         } label: {
-             Text("more")
-         }
-     }
- }
- 
-private struct MenuCell: View {
+private struct StatusMenuCell: View {
     @Environment(Satellite.self) private var satellite
     
     let endpoint: Endpoint
-    let index: Int
+    
+    @State private var hovered = false
     
     var body: some View {
-        Menu {
+        HStack(spacing: 6) {
+            Button {
+                if !endpoint.isActive {
+                    satellite.activate(endpoint)
+                } else if satellite.connectedID == endpoint.id {
+                    satellite.land(endpoint)
+                } else {
+                    satellite.launch(endpoint)
+                }
+            } label: {
+                Circle()
+                    .fill(satellite.connectedID == endpoint.id ? .green : .accentColor)
+                    .overlay {
+                        Image(systemName: !endpoint.isActive ? "diamond" : satellite.connectedID == endpoint.id ? "diamond.fill" : "diamond.bottomhalf.filled")
+                            .font(.system(size: 12))
+                            .foregroundStyle(.white)
+                    }
+                    .frame(width: 24, height: 24)
+            }
+            .buttonStyle(.plain)
+            .disabled(satellite.pondering)
+            
+            Text(endpoint.name)
+            
+            Spacer()
+        }
+        .padding(4)
+        .background(hovered ? Color.gray.opacity(0.2) : .clear, in: RoundedRectangle(cornerRadius: 8))
+        .contextMenu {
             EndpointPrimaryButton(endpoint)
             
             if endpoint.isActive {
                 EndpointDeactivateButton(endpoint)
-                    .foregroundStyle(.secondary)
             } else {
-                Button {
+                Button(role: .destructive) {
                     try? endpoint.remove()
                 } label: {
                     Text("endpoint.remove")
                 }
             }
-        } label: {
-            HStack(spacing: 8) {
-                if satellite.connectedID == endpoint.id {
-                    Circle()
-                        .fill(.green)
-                }
-                
-                Text(endpoint.name)
-            }
         }
+        .padding(-4)
+        .onHover {
+            hovered = $0
+        }
+        .animation(.smooth, value: hovered)
     }
 }
-*/
+
+#Preview {
+    StatusMenu()
+}
 
 #if DEBUG
 #Preview {

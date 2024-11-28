@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 import SatelliteGuardKit
 
+@available(macOS, unavailable)
 struct EndpointCell: View {
     @Environment(Satellite.self) private var satellite
     
@@ -77,7 +78,7 @@ struct EndpointCell: View {
     }
 }
 
-#if DEBUG
+#if DEBUG && !os(macOS)
 #Preview {
     NavigationStack {
         List {

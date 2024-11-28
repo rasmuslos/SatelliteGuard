@@ -11,19 +11,30 @@ import SwiftUI
 struct ConnectedLabel: View {
     @Environment(Satellite.self) private var satellite
     
-    var indicator: Bool = false
+    var color = false
+    var indicator = false
     
     var body: some View {
         Group {
-            if let connectedSince = satellite.connectedSince {
+            switch satellite.status {
+            case .connected(let since):
                 Text("connected.since")
                 + Text(verbatim: " ")
-                + Text(connectedSince, style: .relative)
-            } else {
-                Text("connected")
+                + Text(since, style: .relative)
+            case .establishing:
+                Text("connecting")
+            default:
+                EmptyView()
             }
         }
-        .animation(.smooth, value: satellite.connectedSince)
+        .modify {
+            if color {
+                $0.foregroundStyle(satellite.status == .establishing ? .blue : .green)
+            } else {
+                $0
+            }
+        }
+        .animation(.smooth, value: satellite.status)
         .compositingGroup()
         .overlay(alignment: .leading) {
             if indicator {

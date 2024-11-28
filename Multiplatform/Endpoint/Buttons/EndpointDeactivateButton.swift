@@ -31,6 +31,14 @@ struct EndpointDeactivateButton: View {
                 .labelStyle(.titleOnly)
                 #endif
         }
+        .modify {
+            if satellite.connectedID == endpoint.id {
+                $0
+                    .foregroundStyle(.secondary)
+            } else {
+                $0
+            }
+        }
         .disabled(isActive)
     }
 }
