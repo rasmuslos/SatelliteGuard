@@ -38,8 +38,14 @@ struct MultiplatformApp: App {
                 .environment(satellite)
                 .modelContainer(PersistenceManager.shared.modelContainer)
         } label: {
-            Label("home", image: "satellite.guard")
-                .foregroundStyle(satellite.connectedID == nil ? .gray : .green)
+            switch satellite.status {
+            case .connected:
+                Label("home", systemImage: "diamond.fill")
+            case .establishing:
+                Label("home", systemImage: "diamond.bottomhalf.filled")
+            default:
+                Label("home", image: "satellite.guard")
+            }
         }
         .menuBarExtraStyle(.window)
         #else

@@ -121,15 +121,6 @@ private struct StatusMenuCell: View {
     
     var body: some View {
         HStack(spacing: 6) {
-            Button {
-                if !endpoint.isActive {
-                    satellite.activate(endpoint)
-                } else if satellite.connectedID == endpoint.id {
-                    satellite.land(endpoint)
-                } else {
-                    satellite.launch(endpoint)
-                }
-            } label: {
                 Circle()
                     .fill(satellite.connectedID == endpoint.id ? .green : .accentColor)
                     .overlay {
@@ -138,9 +129,6 @@ private struct StatusMenuCell: View {
                             .foregroundStyle(.white)
                     }
                     .frame(width: 24, height: 24)
-            }
-            .buttonStyle(.plain)
-            .disabled(satellite.pondering)
             
             Text(endpoint.name)
             
@@ -148,6 +136,19 @@ private struct StatusMenuCell: View {
         }
         .padding(4)
         .background(hovered ? Color.gray.opacity(0.2) : .clear, in: RoundedRectangle(cornerRadius: 8))
+        .onTapGesture {
+            guard !satellite.pondering else {
+                return
+            }
+            
+            if !endpoint.isActive {
+                satellite.activate(endpoint)
+            } else if satellite.connectedID == endpoint.id {
+                satellite.land(endpoint)
+            } else {
+                satellite.launch(endpoint)
+            }
+        }
         .contextMenu {
             EndpointPrimaryButton(endpoint)
             

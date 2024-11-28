@@ -40,7 +40,9 @@ extension ConfigurationImporter {
             .disabled(satellite.importing)
             .fileImporter(isPresented: $pickerPresented, allowedContentTypes: [.init(exportedAs: "com.wireguard.config.quick")], allowsMultipleSelection: true, onCompletion: satellite.handleFileSelection)
             
+            #if !os(macOS)
             Divider()
+            #endif
             
             Link(destination: .init(string: "https://github.com/rasmuslos/SatelliteGuard/blob/main/SECURITY.md")!) {
                 Label("security", systemImage: "lock")
