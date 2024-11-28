@@ -7,7 +7,7 @@ let package = Package(
     name: "WireGuard",
     platforms: [
         .iOS(.v15),
-        .tvOS(.v15),
+        .tvOS(.v17),
         .macOS(.v12),
     ],
     products: [

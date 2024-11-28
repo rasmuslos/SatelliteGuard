@@ -27,6 +27,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     
     override func stopTunnel(with reason: NEProviderStopReason) async {
         await connection.deactivate()
+        
+        #if os(macOS)
+        exit(0)
+        #endif
     }
     
     override func handleAppMessage(_ messageData: Data) async -> Data? {

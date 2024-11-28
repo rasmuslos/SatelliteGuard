@@ -56,7 +56,7 @@ final class Satellite {
 extension Satellite {
     @MainActor
     var pondering: Bool {
-        transmitting > 0
+        transmitting > 0 || status == .establishing
     }
     
     @MainActor
@@ -130,14 +130,19 @@ extension Satellite {
             }
         }
     }
-    func land(_ endpoint: Endpoint, _ status: Binding<Bool>? = nil, _ notifySuccess: Binding<Bool>? = nil, _ notifyError: Binding<Bool>? = nil) {
+    func land(_ endpoint: Endpoint?, _ status: Binding<Bool>? = nil, _ notifySuccess: Binding<Bool>? = nil, _ notifyError: Binding<Bool>? = nil) {
         Task {
             await MainActor.withAnimation {
                 self.transmitting += 1
                 status?.wrappedValue = true
             }
             
-            await endpoint.disconnect()
+            if let endpoint {
+                await endpoint.disconnect()
+            } else if let orbitingID = await self.orbitingID, let endpoint = Endpoint.identified(by: orbitingID) {
+                await endpoint.disconnect()
+            }
+            
             await MainActor.withAnimation {
                 self.orbitingID = nil
                 
@@ -227,8 +232,7 @@ private extension Satellite {
     func setupObservers() -> [Any] {
         var tokens = [WireGuardMonitor.shared.statusPublisher.sink { [weak self] (id, status, connectedSince) in
             Task { @MainActor in
-                
-                print(status.rawValue)
+                print(id, status.rawValue, connectedSince, await self?.orbitingID)
                 
                 guard status.isConnected && self?.orbitingID == id else {
                     return
@@ -260,12 +264,20 @@ private extension Satellite {
                     if status.isConnected {
                         await MainActor.withAnimation {
                             self.orbitingID = endpoint.id
-                            self.status = status
+                            
+                            switch status {
+                            case .connected:
+                                self.status = .connected(since: .now)
+                            case .connecting:
+                                self.status = .establishing
+                            default:
+                                self.status = .disconnected
+                            }
                         }
                     } else if !status.isConnected && orbitingID == endpoint.id {
                         await MainActor.withAnimation {
                             self.orbitingID = nil
-                            self.status = .invalid
+                            self.status = nil
                         }
                     } else {
                         continue

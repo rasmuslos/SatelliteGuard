@@ -36,12 +36,17 @@ struct StatusMenu: View {
                     Text("home")
                         .font(.headline)
                     
-                    if satellite.connectedID != nil {
-                        ConnectedLabel()
-                            .bold()
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
+                    Group {
+                        if satellite.connectedID != nil {
+                            ConnectedLabel()
+                                .foregroundStyle(.secondary)
+                        } else if satellite.status == .establishing {
+                            Text("connecting")
+                                .foregroundStyle(.blue)
+                        }
                     }
+                    .bold()
+                    .font(.caption2)
                 }
                 
                 Spacer(minLength: 12)
@@ -58,7 +63,7 @@ struct StatusMenu: View {
                 } label: {
                     Image("satellite.guard")
                         .foregroundStyle(.secondary)
-                        .symbolEffect(.pulse, isActive: satellite.pondering)
+                        .symbolEffect(.variableColor, isActive: satellite.pondering)
                 }
                 .menuStyle(.button)
                 .buttonStyle(.plain)
@@ -78,10 +83,10 @@ struct StatusMenu: View {
             }
             
             if !activeEndpoints.isEmpty {
-                StatusSection(title: "home.active", endpoints: activeEndpoints)
+                StatusSection(title: "home.active", enableShortcuts: true, endpoints: activeEndpoints)
             }
             if !inactiveEndpoints.isEmpty {
-                StatusSection(title: "home.inactive", endpoints: inactiveEndpoints)
+                StatusSection(title: "home.inactive", enableShortcuts: false, endpoints: inactiveEndpoints)
             }
         }
         .foregroundStyle(.primary)
@@ -90,8 +95,13 @@ struct StatusMenu: View {
     }
 }
 
+@available(iOS, unavailable)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+@available(visionOS, unavailable)
 private struct StatusSection: View {
     let title: LocalizedStringKey
+    let enableShortcuts: Bool
     let endpoints: [Endpoint]
     
     var body: some View {
@@ -105,48 +115,85 @@ private struct StatusSection: View {
                 Spacer()
             }
             
-            ForEach(endpoints) {
-                StatusMenuCell(endpoint: $0)
+            ForEach(Array(endpoints.enumerated()), id: \.element) {
+                StatusMenuCell(endpoint: $1, index: enableShortcuts ? $0 : nil)
             }
         }
     }
 }
 
+@available(iOS, unavailable)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+@available(visionOS, unavailable)
 private struct StatusMenuCell: View {
     @Environment(Satellite.self) private var satellite
     
     let endpoint: Endpoint
+    let index: Int?
     
     @State private var hovered = false
     
-    var body: some View {
-        HStack(spacing: 6) {
-                Circle()
-                    .fill(satellite.connectedID == endpoint.id ? .green : .accentColor)
-                    .overlay {
-                        Image(systemName: !endpoint.isActive ? "diamond" : satellite.connectedID == endpoint.id ? "diamond.fill" : "diamond.bottomhalf.filled")
-                            .font(.system(size: 12))
-                            .foregroundStyle(.white)
-                    }
-                    .frame(width: 24, height: 24)
-            
-            Text(endpoint.name)
-            
-            Spacer()
+    private var shortcut: Character? {
+        switch index {
+        case 0:
+            "1"
+        case 1:
+            "2"
+        case 2:
+            "3"
+        case 3:
+            "4"
+        case 4:
+            "5"
+        case 5:
+            "6"
+        case 6:
+            "7"
+        case 7:
+            "8"
+        case 8:
+            "9"
+        case 9:
+            "0"
+        default:
+            nil
         }
-        .padding(4)
-        .background(hovered ? Color.gray.opacity(0.2) : .clear, in: RoundedRectangle(cornerRadius: 8))
-        .onTapGesture {
-            guard !satellite.pondering else {
-                return
-            }
-            
+    }
+    
+    var body: some View {
+        Button {
             if !endpoint.isActive {
                 satellite.activate(endpoint)
             } else if satellite.connectedID == endpoint.id {
                 satellite.land(endpoint)
             } else {
                 satellite.launch(endpoint)
+            }
+        } label: {
+            HStack(spacing: 6) {
+                Circle()
+                    .fill(!endpoint.isActive ? .gray : satellite.connectedID == endpoint.id ? .green : .accentColor)
+                    .overlay {
+                        Image(systemName: !endpoint.isActive ? "diamond" : satellite.connectedID == endpoint.id ? "diamond.fill" : "diamond.bottomhalf.filled")
+                            .font(.system(size: 12))
+                            .foregroundStyle(.white)
+                    }
+                    .frame(width: 24, height: 24)
+                
+                Text(endpoint.name)
+                
+                Spacer()
+            }
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .modify {
+            if let shortcut {
+                $0
+                    .keyboardShortcut(.init(unicodeScalarLiteral: shortcut), modifiers: [])
+            } else {
+                $0
             }
         }
         .contextMenu {
@@ -162,6 +209,9 @@ private struct StatusMenuCell: View {
                 }
             }
         }
+        .disabled(satellite.pondering)
+        .padding(4)
+        .background(hovered ? Color.gray.opacity(0.2) : .clear, in: RoundedRectangle(cornerRadius: 8))
         .padding(-4)
         .onHover {
             hovered = $0
@@ -170,11 +220,7 @@ private struct StatusMenuCell: View {
     }
 }
 
-#Preview {
-    StatusMenu()
-}
-
-#if DEBUG
+#if DEBUG && os(macOS)
 #Preview {
     StatusMenu()
         .previewEnvironment()
