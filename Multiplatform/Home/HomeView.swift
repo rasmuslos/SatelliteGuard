@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 import SatelliteGuardKit
 
+@available(macOS, unavailable)
 struct HomeView: View {
     @Environment(Satellite.self) private var satellite
     
@@ -97,7 +98,7 @@ struct HomeView: View {
     }
 }
 
-#if DEBUG
+#if DEBUG && !os(macOS)
 #Preview {
     NavigationStack {
         HomeView()

@@ -32,6 +32,17 @@ struct MultiplatformApp: App {
     }
     
     var body: some Scene {
+        #if os(macOS)
+        MenuBarExtra {
+            StatusMenu()
+                .environment(satellite)
+                .modelContainer(PersistenceManager.shared.modelContainer)
+        } label: {
+            Label("home", image: "satellite.guard")
+                .foregroundStyle(satellite.connectedID == nil ? .gray : .green)
+        }
+        .menuBarExtraStyle(.window)
+        #else
         WindowGroup {
             ContentView()
                 .sensoryFeedback(.error, trigger: satellite.notifyError)
@@ -39,5 +50,6 @@ struct MultiplatformApp: App {
                 .environment(satellite)
                 .modelContainer(PersistenceManager.shared.modelContainer)
         }
+        #endif
     }
 }

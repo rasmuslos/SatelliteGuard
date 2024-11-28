@@ -92,12 +92,14 @@ struct EndpointView: View {
                     }
                 }
             }
+            #if os(iOS)
+            .listStyle(.insetGrouped)
+            #endif
             #if os(tvOS)
             .listStyle(.grouped)
             .padding(.leading, ContentView.gap)
             .scrollClipDisabled()
             #else
-            .listStyle(.insetGrouped)
             .navigationTitle(endpoint.name)
             .toolbar {
                 ToolbarItemGroup(placement: .secondaryAction) {

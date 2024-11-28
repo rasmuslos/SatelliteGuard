@@ -29,7 +29,7 @@ struct AboutSheet: View {
                 }
             }
             .navigationTitle("about.title")
-            #if !os(tvOS)
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
         }

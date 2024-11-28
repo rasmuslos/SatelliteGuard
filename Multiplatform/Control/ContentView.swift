@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 import SatelliteGuardKit
 
+@available(macOS, unavailable)
 struct ContentView: View {
     @Environment(Satellite.self) private var satellite
     
@@ -122,7 +123,7 @@ struct ContentView: View {
     }
 }
 
-#if DEBUG
+#if DEBUG && !os(macOS)
 #Preview {
     ContentView()
         .previewEnvironment()

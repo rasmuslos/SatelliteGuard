@@ -33,7 +33,9 @@ struct EndpointEditView: View {
                             TextField("endpoint.edit.listenPort", text: viewModel.listenPort)
                             TextField("endpoint.edit.mtu", text: viewModel.mtu)
                         }
-                            .keyboardType(.numberPad)
+                        #if !os(macOS)
+                        .keyboardType(.numberPad)
+                        #endif
                     } footer: {
                         VStack {
                             if viewModel.privateKeyMalformed {
@@ -50,7 +52,9 @@ struct EndpointEditView: View {
                     }
                 }
                 .autocorrectionDisabled()
+                #if !os(macOS)
                 .textInputAutocapitalization(.never)
+                #endif
                 
                 Section {
                     Toggle("endpoint.edit.disconnectsOnSleep", isOn: $viewModel.endpoint.disconnectsOnSleep)
@@ -76,10 +80,9 @@ struct EndpointEditView: View {
                 }
             }
             .navigationTitle("endpoint.edit")
-            #if !os(tvOS)
-            .navigationBarTitleDisplayMode(.inline)
-            #endif
             .interactiveDismissDisabled()
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -101,6 +104,7 @@ struct EndpointEditView: View {
                     }
                 }
             }
+            #endif
         }
         .onAppear {
             viewModel.dismissAction = dismiss
@@ -108,7 +112,7 @@ struct EndpointEditView: View {
     }
 }
 
-#if DEBUG && !os(tvOS)
+#if DEBUG
 #Preview {
     Text(verbatim: ":)")
         .sheet(isPresented: .constant(true)) {

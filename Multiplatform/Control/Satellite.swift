@@ -216,17 +216,19 @@ extension Satellite {
 
 private extension Satellite {
     func setupObservers() -> [Any] {
-        [WireGuardMonitor.shared.statusPublisher.sink { (id, status, connectedSince) in
+        var tokens = [WireGuardMonitor.shared.statusPublisher.sink { [weak self] (id, status, connectedSince) in
             Task { @MainActor in
-                guard status.isConnected && self.orbitingID == id else {
+                guard status.isConnected && self?.orbitingID == id else {
                     return
                 }
                 
-                self.orbitingID = id
-                self.status = status
-                self.connectedSince = connectedSince
+                self?.orbitingID = id
+                self?.status = status
+                self?.connectedSince = connectedSince
             }
-        }, NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification).sink { _ in
+        }]
+        #if !os(macOS)
+        tokens += [NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification).sink { _ in
             Task {
                 guard let endpoints = await Endpoint.all else {
                     return
@@ -255,6 +257,9 @@ private extension Satellite {
                 }
             }
         }]
+        #endif
+        
+        return tokens
     }
 }
 

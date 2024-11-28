@@ -8,6 +8,7 @@ let package = Package(
     platforms: [
         .iOS(.v18),
         .tvOS(.v18),
+        .macOS(.v15),
     ],
     products: [
         .library(name: "SatelliteGuardKit", targets: ["SatelliteGuardKit", "SGPersistence", "SGWireGuard"]),
