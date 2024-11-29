@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import SwiftData
+import ServiceManagement
 import SatelliteGuardKit
 
 @available(iOS, unavailable)
@@ -27,6 +28,14 @@ struct StatusMenu: View {
         endpoints.filter { !$0.isActive }
     }
     
+    private var isActive: Bool {
+        if let status = satellite.status, case Satellite.VPNStatus.connected = status {
+            true
+        } else {
+            false
+        }
+    }
+    
     var body: some View {
         @Bindable var satellite = satellite
         
@@ -36,17 +45,10 @@ struct StatusMenu: View {
                     Text("home")
                         .font(.headline)
                     
-                    Group {
-                        if satellite.connectedID != nil {
-                            ConnectedLabel()
-                                .foregroundStyle(.secondary)
-                        } else if satellite.status == .establishing {
-                            Text("connecting")
-                                .foregroundStyle(.blue)
-                        }
-                    }
-                    .bold()
-                    .font(.caption2)
+                    StatusLabel()
+                        .labelStyle(.titleOnly)
+                        .bold()
+                        .font(.caption2)
                 }
                 
                 Spacer(minLength: 12)
@@ -62,13 +64,14 @@ struct StatusMenu: View {
                     .keyboardShortcut("q", modifiers: .command)
                 } label: {
                     Image("satellite.guard")
-                        .foregroundStyle(.secondary)
                         .symbolEffect(.variableColor, isActive: satellite.pondering)
+                        .symbolEffect(.pulse, isActive: isActive)
+                        .foregroundStyle(satellite.status == .disconnected ? .secondary : isActive ? .green : Color.blue)
                 }
                 .menuStyle(.button)
                 .buttonStyle(.plain)
             }
-            .animation(.smooth, value: satellite.connectedID)
+            .animation(.smooth, value: satellite.status)
             
             Divider()
                 .padding(.bottom, -4)
@@ -76,8 +79,6 @@ struct StatusMenu: View {
             if endpoints.isEmpty {
                 HStack {
                     Text("home.empty")
-                        .foregroundStyle(.secondary)
-                    
                     Spacer()
                 }
             }

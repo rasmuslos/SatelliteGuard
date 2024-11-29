@@ -164,6 +164,22 @@
         }
       }
     },
+    "disconnecting" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbindung wird getrennt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnecting"
+          }
+        }
+      }
+    },
     "endpoint.activate" : {
       "localizations" : {
         "de" : {

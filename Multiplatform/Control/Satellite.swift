@@ -14,7 +14,7 @@ import SatelliteGuardKit
 
 @Observable
 final class Satellite {
-    @MainActor private var orbitingID: UUID?
+    @MainActor private(set) var orbitingID: UUID?
     @MainActor private(set) var status: VPNStatus?
     
     @MainActor var editingEndpoint: Endpoint?
@@ -47,6 +47,7 @@ final class Satellite {
     }
     
     enum VPNStatus: Equatable {
+        case disconnecting
         case disconnected
         case establishing
         case connected(since: Date)
@@ -56,7 +57,7 @@ final class Satellite {
 extension Satellite {
     @MainActor
     var pondering: Bool {
-        transmitting > 0 || status == .establishing
+        transmitting > 0 || status == .establishing || status == .disconnecting
     }
     
     @MainActor
@@ -232,18 +233,16 @@ private extension Satellite {
     func setupObservers() -> [Any] {
         var tokens = [WireGuardMonitor.shared.statusPublisher.sink { [weak self] (id, status, connectedSince) in
             Task { @MainActor in
-                print(id, status.rawValue, connectedSince, await self?.orbitingID)
-                
-                guard status.isConnected && self?.orbitingID == id else {
-                    return
-                }
+                print(status.rawValue, id)
                 
                 self?.orbitingID = id
                 switch status {
                 case .connected:
                     self?.status = .connected(since: connectedSince ?? .now)
-                case .connecting:
+                case .connecting, .reasserting:
                     self?.status = .establishing
+                case .disconnecting:
+                    self?.status = .disconnecting
                 default:
                     self?.status = .disconnected
                 }

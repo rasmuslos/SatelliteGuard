@@ -29,14 +29,12 @@ struct EndpointView: View {
                 EndpointPrimaryButton(endpoint)
                 
                 #if !os(tvOS)
-                if isActive {
+                if satellite.orbitingID == endpoint.id, satellite.status != .disconnected {
                     Label {
-                        ConnectedLabel()
+                        StatusLabel(color: true)
                     } icon: {
-                        Image(systemName: "circle.fill")
-                            .symbolEffect(.pulse)
                     }
-                    .foregroundStyle(.green)
+                    StatusLabel(color: true)
                 }
                 #endif
                 if endpoint.isActive {

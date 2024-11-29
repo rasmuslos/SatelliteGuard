@@ -43,6 +43,8 @@ struct MultiplatformApp: App {
                 Label("home", systemImage: "diamond.fill")
             case .establishing:
                 Label("home", systemImage: "diamond.bottomhalf.filled")
+            case .disconnecting:
+                Label("home", systemImage: "diamond")
             default:
                 Label("home", image: "satellite.guard")
             }
