@@ -58,14 +58,17 @@ struct StatusMenu: View {
                     
                     Divider()
                     
+                    Toggle("launch.login", isOn: .init(get: { SMAppService.mainApp.status == .enabled }, set: satellite.updateServiceRegistration))
+                    
                     Button("quit") {
                         exit(0)
                     }
                     .keyboardShortcut("q", modifiers: .command)
                 } label: {
                     Image("satellite.guard")
-                        .symbolEffect(.variableColor, isActive: satellite.pondering)
                         .symbolEffect(.pulse, isActive: isActive)
+                        .symbolEffect(.wiggle, value: satellite.notifyError)
+                        .symbolEffect(.variableColor, isActive: satellite.pondering)
                         .foregroundStyle(satellite.status == .disconnected ? .secondary : isActive ? .green : Color.blue)
                 }
                 .menuStyle(.button)

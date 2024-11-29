@@ -10,6 +10,7 @@ import Network
 import NetworkExtension
 import SwiftUI
 import OSLog
+import ServiceManagement
 import SatelliteGuardKit
 
 @Observable
@@ -90,6 +91,30 @@ extension Satellite {
             
             await MainActor.withAnimation {
                 self.importing = false
+            }
+        }
+    }
+    
+    @available(iOS, unavailable)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    @available(visionOS, unavailable)
+    func updateServiceRegistration(_ register: Bool) {
+        Task {
+            await MainActor.withAnimation {
+                self.transmitting += 1
+            }
+            
+            do {
+                if register {
+                    try SMAppService.mainApp.register()
+                } else {
+                    try await SMAppService.mainApp.unregister()
+                }
+            }
+            
+            await MainActor.withAnimation {
+                self.transmitting -= 1
             }
         }
     }
