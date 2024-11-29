@@ -18,7 +18,7 @@ import ServiceManagement
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 @available(visionOS, unavailable)
-struct StatusMenu: View {
+struct DesktopMenu: View {
     @Environment(Satellite.self) private var satellite
     
     @Query private var endpoints: [Endpoint]
@@ -172,28 +172,23 @@ private struct StatusMenuCell: View {
     
     var body: some View {
         Button {
-            openWindow(value: endpoint.id)
+            if !endpoint.isActive {
+                satellite.activate(endpoint)
+            } else if satellite.connectedIDs.contains(endpoint.id) {
+                satellite.land(endpoint)
+            } else {
+                satellite.launch(endpoint)
+            }
         } label: {
             HStack(spacing: 6) {
-                Button {
-                    if !endpoint.isActive {
-                        satellite.activate(endpoint)
-                    } else if satellite.connectedIDs.contains(endpoint.id) {
-                        satellite.land(endpoint)
-                    } else {
-                        satellite.launch(endpoint)
+                Circle()
+                    .fill(!endpoint.isActive ? .gray : satellite.connectedIDs.contains(endpoint.id) ? .green : .accentColor)
+                    .overlay {
+                        Image(systemName: !endpoint.isActive ? "diamond" : satellite.connectedIDs.contains(endpoint.id) ? "diamond.fill" : "diamond.bottomhalf.filled")
+                            .font(.system(size: 12))
+                            .foregroundStyle(.white)
                     }
-                } label: {
-                    Circle()
-                        .fill(!endpoint.isActive ? .gray : satellite.connectedIDs.contains(endpoint.id) ? .green : .accentColor)
-                        .overlay {
-                            Image(systemName: !endpoint.isActive ? "diamond" : satellite.connectedIDs.contains(endpoint.id) ? "diamond.fill" : "diamond.bottomhalf.filled")
-                                .font(.system(size: 12))
-                                .foregroundStyle(.white)
-                        }
-                        .frame(width: 24, height: 24)
-                }
-                .buttonStyle(.plain)
+                    .frame(width: 24, height: 24)
                 
                 Text(endpoint.name)
                 
@@ -211,6 +206,14 @@ private struct StatusMenuCell: View {
             }
         }
         .contextMenu {
+            Button {
+                openWindow(value: endpoint.id)
+            } label: {
+                Text("endpoint.info")
+            }
+            
+            Divider()
+            
             EndpointPrimaryButton(endpoint)
             
             if endpoint.isActive {
@@ -236,7 +239,7 @@ private struct StatusMenuCell: View {
 
 #if DEBUG && os(macOS)
 #Preview {
-    StatusMenu()
+    DesktopMenu()
         .previewEnvironment()
 }
 #endif

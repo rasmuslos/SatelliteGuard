@@ -11,7 +11,13 @@ import SatelliteGuardKit
 
 @main
 struct MultiplatformApp: App {
+    @Environment(\.dismissWindow) private var dismissWindow
+    
     @State private var satellite = Satellite()
+    
+    #if os(macOS)
+    @State private var pickerPresented = false
+    #endif
     
     init() {
         WireGuardMonitor.shared.ping()
@@ -42,7 +48,7 @@ struct MultiplatformApp: App {
     var body: some Scene {
         #if os(macOS)
         MenuBarExtra(isInserted: inserted) {
-            StatusMenu()
+            DesktopMenu()
                 .environment(satellite)
                 .modelContainer(PersistenceManager.shared.modelContainer)
         } label: {
@@ -59,7 +65,7 @@ struct MultiplatformApp: App {
         }
         .menuBarExtraStyle(.window)
         
-        WindowGroup("Endpoint", for: Endpoint.ID.self) { $endpointID in
+        WindowGroup(for: Endpoint.ID.self) { $endpointID in
             if let endpointID, let endpoint = Endpoint.identified(by: endpointID) {
                 Group {
                     if endpointID == satellite.editingEndpoint?.id {
@@ -73,6 +79,33 @@ struct MultiplatformApp: App {
                 .modelContainer(PersistenceManager.shared.modelContainer)
             }
         }
+        .windowLevel(.normal)
+        .defaultPosition(.center)
+        
+        Window("configuration.import", id: "import-configuration") {
+            if satellite.pondering {
+                ProgressView()
+            } else {
+                Button {
+                    pickerPresented.toggle()
+                } label: {
+                    Label("configuration.import", systemImage: "plus")
+                }
+                .disabled(satellite.importing)
+                .modifier(ConfigurationImporter.ImporterModifier(pickerPresented: $pickerPresented))
+                .environment(satellite)
+                .modelContainer(PersistenceManager.shared.modelContainer)
+                
+                Button("done") {
+                    dismissWindow(id: "import-configuration")
+                }
+            }
+        }
+        .commandsRemoved()
+        .defaultPosition(.center)
+        .restorationBehavior(.disabled)
+        .defaultSize(width: 300, height: 200)
+        
         #else
         WindowGroup {
             ContentView()

@@ -51,7 +51,7 @@ struct StatusLabel: View {
             }
             .modify {
                 if color {
-                    $0.foregroundStyle(dominantStatus == .establishing ? .blue : .green)
+                    $0.foregroundStyle(dominantStatus == .establishing || dominantStatus == .disconnecting ? .blue : .green)
                 } else {
                     $0
                 }

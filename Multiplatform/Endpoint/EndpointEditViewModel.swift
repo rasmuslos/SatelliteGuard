@@ -21,7 +21,7 @@ final class EndpointEditViewModel {
     @MainActor private(set) var mtuMalformed: Bool
     
     @MainActor private(set) var isSaving: Bool
-    @MainActor var dismissAction: DismissAction!
+    @MainActor var dismissAction: (() -> Void)!
     
     @MainActor private(set) var notifyError: Bool
     @MainActor private(set) var notifySuccess: Bool

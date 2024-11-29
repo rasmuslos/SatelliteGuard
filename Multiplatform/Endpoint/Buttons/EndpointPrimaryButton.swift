@@ -18,6 +18,13 @@ struct EndpointPrimaryButton: View {
         self.endpoint = endpoint
     }
     
+    private var isLoading: Bool {
+        #if os(macOS)
+        false
+        #else
+        satellite.pondering
+        #endif
+    }
     private var isActive: Bool {
         satellite.connectedIDs.contains(endpoint.id)
     }
@@ -42,7 +49,7 @@ struct EndpointPrimaryButton: View {
     }
     
     var body: some View {
-        if satellite.pondering {
+        if isLoading {
             ProgressView()
         } else {
             Button {
@@ -59,6 +66,7 @@ struct EndpointPrimaryButton: View {
                     .labelStyle(.titleOnly)
                     #endif
             }
+            .disabled(satellite.pondering)
         }
     }
 }

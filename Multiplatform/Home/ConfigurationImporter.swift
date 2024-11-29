@@ -27,19 +27,26 @@ struct ConfigurationImporter: View {
 @available(tvOS, unavailable)
 extension ConfigurationImporter {
     struct Inner: View {
+        #if os(macOS)
+        @Environment(\.openWindow) private var openWindow
+        #endif
         @Environment(Satellite.self) private var satellite
         
         @State private var pickerPresented = false
         
         var body: some View {
             Button {
+                #if os(macOS)
+                openWindow(id: "import-configuration")
+                #else
                 pickerPresented.toggle()
+                #endif
             } label: {
                 Label("configuration.import", systemImage: "plus")
             }
             .keyboardShortcut("i", modifiers: .command)
             .disabled(satellite.importing)
-            .fileImporter(isPresented: $pickerPresented, allowedContentTypes: [.init(exportedAs: "com.wireguard.config.quick")], allowsMultipleSelection: true, onCompletion: satellite.handleFileSelection)
+            .modifier(ImporterModifier(pickerPresented: $pickerPresented))
             
             #if !os(macOS)
             Divider()
@@ -48,14 +55,20 @@ extension ConfigurationImporter {
             Link(destination: .init(string: "https://github.com/rasmuslos/SatelliteGuard/blob/main/SECURITY.md")!) {
                 Label("security", systemImage: "lock")
             }
-            
-            #if !os(macOS)
-            Button {
-                satellite.aboutSheetPresented.toggle()
-            } label: {
-                Label("about", systemImage: "key.viewfinder")
-            }
-            #endif
+        }
+    }
+}
+
+@available(tvOS, unavailable)
+extension ConfigurationImporter {
+    struct ImporterModifier: ViewModifier {
+        @Environment(Satellite.self) private var satellite
+        
+        @Binding var pickerPresented: Bool
+        
+        func body(content: Content) -> some View {
+            content
+                .fileImporter(isPresented: $pickerPresented, allowedContentTypes: [.init(exportedAs: "com.wireguard.config.quick")], allowsMultipleSelection: true, onCompletion: satellite.handleFileSelection)
         }
     }
 }

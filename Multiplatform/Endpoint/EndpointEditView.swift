@@ -110,7 +110,9 @@ struct EndpointEditView: View {
             }
         }
         .onAppear {
-            viewModel.dismissAction = dismiss
+            viewModel.dismissAction = {    
+                satellite.editingEndpoint = nil
+            }
         }
     }
 }

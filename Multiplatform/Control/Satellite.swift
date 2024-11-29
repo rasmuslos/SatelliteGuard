@@ -21,7 +21,6 @@ final class Satellite {
     @MainActor private(set) var status: [UUID: VPNStatus]
     
     @MainActor var editingEndpoint: Endpoint?
-    @MainActor var aboutSheetPresented: Bool
     
     @MainActor private(set) var importing: Bool
     @MainActor private(set) var transmitting: Int
@@ -37,7 +36,6 @@ final class Satellite {
         status = [:]
         
         editingEndpoint = nil
-        aboutSheetPresented = false
         
         importing = false
         transmitting = 0
@@ -302,6 +300,10 @@ private extension Satellite {
             }
             
             Task { @MainActor in
+                if self?.editingEndpoint?.id == id && parsed != .disconnected {
+                    self?.editingEndpoint = nil
+                }
+                
                 self?.status[id] = parsed
             }
         }]
