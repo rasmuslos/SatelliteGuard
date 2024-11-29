@@ -8,8 +8,11 @@
 import Foundation
 import SwiftUI
 import SwiftData
-import ServiceManagement
 import SatelliteGuardKit
+
+#if os(macOS)
+import ServiceManagement
+#endif
 
 @available(iOS, unavailable)
 @available(tvOS, unavailable)
@@ -19,7 +22,6 @@ struct StatusMenu: View {
     @Environment(Satellite.self) private var satellite
     
     @Query private var endpoints: [Endpoint]
-    @State private var menuExpanded: Bool = false
     
     private var activeEndpoints: [Endpoint] {
         endpoints.filter(\.isActive)
@@ -29,7 +31,7 @@ struct StatusMenu: View {
     }
     
     private var isActive: Bool {
-        if let status = satellite.status, case Satellite.VPNStatus.connected = status {
+        if case .connected = satellite.dominantStatus {
             true
         } else {
             false
@@ -45,7 +47,7 @@ struct StatusMenu: View {
                     Text("home")
                         .font(.headline)
                     
-                    StatusLabel()
+                    StatusLabel(status: nil)
                         .labelStyle(.titleOnly)
                         .bold()
                         .font(.caption2)
@@ -58,7 +60,9 @@ struct StatusMenu: View {
                     
                     Divider()
                     
+                    #if os(macOS)
                     Toggle("launch.login", isOn: .init(get: { SMAppService.mainApp.status == .enabled }, set: satellite.updateServiceRegistration))
+                    #endif
                     
                     Button("quit") {
                         exit(0)
@@ -69,7 +73,7 @@ struct StatusMenu: View {
                         .symbolEffect(.pulse, isActive: isActive)
                         .symbolEffect(.wiggle, value: satellite.notifyError)
                         .symbolEffect(.variableColor, isActive: satellite.pondering)
-                        .foregroundStyle(satellite.status == .disconnected ? .secondary : isActive ? .green : Color.blue)
+                        .foregroundStyle(satellite.dominantStatus == .disconnected ? .secondary : isActive ? .green : Color.blue)
                 }
                 .menuStyle(.button)
                 .buttonStyle(.plain)
@@ -131,6 +135,7 @@ private struct StatusSection: View {
 @available(watchOS, unavailable)
 @available(visionOS, unavailable)
 private struct StatusMenuCell: View {
+    @Environment(\.openWindow) private var openWindow
     @Environment(Satellite.self) private var satellite
     
     let endpoint: Endpoint
@@ -167,23 +172,28 @@ private struct StatusMenuCell: View {
     
     var body: some View {
         Button {
-            if !endpoint.isActive {
-                satellite.activate(endpoint)
-            } else if satellite.connectedID == endpoint.id {
-                satellite.land(endpoint)
-            } else {
-                satellite.launch(endpoint)
-            }
+            openWindow(value: endpoint.id)
         } label: {
             HStack(spacing: 6) {
-                Circle()
-                    .fill(!endpoint.isActive ? .gray : satellite.connectedID == endpoint.id ? .green : .accentColor)
-                    .overlay {
-                        Image(systemName: !endpoint.isActive ? "diamond" : satellite.connectedID == endpoint.id ? "diamond.fill" : "diamond.bottomhalf.filled")
-                            .font(.system(size: 12))
-                            .foregroundStyle(.white)
+                Button {
+                    if !endpoint.isActive {
+                        satellite.activate(endpoint)
+                    } else if satellite.connectedIDs.contains(endpoint.id) {
+                        satellite.land(endpoint)
+                    } else {
+                        satellite.launch(endpoint)
                     }
-                    .frame(width: 24, height: 24)
+                } label: {
+                    Circle()
+                        .fill(!endpoint.isActive ? .gray : satellite.connectedIDs.contains(endpoint.id) ? .green : .accentColor)
+                        .overlay {
+                            Image(systemName: !endpoint.isActive ? "diamond" : satellite.connectedIDs.contains(endpoint.id) ? "diamond.fill" : "diamond.bottomhalf.filled")
+                                .font(.system(size: 12))
+                                .foregroundStyle(.white)
+                        }
+                        .frame(width: 24, height: 24)
+                }
+                .buttonStyle(.plain)
                 
                 Text(endpoint.name)
                 

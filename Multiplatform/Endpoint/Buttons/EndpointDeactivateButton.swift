@@ -19,7 +19,7 @@ struct EndpointDeactivateButton: View {
     }
     
     private var isActive: Bool {
-        satellite.connectedID == endpoint.id
+        satellite.connectedIDs.contains(endpoint.id)
     }
     
     var body: some View {
@@ -32,7 +32,7 @@ struct EndpointDeactivateButton: View {
                 #endif
         }
         .modify {
-            if satellite.connectedID == endpoint.id {
+            if satellite.connectedIDs.contains(endpoint.id) {
                 $0
                     .foregroundStyle(.secondary)
             } else {

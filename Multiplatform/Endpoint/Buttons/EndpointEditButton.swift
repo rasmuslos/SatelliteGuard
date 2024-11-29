@@ -20,7 +20,7 @@ struct EndpointEditButton: View {
     }
     
     private var isActive: Bool {
-        satellite.connectedID == endpoint.id
+        satellite.connectedIDs.contains(endpoint.id)
     }
     
     var body: some View {

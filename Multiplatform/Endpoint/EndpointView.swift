@@ -20,26 +20,38 @@ struct EndpointView: View {
     }
     
     private var isActive: Bool {
-        satellite.connectedID == endpoint.id
+        satellite.connectedIDs.contains(endpoint.id)
+    }
+    
+    private var toolbarPlacement: ToolbarItemPlacement {
+        #if os(macOS)
+        .primaryAction
+        #else
+        .secondaryAction
+        #endif
+    }
+    
+    @ViewBuilder
+    private var statusLabel: some View {
+        if let status = satellite.status[endpoint.id], status != .disconnected {
+            StatusLabel(status: status, color: true)
+        }
     }
     
     var body: some View {
         Group {
             List {
+                #if !os(macOS)
                 EndpointPrimaryButton(endpoint)
                 
                 #if !os(tvOS)
-                if satellite.orbitingID == endpoint.id, satellite.status != .disconnected {
-                    Label {
-                        StatusLabel(color: true)
-                    } icon: {
-                    }
-                    StatusLabel(color: true)
-                }
+                statusLabel
                 #endif
+                
                 if endpoint.isActive {
                     EndpointDeactivateButton(endpoint)
                 }
+                #endif
                 
                 Section("endpoint.addresses") {
                     ForEach(endpoint.addresses) { range in
@@ -90,9 +102,6 @@ struct EndpointView: View {
                     }
                 }
             }
-            #if os(iOS)
-            .listStyle(.insetGrouped)
-            #endif
             #if os(tvOS)
             .listStyle(.grouped)
             .padding(.leading, ContentView.gap)
@@ -100,15 +109,24 @@ struct EndpointView: View {
             #else
             .navigationTitle(endpoint.name)
             .toolbar {
-                ToolbarItemGroup(placement: .secondaryAction) {
-                    EndpointPrimaryButton(endpoint)
-                    
-                    Divider()
-                    
+                ToolbarItemGroup(placement: toolbarPlacement) {
                     EndpointEditButton(endpoint)
+                    
+                    
+                    #if !os(macOS)
+                    Divider()
+                    #endif
+                    
+                    EndpointPrimaryButton(endpoint)
                     EndpointDeactivateButton(endpoint)
                 }
             }
+            #endif
+            #if os(iOS)
+            .listStyle(.insetGrouped)
+            #elseif os(macOS)
+            .listStyle(.inset)
+            .navigationSubtitle(endpoint.peers.map { $0.endpoint }.joined(separator: ", "))
             #endif
         }
         .preference(key: NavigationContextPreferenceKey.self, value: .endpoint(endpoint))

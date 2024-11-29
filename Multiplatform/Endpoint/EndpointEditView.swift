@@ -11,17 +11,18 @@ import SatelliteGuardKit
 
 @available(tvOS, unavailable)
 struct EndpointEditView: View {
+    @Environment(Satellite.self) private var satellite
     @Environment(\.dismiss) private var dismiss
     
     @State private var viewModel: EndpointEditViewModel
     
-    init(endpoint: Endpoint) {
+    init(_ endpoint: Endpoint) {
         _viewModel = .init(initialValue: .init(endpoint: endpoint))
     }
     
     var body: some View {
         NavigationStack {
-            List {
+            Form {
                 Section {
                     TextField("endpoint.edit.name", text: $viewModel.endpoint.name)
                 }
@@ -80,18 +81,21 @@ struct EndpointEditView: View {
                 }
             }
             .navigationTitle("endpoint.edit")
-            .interactiveDismissDisabled()
             #if os(iOS)
+            .interactiveDismissDisabled()
             .navigationBarTitleDisplayMode(.inline)
+            #elseif os(macOS)
+            .navigationSubtitle(viewModel.endpoint.name)
+            #endif
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button {
-                        dismiss()
+                        satellite.editingEndpoint = nil
                     } label: {
                         Text("endpoint.edit.cancel")
                     }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     if viewModel.isSaving {
                         ProgressView()
                     } else {
@@ -104,7 +108,6 @@ struct EndpointEditView: View {
                     }
                 }
             }
-            #endif
         }
         .onAppear {
             viewModel.dismissAction = dismiss
@@ -116,7 +119,7 @@ struct EndpointEditView: View {
 #Preview {
     Text(verbatim: ":)")
         .sheet(isPresented: .constant(true)) {
-            EndpointEditView(endpoint: .fixture)
+            EndpointEditView(.fixture)
         }
         .previewEnvironment()
 }

@@ -91,7 +91,7 @@ struct ContentView: View {
                             }
                             .font(.system(size: 500))
                             
-                            ConnectedLabel(indicator: true)
+                            StatusLabel(color: true, indicator: true)
                                 .opacity(isConnected ? 1 : 0)
                                 .animation(.smooth, value: isConnected)
                             
@@ -113,7 +113,7 @@ struct ContentView: View {
             #else
             mainContent
                 .sheet(item: $satellite.editingEndpoint) {
-                    EndpointEditView(endpoint: $0)
+                    EndpointEditView($0)
                 }
             #endif
         }

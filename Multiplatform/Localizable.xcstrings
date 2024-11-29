@@ -180,6 +180,9 @@
         }
       }
     },
+    "Endpoint" : {
+
+    },
     "endpoint.activate" : {
       "localizations" : {
         "de" : {
@@ -729,7 +732,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Beim anmelden öffnen"
+            "value" : "Beim Anmelden öffnen"
           }
         },
         "en" : {

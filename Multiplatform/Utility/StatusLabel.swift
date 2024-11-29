@@ -11,21 +11,27 @@ import SwiftUI
 struct StatusLabel: View {
     @Environment(Satellite.self) private var satellite
     
+    let status: Satellite.VPNStatus?
+    
     var color = false
     var indicator = false
     
     private var isActive: Bool {
-        if let status = satellite.status, case Satellite.VPNStatus.connected = status {
+        if case .connected = satellite.dominantStatus {
             true
         } else {
             false
         }
     }
     
+    private var dominantStatus: Satellite.VPNStatus {
+        status ?? satellite.dominantStatus
+    }
+    
     var body: some View {
-        if satellite.status != .disconnected {
+        if dominantStatus != .disconnected {
             Label {
-                switch satellite.status {
+                switch dominantStatus {
                 case .connected(let since):
                     Text("connected.since")
                     + Text(verbatim: " ")
@@ -40,17 +46,17 @@ struct StatusLabel: View {
             } icon: {
                 Image(systemName: "circle")
                     .symbolEffect(.pulse, isActive: isActive)
-                    .symbolVariant(satellite.status == .disconnecting ? .none : .fill)
+                    .symbolVariant(dominantStatus == .disconnecting ? .none : .fill)
                     .foregroundStyle(isActive ? .green : .blue)
             }
             .modify {
                 if color {
-                    $0.foregroundStyle(satellite.status == .establishing ? .blue : .green)
+                    $0.foregroundStyle(dominantStatus == .establishing ? .blue : .green)
                 } else {
                     $0
                 }
             }
-            .animation(.smooth, value: satellite.status)
+            .animation(.smooth, value: dominantStatus)
             .compositingGroup()
             .overlay(alignment: .leading) {
                 if indicator {

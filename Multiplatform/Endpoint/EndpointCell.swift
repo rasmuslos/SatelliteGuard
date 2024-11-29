@@ -29,7 +29,7 @@ struct EndpointCell: View {
     
     @MainActor
     private var isActive: Bool {
-        satellite.connectedID == endpoint.id
+        satellite.connectedIDs.contains(endpoint.id)
     }
     
     @MainActor

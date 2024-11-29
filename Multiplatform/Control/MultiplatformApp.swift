@@ -31,14 +31,22 @@ struct MultiplatformApp: App {
         #endif
     }
     
+    private var inserted: Binding<Bool> {
+        .init() { true } set: {
+            if !$0 {
+                exit(0)
+            }
+        }
+    }
+    
     var body: some Scene {
         #if os(macOS)
-        MenuBarExtra {
+        MenuBarExtra(isInserted: inserted) {
             StatusMenu()
                 .environment(satellite)
                 .modelContainer(PersistenceManager.shared.modelContainer)
         } label: {
-            switch satellite.status {
+            switch satellite.dominantStatus {
             case .connected:
                 Label("home", systemImage: "diamond.fill")
             case .establishing:
@@ -50,6 +58,21 @@ struct MultiplatformApp: App {
             }
         }
         .menuBarExtraStyle(.window)
+        
+        WindowGroup("Endpoint", for: Endpoint.ID.self) { $endpointID in
+            if let endpointID, let endpoint = Endpoint.identified(by: endpointID) {
+                Group {
+                    if endpointID == satellite.editingEndpoint?.id {
+                        EndpointEditView(endpoint)
+                            .padding(20)
+                    } else {
+                        EndpointView(endpoint)
+                    }
+                }
+                .environment(satellite)
+                .modelContainer(PersistenceManager.shared.modelContainer)
+            }
+        }
         #else
         WindowGroup {
             ContentView()

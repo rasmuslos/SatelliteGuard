@@ -24,6 +24,7 @@ struct ConfigurationImporter: View {
     }
 }
 
+@available(tvOS, unavailable)
 extension ConfigurationImporter {
     struct Inner: View {
         @Environment(Satellite.self) private var satellite
