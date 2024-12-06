@@ -64,32 +64,33 @@ struct HomeView: View {
                 .scrollClipDisabled()
                 #else
                 .listStyle(.insetGrouped)
-                .navigationTitle("home")
                 .environment(\.editMode, $editMode)
-                .toolbar {
-                    ToolbarItemGroup(placement: .topBarTrailing) {
-                        Button {
-                            if editMode == .active {
-                                editMode = .inactive
-                            } else {
-                                editMode = .active
-                            }
-                        } label: {
-                            Label("home.edit", systemImage: "pencil")
-                        }
-                        
-                        if satellite.pondering {
-                            ProgressView()
-                        } else {
-                            ConfigurationImporter()
-                        }
-                    }
-                }
                 #endif
             }
         }
         #if os(tvOS)
         .padding(.leading, ContentView.gap)
+        #else
+        .navigationTitle("home")
+        .toolbar {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                Button {
+                    if editMode == .active {
+                        editMode = .inactive
+                    } else {
+                        editMode = .active
+                    }
+                } label: {
+                    Label("home.edit", systemImage: "pencil")
+                }
+                
+                if satellite.pondering {
+                    ProgressView()
+                } else {
+                    ConfigurationImporter()
+                }
+            }
+        }
         #endif
         .animation(.smooth, value: editMode)
         .task {

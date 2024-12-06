@@ -11,102 +11,76 @@ import Network
 import OSLog
 import WireGuardKit
 
-@Model
-public class Endpoint: Codable {
-    // Technically unique, but not marked or enforced as such due to CloudKit restrictions
-    private(set) public var id = UUID()
+public struct Endpoint {
+    public let id: UUID
+    public let name: String
     
-    @Attribute(.allowsCloudEncryption) public var name: String!
-    @Attribute(.allowsCloudEncryption) public var active: [UUID]!
+    public let privateKey: Data
     
-    @Attribute(.allowsCloudEncryption) public var peers: [Peer]!
-    @Attribute(.allowsCloudEncryption) private var _addresses: [String]!
+    public let mtu: UInt16?
+    public let listenPort: UInt16?
     
-    @Attribute(.allowsCloudEncryption) public var privateKey: Data!
+    public let peers: [Peer]
     
-    @Attribute(.allowsCloudEncryption) private var _dns: [Data]?
-    @Attribute(.allowsCloudEncryption) public var listenPort: UInt16?
+    public let disconnectsOnSleep: Bool
     
-    @Attribute(.allowsCloudEncryption) public var mtu: UInt16?
-    @Attribute(.allowsCloudEncryption) public var disconnectsOnSleep = true
+    public let excludeAPN: Bool
+    public let excludeCellularServices: Bool
+    public var allowAccessToLocalNetwork: Bool
+    public let excludeDeviceCommunication: Bool
     
-    @Attribute(.allowsCloudEncryption) public var excludeAPN = false
-    @Attribute(.allowsCloudEncryption) public var enforceRoutes = false
-    @Attribute(.allowsCloudEncryption) public var includeAllNetworks = false
-    @Attribute(.allowsCloudEncryption) public var excludeCellularServices = false
-    @Attribute(.allowsCloudEncryption) public var allowAccessToLocalNetwork = false
-    @Attribute(.allowsCloudEncryption) public var excludeDeviceCommunication = false
+    public let enforceRoutes: Bool
+    public let includeAllNetworks: Bool
+    
+    private let _dns: [Data]?
+    private let _addresses: [String]
     
     public static let logger = Logger(subsystem: "SatelliteGuardKit", category: "Endpoint")
     
-    public init(name: String, peers: [Peer], addresses: [IPAddressRange], privateKey: Data, dns: [IPAddress]? = nil, listenPort: UInt16? = nil, mtu: UInt16? = nil) {
+    init(id: UUID,
+         name: String,
+         privateKey: Data,
+         addresses: [IPAddressRange],
+         mtu: UInt16?,
+         listenPort: UInt16?,
+         peers: [Peer],
+         dns: [IPAddress]?,
+         disconnectsOnSleep: Bool,
+         excludeAPN: Bool,
+         excludeCellularServices: Bool,
+         allowAccessToLocalNetwork: Bool,
+         excludeDeviceCommunication: Bool,
+         enforceRoutes: Bool,
+         includeAllNetworks: Bool) {
+        self.id = id
         self.name = name
-        active = []
         
-        self.peers = peers
         _addresses = addresses.map(\.stringRepresentation)
-        
         self.privateKey = privateKey
         
-        _dns = dns?.map(\.rawValue)
+        self.mtu = mtu
         self.listenPort = listenPort
         
-        self.mtu = mtu
-    }
-    
-    public required init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.peers = peers
+        _dns = dns?.map(\.rawValue)
         
-        id = try container.decode(UUID.self, forKey: ._id)
+        self.disconnectsOnSleep = disconnectsOnSleep
         
-        name = try container.decode(String.self, forKey: ._name)
-        active = try container.decode([UUID].self, forKey: ._active)
+        self.excludeAPN = excludeAPN
+        self.excludeCellularServices = excludeCellularServices
+        self.allowAccessToLocalNetwork = allowAccessToLocalNetwork
+        self.excludeDeviceCommunication = excludeDeviceCommunication
         
-        peers = try container.decode([Peer].self, forKey: ._peers)
-        _addresses = try container.decode([String].self, forKey: .__addresses)
-        
-        privateKey = try container.decode(Data.self, forKey: ._privateKey)
-        
-        _dns = try container.decode([Data]?.self, forKey: .__dns)
-        listenPort = try container.decodeIfPresent(UInt16.self, forKey: ._listenPort)
-        
-        mtu = try container.decodeIfPresent(UInt16.self, forKey: ._mtu)
-    }
-    public func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        
-        try container.encode(id, forKey: ._id)
-        
-        try container.encode(name, forKey: ._name)
-        try container.encode(active, forKey: ._active)
-        
-        try container.encode(peers, forKey: ._peers)
-        try container.encode(_addresses, forKey: .__addresses)
-        
-        try container.encode(privateKey, forKey: ._privateKey)
-        
-        try container.encode(_dns, forKey: .__dns)
-        try container.encodeIfPresent(listenPort, forKey: ._listenPort)
-        
-        try container.encodeIfPresent(mtu, forKey: ._mtu)
-    }
-    
-    enum CodingKeys: CodingKey {
-        case _id
-        case _name
-        case _active
-        case _peers
-        case __addresses
-        case _privateKey
-        case __dns
-        case _listenPort
-        case _mtu
+        self.enforceRoutes = enforceRoutes
+        self.includeAllNetworks = includeAllNetworks
     }
 }
 
 public extension Endpoint {
     var isActive: Bool {
-        active.contains { $0 == PersistenceManager.shared.uuid }
+        get async {
+            await PersistenceManager.shared.keyHolder[id]
+        }
     }
     
     var addresses: [IPAddressRange] {
@@ -137,43 +111,33 @@ public extension Endpoint {
     enum EndpointError: Error {
         case managerMissing
     }
-    
-    @MainActor
-    func remove() throws {
-        PersistenceManager.shared.modelContainer.mainContext.delete(self)
-    }
 }
 
+extension Endpoint: Codable {}
 extension Endpoint: Hashable {}
 extension Endpoint: Equatable {}
 extension Endpoint: Identifiable {}
 
-public extension Endpoint {
-    static var all: [Endpoint]? {
-        get async {
-            try? ModelContext(PersistenceManager.shared.modelContainer).fetch(.init())
-        }
-    }
-    static func identified(by id: UUID) -> Endpoint? {
-        let context = ModelContext(PersistenceManager.shared.modelContainer)
-        let descriptor = FetchDescriptor<Endpoint>(predicate: #Predicate { $0.id == id })
-        
-        return try? context.fetch(descriptor).first
-    }
-}
-
 #if DEBUG
 public extension Endpoint {
-    nonisolated(unsafe) static let fixture = Endpoint(name: "Vault 7",
-                                                      peers: [.init(publicKey: .init(count: 32),
-                                                                    preSharedKey: .init(count: 32),
-                                                                    endpoint: "cia.gov:12345",
-                                                                    routes: [.init(from: "0.0.0.0/0")!],
-                                                                    persistentKeepAlive: 40)],
-                                                      addresses: [.init(from: "192.0.0.1/24")!],
-                                                      privateKey: .init(count: 32),
-                                                      dns: [IPv4Address("1.1.1.1")!],
-                                                      listenPort: .max,
-                                                      mtu: 1024)
+    nonisolated(unsafe) static let fixture = Endpoint(id: UUID(),
+                                                      name: "Fixture",
+                                                      privateKey: Data(count: 32),
+                                                      addresses: [IPAddressRange(from: "192.168.178.1/24")!],
+                                                      mtu: 123,
+                                                      listenPort: 456,
+                                                      peers: [Peer(publicKey: Data(count: 32),
+                                                                   preSharedKey: Data(count: 32),
+                                                                   endpoint: "cia.gocardless.com",
+                                                                   routes: [IPAddressRange(from: "0.0.0.0/0")!],
+                                                                   persistentKeepAlive: 789)],
+                                                      dns: [IPv4Address("1.2.3.4")!],
+                                                      disconnectsOnSleep: true,
+                                                      excludeAPN: true,
+                                                      excludeCellularServices: true,
+                                                      allowAccessToLocalNetwork: true,
+                                                      excludeDeviceCommunication: true,
+                                                      enforceRoutes: true,
+                                                      includeAllNetworks: false)
 }
 #endif

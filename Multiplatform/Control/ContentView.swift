@@ -18,12 +18,12 @@ struct ContentView: View {
     #if os(tvOS)
     @State private var navigationContext: NavigationContextPreferenceKey.NavigationContext = .unknown
     
-    private var isConnected: Bool {
+    private var dominantStatus: Satellite.VPNStatus {
         if case .endpoint(let endpoint) = navigationContext {
-            return satellite.connectedID == endpoint.id
+            satellite.status[endpoint.id] ?? .disconnected
+        } else {
+            satellite.dominantStatus
         }
-        
-        return satellite.connectedID != nil
     }
     
     private var image: String {
@@ -33,7 +33,7 @@ struct ContentView: View {
         case .endpoint(let endpoint):
             if !endpoint.isActive {
                 "diamond"
-            } else if satellite.connectedID == endpoint.id {
+            } else if satellite.connectedIDs.contains(endpoint.id) {
                 "diamond.fill"
             } else {
                 "diamond.bottomhalf.filled"
@@ -91,9 +91,9 @@ struct ContentView: View {
                             }
                             .font(.system(size: 500))
                             
-                            StatusLabel(color: true, indicator: true)
-                                .opacity(isConnected ? 1 : 0)
-                                .animation(.smooth, value: isConnected)
+                            StatusLabel(status: dominantStatus, color: true, indicator: true)
+                                .opacity(dominantStatus == .disconnected ? 0 : 1)
+                                .animation(.smooth, value: dominantStatus)
                             
                             Spacer(minLength: 0)
                         }
@@ -112,6 +112,7 @@ struct ContentView: View {
             }
             #else
             mainContent
+                .modifier(ConfigurationImporter.ImporterModifier())
                 .sheet(item: $satellite.editingEndpoint) {
                     EndpointEditView($0)
                 }

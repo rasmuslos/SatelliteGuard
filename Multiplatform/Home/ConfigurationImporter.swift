@@ -32,21 +32,17 @@ extension ConfigurationImporter {
         #endif
         @Environment(Satellite.self) private var satellite
         
-        @State private var pickerPresented = false
-        
         var body: some View {
             Button {
                 #if os(macOS)
                 openWindow(id: "import-configuration")
-                #else
-                pickerPresented.toggle()
                 #endif
+                satellite.importPickerVisible.toggle()
             } label: {
                 Label("configuration.import", systemImage: "plus")
             }
             .keyboardShortcut("i", modifiers: .command)
             .disabled(satellite.importing)
-            .modifier(ImporterModifier(pickerPresented: $pickerPresented))
             
             #if !os(macOS)
             Divider()
@@ -64,11 +60,44 @@ extension ConfigurationImporter {
     struct ImporterModifier: ViewModifier {
         @Environment(Satellite.self) private var satellite
         
-        @Binding var pickerPresented: Bool
-        
         func body(content: Content) -> some View {
+            @Bindable var satellite = satellite
+            
             content
-                .fileImporter(isPresented: $pickerPresented, allowedContentTypes: [.init(exportedAs: "com.wireguard.config.quick")], allowsMultipleSelection: true, onCompletion: satellite.handleFileSelection)
+                .fileImporter(isPresented: $satellite.importPickerVisible,
+                              allowedContentTypes: [.init(exportedAs: "com.wireguard.config.quick")],
+                              allowsMultipleSelection: true,
+                              onCompletion: satellite.handleFileSelection)
+        }
+    }
+}
+
+@available(tvOS, unavailable)
+extension ConfigurationImporter {
+    struct ImportButton: View {
+        @Environment(Satellite.self) private var satellite
+        
+        let configuration: FileDocumentConfiguration<WireGuardConfigurationFile>
+        
+        @State private var importFired = 0
+        
+        var body: some View {
+            Group {
+                switch importFired {
+                case 0:
+                    Button("configuration.import") {
+                        satellite.handleFileImport(configuration.document.contents, name: configuration.document.fileName ?? "Unknown")
+                    }
+                    .disabled(importFired != 0)
+                case 1:
+                    ProgressView()
+                default:
+                    Text("import.success")
+                }
+            }
+            .onChange(of: satellite.importing) {
+                importFired += 1
+            }
         }
     }
 }

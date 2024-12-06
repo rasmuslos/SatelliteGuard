@@ -11,7 +11,9 @@ import SatelliteGuardKit
 
 @main
 struct MultiplatformApp: App {
+    #if os(macOS)
     @Environment(\.dismissWindow) private var dismissWindow
+    #endif
     
     @State private var satellite = Satellite()
     
@@ -83,23 +85,15 @@ struct MultiplatformApp: App {
         .defaultPosition(.center)
         
         Window("configuration.import", id: "import-configuration") {
-            if satellite.pondering {
-                ProgressView()
-            } else {
-                Button {
-                    pickerPresented.toggle()
-                } label: {
-                    Label("configuration.import", systemImage: "plus")
-                }
-                .disabled(satellite.importing)
-                .modifier(ConfigurationImporter.ImporterModifier(pickerPresented: $pickerPresented))
+            ProgressView()
+                .modifier(ConfigurationImporter.ImporterModifier())
                 .environment(satellite)
                 .modelContainer(PersistenceManager.shared.modelContainer)
-                
-                Button("done") {
-                    dismissWindow(id: "import-configuration")
+                .onChange(of: satellite.importPickerVisible) {
+                    if !satellite.importPickerVisible {
+                        dismissWindow(id: "import-configuration")
+                    }
                 }
-            }
         }
         .commandsRemoved()
         .defaultPosition(.center)
@@ -114,6 +108,18 @@ struct MultiplatformApp: App {
                 .environment(satellite)
                 .modelContainer(PersistenceManager.shared.modelContainer)
         }
+        #endif
+        
+        DocumentGroup(viewing: WireGuardConfigurationFile.self) {
+            ConfigurationImporter.ImportButton(configuration: $0)
+                .environment(satellite)
+                .modelContainer(PersistenceManager.shared.modelContainer)
+        }
+        .commandsRemoved()
+        .defaultSize(width: 300, height: 100)
+        #if os(macOS)
+        .defaultPosition(.center)
+        .restorationBehavior(.disabled)
         #endif
     }
 }

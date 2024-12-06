@@ -21,7 +21,11 @@ internal extension Satellite {
             throw SatelliteError.invalidConfiguration
         }
         
+        return try await importConfiguration(contents, name: configurationURL.lastPathComponent)
+    }
+    func importConfiguration(_ contents: String, name: String) async throws {
         let lines = contents.split(separator: "\n")
+        var name = name
         
         var peerCache = [PeerCache]()
         let interfaceCache = InterfaceCache()
@@ -76,8 +80,6 @@ internal extension Satellite {
                 }
             }
         }
-        
-        var name = configurationURL.lastPathComponent
         
         if name.hasSuffix(".conf") {
             name = name.replacingOccurrences(of: ".conf", with: "")

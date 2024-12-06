@@ -50,12 +50,12 @@ internal extension Endpoint {
             let manager: NETunnelProviderManager
             
             if let existing = managers.first(where: { $0.identified(by: id) }) {
-                if !isActive {
+                if !(await isActive) {
                     Self.logger.fault("Manager found even though endpoint is not active")
                 }
                 
                 manager = existing
-            } else if isActive {
+            } else if await isActive {
                 manager = .init()
                 manager.isEnabled = true
                 
@@ -76,12 +76,8 @@ internal extension Endpoint {
 }
 
 public extension Endpoint {
-    func notifySystem() async throws {
-        if !isActive {
-            active.append(PersistenceManager.shared.uuid)
-        }
-        
-        try modelContext?.save()
+    func reassert() async throws {
+        try await PersistenceManager.shared.keyHolder.activate(id)
         
         guard let manager = await manager else {
             Self.logger.fault("Could not create manager for \(self.id) while updating")
@@ -93,10 +89,6 @@ public extension Endpoint {
     
     func deactivate() async throws {
         await disconnect()
-        
-        active.removeAll { $0 == PersistenceManager.shared.uuid }
-        try modelContext?.save()
-        
         try await manager?.removeFromPreferences()
     }
     

@@ -23,6 +23,7 @@ struct EndpointView: View {
         satellite.connectedIDs.contains(endpoint.id)
     }
     
+    #if !os(tvOS)
     private var toolbarPlacement: ToolbarItemPlacement {
         #if os(macOS)
         .primaryAction
@@ -30,6 +31,7 @@ struct EndpointView: View {
         .secondaryAction
         #endif
     }
+    #endif
     
     @ViewBuilder
     private var statusLabel: some View {

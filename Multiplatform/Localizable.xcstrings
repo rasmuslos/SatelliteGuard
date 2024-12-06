@@ -185,9 +185,6 @@
         }
       }
     },
-    "done" : {
-
-    },
     "Endpoint" : {
 
     },
@@ -737,6 +734,9 @@
           }
         }
       }
+    },
+    "import.success" : {
+
     },
     "launch.login" : {
       "localizations" : {

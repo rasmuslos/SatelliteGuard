@@ -17,6 +17,16 @@ struct EndpointCell: View {
     
     @State private var pondering = false
     
+    private var icon: String {
+        if !endpoint.isActive {
+            "diamond"
+        } else if satellite.connectedIDs.contains(endpoint.id) {
+            "diamond.fill"
+        } else {
+            "diamond.bottomhalf.filled"
+        }
+    }
+    
     @ViewBuilder
     private var label: some View {
         VStack(alignment: .leading, spacing: 2) {
@@ -39,8 +49,8 @@ struct EndpointCell: View {
     
     var body: some View {
         NavigationLink(destination: EndpointView(endpoint)) {
-            #if os(tvOS)
             HStack(spacing: 0) {
+                #if os(tvOS)
                 label
                 
                 if isActive {
@@ -48,18 +58,23 @@ struct EndpointCell: View {
                     Image(systemName: "circle.fill")
                         .foregroundStyle(.green)
                 }
-            }
-            #else
-            if endpoint.isActive {
-                Toggle(isOn: toggle) {
+                #else
+                Image(systemName: icon)
+                    .padding(.trailing, 16)
+                
+                if endpoint.isActive {
+                    Toggle(isOn: toggle) {
+                        label
+                    }
+                    .toggleStyle(.switch)
+                } else {
                     label
                 }
-                .toggleStyle(.switch)
-            } else {
-                label
+                #endif
             }
-            #endif
+            .padding(12)
         }
+        .listRowInsets(.init(top: 0, leading: 4, bottom: 0, trailing: 12))
         #if !os(tvOS)
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             if endpoint.isActive {

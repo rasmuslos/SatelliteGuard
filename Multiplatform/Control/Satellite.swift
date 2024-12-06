@@ -21,6 +21,7 @@ final class Satellite {
     @MainActor private(set) var status: [UUID: VPNStatus]
     
     @MainActor var editingEndpoint: Endpoint?
+    @MainActor var importPickerVisible: Bool
     
     @MainActor private(set) var importing: Bool
     @MainActor private(set) var transmitting: Int
@@ -36,6 +37,7 @@ final class Satellite {
         status = [:]
         
         editingEndpoint = nil
+        importPickerVisible = false
         
         importing = false
         transmitting = 0
@@ -60,7 +62,7 @@ final class Satellite {
                 0
             case .establishing:
                 2
-            case .connected(let since):
+            case .connected:
                 3
             }
         }
@@ -103,8 +105,39 @@ extension Satellite {
                     
                     try await importConfiguration(url)
                     url.stopAccessingSecurityScopedResource()
+                    
+                    await MainActor.run {
+                        self.notifySuccess.toggle()
+                    }
                 } catch {
+                    await MainActor.run {
+                        self.notifyError.toggle()
+                    }
+                    
                     print(error)
+                }
+            }
+            
+            await MainActor.withAnimation {
+                self.importing = false
+            }
+        }
+    }
+    func handleFileImport(_ contents: String, name: String) {
+        Task {
+            await MainActor.withAnimation {
+                self.importing = true
+            }
+            
+            do {
+                try await importConfiguration(contents, name: name)
+                
+                await MainActor.run {
+                    self.notifySuccess.toggle()
+                }
+            } catch {
+                await MainActor.run {
+                    self.notifyError.toggle()
                 }
             }
             

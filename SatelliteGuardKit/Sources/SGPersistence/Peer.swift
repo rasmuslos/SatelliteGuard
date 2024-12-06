@@ -14,10 +14,9 @@ public class Peer: Codable {
     public let preSharedKey: Data?
     
     public let endpoint: String
+    public let persistentKeepAlive: UInt16?
     
     private let _routes: [String]
-    
-    public let persistentKeepAlive: UInt16?
     
     public init(publicKey: Data, preSharedKey: Data?, endpoint: String, routes: [IPAddressRange], persistentKeepAlive: UInt16?) {
         self.publicKey = publicKey
@@ -32,8 +31,24 @@ extension Peer: Identifiable {
     public var id: String {
         endpoint
     }
+}
+extension Peer: Equatable {
+    public static func == (lhs: Peer, rhs: Peer) -> Bool {
+        lhs.publicKey == rhs.publicKey
+    }
+}
+extension Peer: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(publicKey)
+    }
+}
+
+public extension Peer {
+    var routes: [IPAddressRange] {
+        _routes.compactMap { IPAddressRange(from: $0) }
+    }
     
-    public var configuration: PeerConfiguration {
+    var configuration: PeerConfiguration {
         var peerConfiguration = PeerConfiguration(publicKey: .init(rawValue: publicKey)!)
         
         if let preSharedKey = preSharedKey {
@@ -45,11 +60,5 @@ extension Peer: Identifiable {
         peerConfiguration.persistentKeepAlive = persistentKeepAlive
         
         return peerConfiguration
-    }
-}
-
-public extension Peer {
-    var routes: [IPAddressRange] {
-        _routes.compactMap { IPAddressRange(from: $0) }
     }
 }
