@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CryptoKit
 import SwiftData
 
 #if canImport(UIKit)
@@ -41,52 +42,46 @@ final class KeyHolder {
         operatingSystem = .current
         
         sharedKey = nil
-        publicKey = Self.publicSecKeyData
+        publicKey = PersistenceManager.KeyHolderSubsystem.publicSecKeyData
         
         activeEndpointIDs = []
     }
 }
 
-private extension KeyHolder {
-    static var privateKey: SecKey {
-        let attributes: NSDictionary = [
-            kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
-            kSecAttrKeySizeInBits: 256,
-            kSecAttrTokenID: kSecAttrTokenIDSecureEnclave,
-            kSecPrivateKeyAttrs: [
-                kSecAttrIsPermanent: true,
-                kSecAttrApplicationTag: "io.rfk.SatelliteGuard.keyHolder.privateKey",
-                kSecAttrAccessControl: SecAccessControlCreateWithFlags(kCFAllocatorDefault, kSecAttrAccessibleAfterFirstUnlock, .privateKeyUsage, nil)!,
-            ],
-        ]
-        
-        var error: Unmanaged<CFError>?
-        
-        guard let privateKey = SecKeyCreateRandomKey(attributes, &error) else {
-            fatalError(error!.takeRetainedValue().localizedDescription)
-        }
-        
-        return privateKey
-    }
-    static var publicSecKey: SecKey {
-        guard let publicKey = SecKeyCopyPublicKey(privateKey) else {
-            fatalError("Could not extract public key from private key")
-        }
-        
-        return publicKey
-    }
-    static var publicSecKeyData: Data {
-        var error: Unmanaged<CFError>?
-        
-        guard let data = SecKeyCopyExternalRepresentation(publicSecKey, &error) as? Data else {
-            fatalError(error!.takeRetainedValue().localizedDescription)
-        }
-        
-        return data
-    }
-}
-
 extension KeyHolder {
+    func store(secret: SymmetricKey) {
+        let algorithm: SecKeyAlgorithm = .eciesEncryptionCofactorVariableIVX963SHA256AESGCM
+        
+        guard SecKeyIsAlgorithmSupported(publicSecKey, .encrypt, algorithm) else {
+            fatalError("Unsupported encryption algorithm")
+        }
+        
+        var error: Unmanaged<CFError>?
+        
+        return secret.withUnsafeBytes {
+            let data = Data(Array($0))
+            
+            guard let cipher = SecKeyCreateEncryptedData(publicSecKey, algorithm, data as CFData, &error) as Data? else {
+                fatalError("Couldn't encrypt data: \(error!.takeRetainedValue().localizedDescription)")
+            }
+            
+            self.sharedKey = cipher
+        }
+    }
+    
+    var publicSecKey: SecKey {
+        let options: [String: Any] = [kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
+                                      kSecAttrKeyClass as String: kSecAttrKeyClassPublic]
+        
+        var error: Unmanaged<CFError>?
+        
+        guard let key = SecKeyCreateWithData(publicKey as CFData, options as CFDictionary, &error) else {
+            fatalError("Couldn't create public key: \(error!.takeRetainedValue().localizedDescription)")
+        }
+        
+        return key
+    }
+    
     enum OperatingSystem: Int, Codable {
         case iOS
         case tvOS

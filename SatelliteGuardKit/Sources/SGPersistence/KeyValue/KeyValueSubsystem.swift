@@ -12,19 +12,22 @@ extension PersistenceManager {
     public final actor KeyValueSubsystem {
         private let context: ModelContext
         
-        init() {
-            context = ModelContext(PersistenceManager.shared.modelContainer)
+        init(container: ModelContainer) {
+            context = ModelContext(container)
         }
         
-        public func set<Value>(_ key: Key<Value>, _ value: Value) {
+        public func set<Value>(_ key: Key<Value>, _ value: Value?) {
             self[key] = value
         }
         
+        // TODO: BROKEN
         public subscript<Value: DataRepresentable>(_ key: Key<Value>) -> Value? {
             get {
-                guard let entities = try? context.fetch(FetchDescriptor<KeyValueEntity>(predicate: #Predicate { $0.key == key.identifier })) else {
+                guard let entities = try? context.fetch(FetchDescriptor<KeyValueEntity>()) else {
                     return nil
                 }
+                
+                // let entities: [KeyValueEntity] = []
                 
                 guard let entity = entities.first else {
                     return nil
@@ -39,13 +42,13 @@ extension PersistenceManager {
                     context.insert(entity)
                     try? context.save()
                 } else {
-                    try? context.delete(model: KeyValueEntity.self, where: #Predicate { $0.key == key.identifier })
+                    try? context.delete(model: KeyValueEntity.self)
                     try? context.save()
                 }
             }
         }
         
-        public protocol DataRepresentable {
+        public protocol DataRepresentable: Sendable {
             init?(data: Data)
             var data: Data { get }
         }

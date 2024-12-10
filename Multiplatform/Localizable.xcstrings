@@ -285,6 +285,7 @@
       }
     },
     "endpoint.edit.allowAccessToLocalNetwork" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -333,6 +334,7 @@
       }
     },
     "endpoint.edit.disconnectsOnSleep" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -349,6 +351,7 @@
       }
     },
     "endpoint.edit.enforceRoutes" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -365,6 +368,7 @@
       }
     },
     "endpoint.edit.excludeAPN" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -381,6 +385,7 @@
       }
     },
     "endpoint.edit.excludeCellularServices" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -397,6 +402,7 @@
       }
     },
     "endpoint.edit.excludeDeviceCommunication" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -413,6 +419,7 @@
       }
     },
     "endpoint.edit.includeAllNetworks" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

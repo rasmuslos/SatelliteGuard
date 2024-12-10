@@ -7,35 +7,37 @@
 
 import Foundation
 import SwiftData
-import Combine
+@preconcurrency import Combine
+import CryptoKit
 
 extension PersistenceManager {
     public final actor KeyHolderSubsystem: ObservableObject {
-        public typealias UpdatePayload = (joined: Bool, activeIDs: [UUID])
+        public typealias ActivatedChangedPayload = UUID
         
-        private static var _deviceID: UUID?
-        private var keyHolders: [KeyHolder] {
-            didSet {
-                updatePublisher.send((current != nil, activeIDs))
-            }
-        }
+        nonisolated(unsafe) var _deviceID: UUID?
         
-        private let updatePublisher: PassthroughSubject<UpdatePayload, Never>
+        private var keyHolders: [KeyHolder]
+        
+        private(set) nonisolated(unsafe) var secret: SymmetricKey?
+        
+        private nonisolated let activationChangedPublisher: PassthroughSubject<ActivatedChangedPayload, Never>
         
         private let context: ModelContext
         
-        init() {
-            context = ModelContext(shared.modelContainer)
+        init(container: ModelContainer) {
+            context = ModelContext(container)
             keyHolders = .init(try! context.fetch(FetchDescriptor<KeyHolder>()))
             
-            updatePublisher = .init()
+            secret = nil
+            
+            activationChangedPublisher = .init()
         }
     }
 }
 
 public extension PersistenceManager.KeyHolderSubsystem {
-    var didUpdate: AnyPublisher<UpdatePayload, Never> {
-        updatePublisher.eraseToAnyPublisher()
+    nonisolated var activationDidChange: AnyPublisher<ActivatedChangedPayload, Never> {
+        activationChangedPublisher.eraseToAnyPublisher()
     }
     
     var isVaultSetup: Bool {
@@ -47,20 +49,23 @@ public extension PersistenceManager.KeyHolderSubsystem {
         
         return false
     }
+    var authorized: Bool {
+        secret != nil
+    }
     
     nonisolated var deviceID: UUID {
-        if let _deviceID = Self._deviceID {
+        if let _deviceID = _deviceID {
             return _deviceID
         }
         
         if let deviceID = UserDefaults.standard.string(forKey: "deviceID") {
-            Self._deviceID = UUID(uuidString: deviceID)!
+            _deviceID = UUID(uuidString: deviceID)!
         } else {
-            Self._deviceID = .init()
-            UserDefaults.standard.set(Self._deviceID?.uuidString, forKey: "deviceID")
+            _deviceID = .init()
+            UserDefaults.standard.set(_deviceID?.uuidString, forKey: "deviceID")
         }
         
-        return Self._deviceID!
+        return _deviceID!
     }
     
     var activeIDs: [UUID] {
@@ -72,15 +77,20 @@ public extension PersistenceManager.KeyHolderSubsystem {
             return
         }
         
+        context.insert(KeyHolder())
+        try! context.save()
+        
         if keyHolders.isEmpty {
+            secret = SymmetricKey(size: .bits256)
+            
+            current.store(secret: secret!)
+            try? context.save()
+            
             Task {
                 await PersistenceManager.shared.keyValue.set(.vaultSetup, .now)
                 await PersistenceManager.shared.keyValue.set(.vaultInitialDeviceID, deviceID)
             }
         }
-        
-        context.insert(KeyHolder())
-        try! context.save()
     }
     
     func activate(_ id: Endpoint.ID) throws {
@@ -88,16 +98,74 @@ public extension PersistenceManager.KeyHolderSubsystem {
             current.activeEndpointIDs.append(id)
             try context.save()
         }
+        
+        activationChangedPublisher.send(id)
     }
     func deactivate(_ id: Endpoint.ID) throws {
         current.activeEndpointIDs.removeAll { $0 == id }
         try context.save()
+        
+        activationChangedPublisher.send(id)
     }
     
     subscript(id: Endpoint.ID) -> Bool {
         current.activeEndpointIDs.contains(id)
     }
 }
+
+extension PersistenceManager.KeyHolderSubsystem {
+    static let tag = "io.rfk.SatelliteGuard.keyHolder.privateKey"
+    
+    static var privateKey: SecKey {
+        let query: [String: Any] = [kSecClass as String: kSecClassKey,
+                                       kSecAttrApplicationTag as String: tag,
+                                       kSecAttrKeyType as String: kSecAttrKeyTypeRSA,
+                                       kSecReturnRef as String: true]
+        
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+        
+        if status == errSecSuccess {
+            return item as! SecKey
+        }
+        
+        let attributes: NSDictionary = [
+            kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
+            kSecAttrKeySizeInBits: 256,
+            kSecAttrTokenID: kSecAttrTokenIDSecureEnclave,
+            kSecPrivateKeyAttrs: [
+                kSecAttrIsPermanent: true,
+                kSecAttrApplicationTag: tag,
+                kSecAttrAccessControl: SecAccessControlCreateWithFlags(kCFAllocatorDefault, kSecAttrAccessibleAfterFirstUnlock, .privateKeyUsage, nil)!,
+            ],
+        ]
+        
+        var error: Unmanaged<CFError>?
+        
+        guard let privateKey = SecKeyCreateRandomKey(attributes, &error) else {
+            fatalError(error!.takeRetainedValue().localizedDescription)
+        }
+        
+        return privateKey
+    }
+    static var publicSecKey: SecKey {
+        guard let publicKey = SecKeyCopyPublicKey(privateKey) else {
+            fatalError("Could not extract public key from private key")
+        }
+        
+        return publicKey
+    }
+    static var publicSecKeyData: Data {
+        var error: Unmanaged<CFError>?
+        
+        guard let data = SecKeyCopyExternalRepresentation(publicSecKey, &error) as? Data else {
+            fatalError(error!.takeRetainedValue().localizedDescription)
+        }
+        
+        return data
+    }
+}
+
 
 private extension PersistenceManager.KeyHolderSubsystem {
     var current: KeyHolder! {

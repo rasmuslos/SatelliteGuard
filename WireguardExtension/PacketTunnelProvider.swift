@@ -11,17 +11,15 @@ import NetworkExtension
 import SatelliteGuardKit
 
 class PacketTunnelProvider: NEPacketTunnelProvider {
-    private lazy var connection: WireGuardConnection! = {
-        guard let protocolConfiguration = protocolConfiguration as? NETunnelProviderProtocol,
-              let id = protocolConfiguration.id,
-              let endpoint = Endpoint.identified(by: id) else {
-            return nil
-        }
-        
-        return .init(provider: self, endpoint: endpoint)
-    }()
+    private var connection: WireGuardConnection!
     
     override func startTunnel(options: [String : NSObject]?) async throws {
+        guard let protocolConfiguration = protocolConfiguration as? NETunnelProviderProtocol, let id = protocolConfiguration.id, let endpoint = await PersistenceManager.shared.endpoint[id] else {
+                  throw TunnelError.invalidEndpoint
+        }
+        
+        connection = .init(provider: self, endpoint: endpoint)
+        
         try await connection.activate()
     }
     
@@ -41,5 +39,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
     
     override func wake() {
+    }
+    
+    enum TunnelError: Error {
+        case invalidEndpoint
     }
 }

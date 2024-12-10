@@ -50,12 +50,12 @@ internal extension Endpoint {
             let manager: NETunnelProviderManager
             
             if let existing = managers.first(where: { $0.identified(by: id) }) {
-                if !(await isActive) {
+                if !(await PersistenceManager.shared.keyHolder[id]) {
                     Self.logger.fault("Manager found even though endpoint is not active")
                 }
                 
                 manager = existing
-            } else if await isActive {
+            } else if await PersistenceManager.shared.keyHolder[id] {
                 manager = .init()
                 manager.isEnabled = true
                 
@@ -95,9 +95,7 @@ public extension Endpoint {
     static func checkActive() async {
         let managers = (try? await NETunnelProviderManager.loadAllFromPreferences()) ?? []
         
-        guard let endpoints = await Endpoint.all else {
-            return
-        }
+        let endpoints = await PersistenceManager.shared.endpoint.all
         
         let activeIDs = managers.compactMap(\.id)
         let endpointIDs = endpoints.map(\.id)
@@ -115,14 +113,24 @@ public extension Endpoint {
         }
         
         let active = endpoints.filter { activeIDs.contains($0.id) }
-        let invalidInactive = endpoints.filter { $0.isActive && !active.contains($0) }
-        let invalidActive = endpoints.filter { !$0.isActive && active.contains($0) }
+        
+        var invalidInactive = [Endpoint]()
+        var invalidActive = [Endpoint]()
+        
+        for endpoint in active {
+            if await PersistenceManager.shared.keyHolder[endpoint.id] && !active.contains(endpoint) {
+                invalidInactive.append(endpoint)
+            }
+            if !(await PersistenceManager.shared.keyHolder[endpoint.id]) && active.contains(endpoint) {
+                invalidActive.append(endpoint)
+            }
+        }
         
         for endpoint in invalidInactive {
             try? await endpoint.deactivate()
         }
         for endpoint in invalidActive {
-            try? await endpoint.notifySystem()
+            try? await endpoint.reassert()
         }
     }
 }

@@ -22,6 +22,7 @@ public final class PersistenceManager {
         schema = .init([
             KeyHolder.self,
             KeyValueEntity.self,
+            EncryptedEndpoint.self,
         ], version: .init(2, 0, 0))
         
         modelConfiguration = .init("SatelliteGuard",
@@ -33,9 +34,9 @@ public final class PersistenceManager {
         
         modelContainer = try! ModelContainer(for: schema, configurations: [modelConfiguration])
         
-        endpoint = .init()
-        keyValue = .init()
-        keyHolder = .init()
+        endpoint = .init(container: modelContainer)
+        keyValue = .init(container: modelContainer)
+        keyHolder = .init(container: modelContainer)
     }
 }
 

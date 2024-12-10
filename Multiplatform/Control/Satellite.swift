@@ -29,6 +29,8 @@ final class Satellite {
     @MainActor private(set) var notifyError: Bool
     @MainActor private(set) var notifySuccess: Bool
     
+    @MainActor private(set) var activeEndpointIDs: [UUID]
+    
     @ObservationIgnored private var tokens: [Any]!
     private static let logger = Logger(subsystem: "Core", category: "Satellite")
     
@@ -41,6 +43,8 @@ final class Satellite {
         
         importing = false
         transmitting = 0
+        
+        activeEndpointIDs = []
         
         notifyError = false
         notifySuccess = false
@@ -183,8 +187,8 @@ extension Satellite {
             }
             
             do {
-                for connectedId in await self.connectedIDs {
-                    if let current = Endpoint.identified(by: connectedId) {
+                for connectedID in await self.connectedIDs {
+                    if let current = await PersistenceManager.shared.endpoint[connectedID] {
                         await current.disconnect()
                     }
                 }
@@ -225,8 +229,8 @@ extension Satellite {
                     self.status[endpoint.id] = .disconnecting
                 }
             } else {
-                for connectedId in await self.connectedIDs {
-                    if let current = Endpoint.identified(by: connectedId) {
+                for connectedID in await self.connectedIDs {
+                    if let current = await PersistenceManager.shared.endpoint[connectedID] {
                         await current.disconnect()
                         await MainActor.withAnimation {
                             self.status[current.id] = .disconnecting
@@ -253,7 +257,7 @@ extension Satellite {
             }
             
             do {
-                try await endpoint.notifySystem()
+                try await endpoint.reassert()
                 
                 await MainActor.withAnimation {
                     self.notifySuccess.toggle()
@@ -338,6 +342,14 @@ private extension Satellite {
                 }
                 
                 self?.status[id] = parsed
+            }
+        }, PersistenceManager.shared.keyHolder.activationDidChange.sink { [weak self] _ in
+            Task {
+                let activeIDs = await PersistenceManager.shared.keyHolder.activeIDs
+                
+                await MainActor.withAnimation {
+                    self?.activeEndpointIDs = activeIDs
+                }
             }
         }]
         #if !os(macOS)

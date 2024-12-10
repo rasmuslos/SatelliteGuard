@@ -20,14 +20,15 @@ import ServiceManagement
 @available(visionOS, unavailable)
 struct DesktopMenu: View {
     @Environment(Satellite.self) private var satellite
+    @Environment(\.openWindow) private var openWindow
     
-    @Query private var endpoints: [Endpoint]
+    let endpoints: [Endpoint] = []
     
     private var activeEndpoints: [Endpoint] {
-        endpoints.filter(\.isActive)
+        endpoints.filter { satellite.activeEndpointIDs.contains($0.id) }
     }
     private var inactiveEndpoints: [Endpoint] {
-        endpoints.filter { !$0.isActive }
+        endpoints.filter { !satellite.activeEndpointIDs.contains($0.id) }
     }
     
     private var isActive: Bool {
@@ -84,10 +85,21 @@ struct DesktopMenu: View {
                 .padding(.bottom, -4)
             
             if endpoints.isEmpty {
-                HStack {
-                    Text("home.empty")
-                    Spacer()
+                Button {
+                    openWindow(id: "import-configuration")
+                    satellite.importPickerVisible.toggle()
+                } label: {
+                    HStack(spacing: 0) {
+                        Text("home.empty")
+                            .foregroundStyle(.secondary)
+                        
+                        Spacer(minLength: 12)
+                        
+                        Image(systemName: "plus")
+                    }
                 }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
             }
             
             if !activeEndpoints.isEmpty {
@@ -172,19 +184,19 @@ private struct StatusMenuCell: View {
     
     var body: some View {
         Button {
-            if !endpoint.isActive {
-                satellite.activate(endpoint)
-            } else if satellite.connectedIDs.contains(endpoint.id) {
+            if satellite.connectedIDs.contains(endpoint.id) {
                 satellite.land(endpoint)
-            } else {
+            } else if satellite.activeEndpointIDs.contains(endpoint.id) {
                 satellite.launch(endpoint)
+            } else {
+                satellite.activate(endpoint)
             }
         } label: {
             HStack(spacing: 6) {
                 Circle()
-                    .fill(!endpoint.isActive ? .gray : satellite.connectedIDs.contains(endpoint.id) ? .green : .accentColor)
+                    .fill(!satellite.activeEndpointIDs.contains(endpoint.id) ? .gray : satellite.connectedIDs.contains(endpoint.id) ? .green : .accentColor)
                     .overlay {
-                        Image(systemName: !endpoint.isActive ? "diamond" : satellite.connectedIDs.contains(endpoint.id) ? "diamond.fill" : "diamond.bottomhalf.filled")
+                        Image(systemName: !satellite.activeEndpointIDs.contains(endpoint.id) ? "diamond" : satellite.connectedIDs.contains(endpoint.id) ? "diamond.fill" : "diamond.bottomhalf.filled")
                             .font(.system(size: 12))
                             .foregroundStyle(.white)
                     }
@@ -216,11 +228,11 @@ private struct StatusMenuCell: View {
             
             EndpointPrimaryButton(endpoint)
             
-            if endpoint.isActive {
+            if satellite.activeEndpointIDs.contains(endpoint.id) {
                 EndpointDeactivateButton(endpoint)
             } else {
                 Button(role: .destructive) {
-                    try? endpoint.remove()
+                    
                 } label: {
                     Text("endpoint.remove")
                 }

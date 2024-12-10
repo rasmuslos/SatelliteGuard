@@ -13,14 +13,14 @@ import SatelliteGuardKit
 struct HomeView: View {
     @Environment(Satellite.self) private var satellite
     
-    @Query private var endpoints: [Endpoint]
+    let endpoints: [Endpoint] = []
     @State private var editMode: EditMode = .inactive
     
     private var activeEndpoints: [Endpoint] {
-        endpoints.filter(\.isActive)
+        endpoints.filter { satellite.activeEndpointIDs.contains($0.id) }
     }
     private var inactiveEndpoints: [Endpoint] {
-        endpoints.filter { !$0.isActive }
+        endpoints.filter { !satellite.activeEndpointIDs.contains($0.id) }
     }
     
     var body: some View {
@@ -53,7 +53,6 @@ struct HomeView: View {
                             }
                             .onDelete {
                                 for index in $0 {
-                                    try? inactiveEndpoints[index].remove()
                                 }
                             }
                         }

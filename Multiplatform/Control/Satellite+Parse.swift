@@ -98,16 +98,8 @@ internal extension Satellite {
                                              routes: $0.routes,
                                              persistentKeepAlive: $0.persistentKeepAlive) }
             
-            let endpoint = Endpoint(name: name,
-                                    peers: peers,
-                                    addresses: interfaceCache.addresses,
-                                    privateKey: interfaceCache.privateKey,
-                                    dns: interfaceCache.dns,
-                                    listenPort: interfaceCache.listenPort,
-                                    mtu: interfaceCache.mtu)
+            // TODO: INSERT ENDPOINT
             
-            context.insert(endpoint)
-            try context.save()
         }
     }
 }

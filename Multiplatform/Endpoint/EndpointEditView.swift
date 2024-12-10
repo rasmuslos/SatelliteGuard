@@ -24,7 +24,7 @@ struct EndpointEditView: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("endpoint.edit.name", text: $viewModel.endpoint.name)
+                    TextField("endpoint.edit.name", text: .constant(""))
                 }
                 
                 Group {
@@ -58,14 +58,6 @@ struct EndpointEditView: View {
                 #endif
                 
                 Section {
-                    Toggle("endpoint.edit.disconnectsOnSleep", isOn: $viewModel.endpoint.disconnectsOnSleep)
-                    
-                    Toggle("endpoint.edit.excludeAPN", isOn: $viewModel.endpoint.excludeAPN)
-                    Toggle("endpoint.edit.enforceRoutes", isOn: $viewModel.endpoint.enforceRoutes)
-                    Toggle("endpoint.edit.includeAllNetworks", isOn: $viewModel.endpoint.includeAllNetworks)
-                    Toggle("endpoint.edit.excludeCellularServices", isOn: $viewModel.endpoint.excludeCellularServices)
-                    Toggle("endpoint.edit.allowAccessToLocalNetwork", isOn: $viewModel.endpoint.allowAccessToLocalNetwork)
-                    Toggle("endpoint.edit.excludeDeviceCommunication", isOn: $viewModel.endpoint.excludeDeviceCommunication)
                 } footer: {
                     Text("endpoint.edit.appleTVDisclaimer")
                 }
@@ -74,9 +66,6 @@ struct EndpointEditView: View {
                     Text("endpoint.edit.active")
                 } footer: {
                     VStack(alignment: .leading) {
-                        ForEach(viewModel.endpoint.active) {
-                            Text($0.uuidString)
-                        }
                     }
                 }
             }

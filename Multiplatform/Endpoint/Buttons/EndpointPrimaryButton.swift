@@ -30,21 +30,21 @@ struct EndpointPrimaryButton: View {
     }
     
     private var label: LocalizedStringKey {
-        if !endpoint.isActive {
-            "endpoint.activate"
-        } else if isActive {
+        if isActive {
             "disconnect"
-        } else {
+        } else if satellite.activeEndpointIDs.contains(endpoint.id) {
             "connect"
+        } else {
+            "endpoint.activate"
         }
     }
     private var icon: String {
-        if !endpoint.isActive {
-            "diamond"
-        } else if isActive {
+        if isActive {
             "diamond.fill"
-        } else {
+        } else if satellite.activeEndpointIDs.contains(endpoint.id) {
             "diamond.bottomhalf.filled"
+        } else {
+            "diamond"
         }
     }
     
@@ -53,10 +53,10 @@ struct EndpointPrimaryButton: View {
             ProgressView()
         } else {
             Button {
-                if !endpoint.isActive {
-                    satellite.activate(endpoint)
-                } else if isActive {
+                if isActive {
                     satellite.land(endpoint)
+                } else if satellite.activeEndpointIDs.contains(endpoint.id) {
+                    satellite.activate(endpoint)
                 } else {
                     satellite.launch(endpoint)
                 }

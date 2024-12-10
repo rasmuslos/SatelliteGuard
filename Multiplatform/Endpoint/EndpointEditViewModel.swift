@@ -71,7 +71,7 @@ extension EndpointEditViewModel {
             }
             
             await saveMainModelContext()
-            try await endpoint.notifySystem()
+            try await endpoint.reassert()
             await dismissAction()
             
             await MainActor.run {
@@ -80,7 +80,7 @@ extension EndpointEditViewModel {
         }
     }
     func dismiss() {
-        endpoint.modelContext?.rollback()
+        
     }
     
     @MainActor
@@ -92,7 +92,6 @@ extension EndpointEditViewModel {
             }
             
             self.privateKeyMalformed = false
-            self.endpoint.privateKey = data
         }
     }
     @MainActor
@@ -105,7 +104,6 @@ extension EndpointEditViewModel {
             }
         } set: {
             if $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                self.endpoint.listenPort = nil
                 self.listenPortMalformed = false
                 
                 return
@@ -117,7 +115,6 @@ extension EndpointEditViewModel {
             }
             
             self.listenPortMalformed = false
-            self.endpoint.listenPort = unsignedInteger
         }
     }
     @MainActor
@@ -130,7 +127,6 @@ extension EndpointEditViewModel {
             }
         } set: {
             if $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                self.endpoint.mtu = nil
                 self.mtuMalformed = false
                 
                 return
@@ -142,7 +138,6 @@ extension EndpointEditViewModel {
             }
             
             self.mtuMalformed = false
-            self.endpoint.mtu = unsignedInteger
         }
     }
     

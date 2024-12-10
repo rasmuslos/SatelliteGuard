@@ -68,7 +68,7 @@ struct MultiplatformApp: App {
         .menuBarExtraStyle(.window)
         
         WindowGroup(for: Endpoint.ID.self) { $endpointID in
-            if let endpointID, let endpoint = Endpoint.identified(by: endpointID) {
+            if let endpointID, let endpoint = Optional<Endpoint>(nil) {
                 Group {
                     if endpointID == satellite.editingEndpoint?.id {
                         EndpointEditView(endpoint)

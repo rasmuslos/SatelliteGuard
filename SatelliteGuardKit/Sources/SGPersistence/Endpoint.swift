@@ -11,7 +11,7 @@ import Network
 import OSLog
 import WireGuardKit
 
-public struct Endpoint {
+public final class Endpoint: Sendable, ObservableObject {
     public let id: UUID
     public let name: String
     
@@ -26,7 +26,7 @@ public struct Endpoint {
     
     public let excludeAPN: Bool
     public let excludeCellularServices: Bool
-    public var allowAccessToLocalNetwork: Bool
+    public let allowAccessToLocalNetwork: Bool
     public let excludeDeviceCommunication: Bool
     
     public let enforceRoutes: Bool
@@ -77,12 +77,6 @@ public struct Endpoint {
 }
 
 public extension Endpoint {
-    var isActive: Bool {
-        get async {
-            await PersistenceManager.shared.keyHolder[id]
-        }
-    }
-    
     var addresses: [IPAddressRange] {
         _addresses.compactMap { IPAddressRange(from: $0) }
     }
@@ -114,30 +108,38 @@ public extension Endpoint {
 }
 
 extension Endpoint: Codable {}
-extension Endpoint: Hashable {}
-extension Endpoint: Equatable {}
+extension Endpoint: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}
+extension Endpoint: Equatable {
+    public static func == (lhs: Endpoint, rhs: Endpoint) -> Bool {
+        lhs.id == rhs.id
+    }
+}
 extension Endpoint: Identifiable {}
 
 #if DEBUG
 public extension Endpoint {
-    nonisolated(unsafe) static let fixture = Endpoint(id: UUID(),
-                                                      name: "Fixture",
-                                                      privateKey: Data(count: 32),
-                                                      addresses: [IPAddressRange(from: "192.168.178.1/24")!],
-                                                      mtu: 123,
-                                                      listenPort: 456,
-                                                      peers: [Peer(publicKey: Data(count: 32),
-                                                                   preSharedKey: Data(count: 32),
-                                                                   endpoint: "cia.gocardless.com",
-                                                                   routes: [IPAddressRange(from: "0.0.0.0/0")!],
-                                                                   persistentKeepAlive: 789)],
-                                                      dns: [IPv4Address("1.2.3.4")!],
-                                                      disconnectsOnSleep: true,
-                                                      excludeAPN: true,
-                                                      excludeCellularServices: true,
-                                                      allowAccessToLocalNetwork: true,
-                                                      excludeDeviceCommunication: true,
-                                                      enforceRoutes: true,
-                                                      includeAllNetworks: false)
+    static let fixture = Endpoint(id: UUID(),
+                                  name: "Fixture",
+                                  privateKey: Data(count: 32),
+                                  addresses: [IPAddressRange(from: "192.168.178.1/24")!],
+                                  mtu: 123,
+                                  listenPort: 456,
+                                  peers: [Peer(publicKey: Data(count: 32),
+                                               preSharedKey: Data(count: 32),
+                                               endpoint: "cia.gocardless.com",
+                                               routes: [IPAddressRange(from: "0.0.0.0/0")!],
+                                               persistentKeepAlive: 789)],
+                                  dns: [IPv4Address("1.2.3.4")!],
+                                  disconnectsOnSleep: true,
+                                  excludeAPN: true,
+                                  excludeCellularServices: true,
+                                  allowAccessToLocalNetwork: true,
+                                  excludeDeviceCommunication: true,
+                                  enforceRoutes: true,
+                                  includeAllNetworks: false)
 }
 #endif

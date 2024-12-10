@@ -9,7 +9,7 @@ import Foundation
 import Network
 import WireGuardKit
 
-public class Peer: Codable {
+public final class Peer: Codable {
     public let publicKey: Data
     public let preSharedKey: Data?
     
@@ -27,6 +27,7 @@ public class Peer: Codable {
     }
 }
 
+extension Peer: Sendable {}
 extension Peer: Identifiable {
     public var id: String {
         endpoint
