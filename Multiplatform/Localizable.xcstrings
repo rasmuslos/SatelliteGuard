@@ -742,9 +742,6 @@
         }
       }
     },
-    "import.success" : {
-
-    },
     "launch.login" : {
       "localizations" : {
         "de" : {
@@ -792,6 +789,21 @@
           }
         }
       }
+    },
+    "vault.authorize.description" : {
+
+    },
+    "vault.authorize.title" : {
+
+    },
+    "vault.join.action" : {
+
+    },
+    "vault.join.description" : {
+
+    },
+    "vault.join.title" : {
+
     }
   },
   "version" : "1.0"

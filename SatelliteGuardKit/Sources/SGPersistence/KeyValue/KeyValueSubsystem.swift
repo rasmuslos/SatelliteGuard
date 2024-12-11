@@ -23,11 +23,11 @@ extension PersistenceManager {
         // TODO: BROKEN
         public subscript<Value: DataRepresentable>(_ key: Key<Value>) -> Value? {
             get {
-                guard let entities = try? context.fetch(FetchDescriptor<KeyValueEntity>()) else {
+                let identifier = key.identifier
+                
+                guard let entities = try? context.fetch(FetchDescriptor<KeyValueEntity>(predicate: #Predicate { $0.key == identifier })) else {
                     return nil
                 }
-                
-                // let entities: [KeyValueEntity] = []
                 
                 guard let entity = entities.first else {
                     return nil
@@ -42,7 +42,9 @@ extension PersistenceManager {
                     context.insert(entity)
                     try? context.save()
                 } else {
-                    try? context.delete(model: KeyValueEntity.self)
+                    let identifier = key.identifier
+                    
+                    try? context.delete(model: KeyValueEntity.self, where: #Predicate { $0.key == identifier })
                     try? context.save()
                 }
             }

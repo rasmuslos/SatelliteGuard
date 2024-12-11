@@ -50,7 +50,7 @@ struct EndpointView: View {
                 statusLabel
                 #endif
                 
-                if endpoint.isActive {
+                if satellite.activeEndpointIDs.contains(endpoint.id) {
                     EndpointDeactivateButton(endpoint)
                 }
                 #endif

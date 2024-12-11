@@ -11,21 +11,21 @@ import SwiftUI
 struct StatusLabel: View {
     @Environment(Satellite.self) private var satellite
     
-    let status: Satellite.VPNStatus?
+    var status: Satellite.VPNStatus? = nil
     
     var color = false
     var indicator = false
     
+    
+    private var dominantStatus: Satellite.VPNStatus {
+        status ?? satellite.dominantStatus
+    }
     private var isActive: Bool {
-        if case .connected = satellite.dominantStatus {
+        if case .connected = dominantStatus {
             true
         } else {
             false
         }
-    }
-    
-    private var dominantStatus: Satellite.VPNStatus {
-        status ?? satellite.dominantStatus
     }
     
     var body: some View {
@@ -51,12 +51,11 @@ struct StatusLabel: View {
             }
             .modify {
                 if color {
-                    $0.foregroundStyle(dominantStatus == .establishing || dominantStatus == .disconnecting ? .blue : .green)
+                    $0.foregroundStyle(isActive ? .green : .blue)
                 } else {
                     $0
                 }
             }
-            .animation(.smooth, value: dominantStatus)
             .compositingGroup()
             .overlay(alignment: .leading) {
                 if indicator {
@@ -67,6 +66,7 @@ struct StatusLabel: View {
                         .offset(x: -30)
                 }
             }
+            .animation(.smooth, value: dominantStatus)
         }
     }
 }

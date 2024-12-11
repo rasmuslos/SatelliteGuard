@@ -14,42 +14,41 @@ extension PersistenceManager {
     public final actor KeyHolderSubsystem: ObservableObject {
         public typealias ActivatedChangedPayload = UUID
         
-        nonisolated(unsafe) var _deviceID: UUID?
+        private nonisolated(unsafe) var _deviceID: UUID?
+        private(set) nonisolated(unsafe) var secret: SymmetricKey?
         
         private var keyHolders: [KeyHolder]
         
-        private(set) nonisolated(unsafe) var secret: SymmetricKey?
-        
+        private nonisolated let authorizationChangedPublisher: PassthroughSubject<Never?, Never>
         private nonisolated let activationChangedPublisher: PassthroughSubject<ActivatedChangedPayload, Never>
         
         private let context: ModelContext
         
         init(container: ModelContainer) {
+            _deviceID = nil
+            secret = nil
+            
             context = ModelContext(container)
             keyHolders = .init(try! context.fetch(FetchDescriptor<KeyHolder>()))
             
-            secret = nil
-            
             activationChangedPublisher = .init()
+            authorizationChangedPublisher = .init()
         }
     }
 }
 
 public extension PersistenceManager.KeyHolderSubsystem {
+    nonisolated var authorizationDidChange: AnyPublisher<Never?, Never> {
+        authorizationChangedPublisher.eraseToAnyPublisher()
+    }
     nonisolated var activationDidChange: AnyPublisher<ActivatedChangedPayload, Never> {
         activationChangedPublisher.eraseToAnyPublisher()
     }
     
-    var isVaultSetup: Bool {
-        for keyHolder in self.keyHolders {
-            if keyHolder.sharedKey != nil {
-                return true
-            }
-        }
-        
-        return false
+    var didJoinVault: Bool {
+        current != nil
     }
-    var authorized: Bool {
+    nonisolated var authorized: Bool {
         secret != nil
     }
     
@@ -73,24 +72,34 @@ public extension PersistenceManager.KeyHolderSubsystem {
     }
     
     func joinVault() {
+        guard current == nil else {
+            return
+        }
+        
         guard !keyHolders.contains(where: { $0.id == deviceID }) else {
             return
         }
         
-        context.insert(KeyHolder())
+        let keyHolder = KeyHolder()
+        
+        context.insert(keyHolder)
+        self.keyHolders.append(keyHolder)
+        
         try! context.save()
         
-        if keyHolders.isEmpty {
+        if keyHolders.count == 1 {
             secret = SymmetricKey(size: .bits256)
             
             current.store(secret: secret!)
-            try? context.save()
+            try! context.save()
             
             Task {
                 await PersistenceManager.shared.keyValue.set(.vaultSetup, .now)
                 await PersistenceManager.shared.keyValue.set(.vaultInitialDeviceID, deviceID)
             }
         }
+        
+        authorizationChangedPublisher.send(nil)
     }
     
     func activate(_ id: Endpoint.ID) throws {

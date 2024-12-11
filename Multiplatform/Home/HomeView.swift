@@ -14,14 +14,8 @@ struct HomeView: View {
     @Environment(Satellite.self) private var satellite
     
     let endpoints: [Endpoint] = []
-    @State private var editMode: EditMode = .inactive
     
-    private var activeEndpoints: [Endpoint] {
-        endpoints.filter { satellite.activeEndpointIDs.contains($0.id) }
-    }
-    private var inactiveEndpoints: [Endpoint] {
-        endpoints.filter { !satellite.activeEndpointIDs.contains($0.id) }
-    }
+    @State private var editMode: EditMode = .inactive
     
     var body: some View {
         Group {
@@ -38,25 +32,7 @@ struct HomeView: View {
                 #endif
             } else {
                 List {
-                    if !activeEndpoints.isEmpty {
-                        Section("home.active") {
-                            ForEach(activeEndpoints) {
-                                EndpointCell(endpoint: $0)
-                            }
-                        }
-                    }
                     
-                    if !inactiveEndpoints.isEmpty {
-                        Section("home.inactive") {
-                            ForEach(inactiveEndpoints) {
-                                EndpointCell(endpoint: $0)
-                            }
-                            .onDelete {
-                                for index in $0 {
-                                }
-                            }
-                        }
-                    }
                 }
                 #if os(tvOS)
                 .listStyle(.grouped)

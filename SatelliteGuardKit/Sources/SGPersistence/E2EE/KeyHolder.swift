@@ -18,6 +18,7 @@ import AppKit
 @Model
 final class KeyHolder {
     #Index<KeyHolder>([\.id])
+    // #Unique<KeyHolder>([\.id])
     
     @Attribute(.allowsCloudEncryption)
     private(set) var id: UUID!

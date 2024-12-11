@@ -23,16 +23,20 @@ final class Satellite {
     @MainActor var editingEndpoint: Endpoint?
     @MainActor var importPickerVisible: Bool
     
+    @MainActor private(set) var activeEndpointIDs: [UUID]
+    
     @MainActor private(set) var importing: Bool
     @MainActor private(set) var transmitting: Int
+    
+    @MainActor private(set) var authorized: Bool
+    @MainActor private(set) var didJoinVault: Bool
     
     @MainActor private(set) var notifyError: Bool
     @MainActor private(set) var notifySuccess: Bool
     
-    @MainActor private(set) var activeEndpointIDs: [UUID]
-    
     @ObservationIgnored private var tokens: [Any]!
-    private static let logger = Logger(subsystem: "Core", category: "Satellite")
+    
+    private static let logger = Logger(subsystem: "Satellite", category: "SatelliteGuard")
     
     @MainActor
     init() {
@@ -43,6 +47,9 @@ final class Satellite {
         
         importing = false
         transmitting = 0
+        
+        authorized = false
+        didJoinVault = PersistenceManager.shared.keyHolder.authorized
         
         activeEndpointIDs = []
         
@@ -71,12 +78,17 @@ final class Satellite {
             }
         }
     }
+    
+    enum SatelliteError: Error {
+        case permissionDenied
+        case invalidConfiguration
+    }
 }
 
 extension Satellite {
     @MainActor
     var pondering: Bool {
-        transmitting > 0 || !status.filter { $1 == .establishing || $1 == .disconnecting }.isEmpty
+        importing || transmitting > 0 || !status.filter { $1 == .establishing || $1 == .disconnecting }.isEmpty
     }
     
     @MainActor
@@ -117,8 +129,6 @@ extension Satellite {
                     await MainActor.run {
                         self.notifyError.toggle()
                     }
-                    
-                    print(error)
                 }
             }
             
@@ -129,6 +139,10 @@ extension Satellite {
     }
     func handleFileImport(_ contents: String, name: String) {
         Task {
+            guard !(await self.importing) else {
+                return
+            }
+            
             await MainActor.withAnimation {
                 self.importing = true
             }
@@ -179,11 +193,10 @@ extension Satellite {
 }
 
 extension Satellite {
-    func launch(_ endpoint: Endpoint, _ status: Binding<Bool>? = nil, _ notifySuccess: Binding<Bool>? = nil, _ notifyError: Binding<Bool>? = nil) {
+    func launch(_ endpoint: Endpoint) {
         Task {
             await MainActor.withAnimation {
                 self.transmitting += 1
-                status?.wrappedValue = true
             }
             
             do {
@@ -197,30 +210,24 @@ extension Satellite {
                 
                 await MainActor.withAnimation {
                     self.status[endpoint.id] = .establishing
-                    
                     self.notifySuccess.toggle()
-                    notifySuccess?.wrappedValue.toggle()
                 }
             } catch {
                 await MainActor.withAnimation {
-                    self.notifyError.toggle()
-                    notifyError?.wrappedValue.toggle()
-                    
                     self.transmitting -= 1
+                    self.notifyError.toggle()
                 }
             }
             
             await MainActor.withAnimation {
                 self.transmitting -= 1
-                status?.wrappedValue = false
             }
         }
     }
-    func land(_ endpoint: Endpoint?, _ status: Binding<Bool>? = nil, _ notifySuccess: Binding<Bool>? = nil, _ notifyError: Binding<Bool>? = nil) {
+    func land(_ endpoint: Endpoint?) {
         Task {
             await MainActor.withAnimation {
                 self.transmitting += 1
-                status?.wrappedValue = true
             }
             
             if let endpoint {
@@ -240,20 +247,16 @@ extension Satellite {
             }
             
             await MainActor.withAnimation {
-                self.notifySuccess.toggle()
-                notifySuccess?.wrappedValue.toggle()
-                
                 self.transmitting -= 1
-                status?.wrappedValue = false
+                self.notifySuccess.toggle()
             }
         }
     }
     
-    func activate(_ endpoint: Endpoint, _ status: Binding<Bool>? = nil, _ notifySuccess: Binding<Bool>? = nil, _ notifyError: Binding<Bool>? = nil) {
+    func activate(_ endpoint: Endpoint) {
         Task {
             await MainActor.withAnimation {
                 self.transmitting += 1
-                status?.wrappedValue = true
             }
             
             do {
@@ -261,31 +264,24 @@ extension Satellite {
                 
                 await MainActor.withAnimation {
                     self.notifySuccess.toggle()
-                    notifySuccess?.wrappedValue.toggle()
                 }
             } catch {
                 await MainActor.withAnimation {
-                    self.notifyError.toggle()
-                    notifyError?.wrappedValue.toggle()
-                    
                     self.transmitting -= 1
+                    self.notifyError.toggle()
                 }
             }
             
             await MainActor.withAnimation {
-                self.notifySuccess.toggle()
-                notifySuccess?.wrappedValue.toggle()
-                
                 self.transmitting -= 1
-                status?.wrappedValue = false
+                self.notifySuccess.toggle()
             }
         }
     }
-    func deactivate(_ endpoint: Endpoint, _ status: Binding<Bool>? = nil, _ notifySuccess: Binding<Bool>? = nil, _ notifyError: Binding<Bool>? = nil) {
+    func deactivate(_ endpoint: Endpoint) {
         Task {
             await MainActor.withAnimation {
                 self.transmitting += 1
-                status?.wrappedValue = true
             }
             
             do {
@@ -293,56 +289,26 @@ extension Satellite {
                 
                 await MainActor.withAnimation {
                     self.notifySuccess.toggle()
-                    notifySuccess?.wrappedValue.toggle()
                 }
             } catch {
                 await MainActor.withAnimation {
-                    self.notifyError.toggle()
-                    notifyError?.wrappedValue.toggle()
-                    
                     self.transmitting -= 1
+                    self.notifyError.toggle()
                 }
             }
             
             await MainActor.withAnimation {
-                self.notifySuccess.toggle()
-                notifySuccess?.wrappedValue.toggle()
-                
                 self.transmitting -= 1
-                status?.wrappedValue = false
+                self.notifySuccess.toggle()
             }
         }
-    }
-    
-    enum SatelliteError: Error {
-        case permissionDenied
-        case invalidConfiguration
     }
 }
 
 private extension Satellite {
     func setupObservers() -> [Any] {
         var tokens = [WireGuardMonitor.shared.statusPublisher.sink { [weak self] (id, status, connectedSince) in
-            let parsed: VPNStatus
-            
-            switch status {
-            case .connected:
-                parsed = .connected(since: connectedSince ?? .now)
-            case .connecting, .reasserting:
-                parsed = .establishing
-            case .disconnecting:
-                parsed = .disconnecting
-            default:
-                parsed = .disconnected
-            }
-            
-            Task { @MainActor in
-                if self?.editingEndpoint?.id == id && parsed != .disconnected {
-                    self?.editingEndpoint = nil
-                }
-                
-                self?.status[id] = parsed
-            }
+            self?.parseStatus(status, for: id, connectedSince: connectedSince)
         }, PersistenceManager.shared.keyHolder.activationDidChange.sink { [weak self] _ in
             Task {
                 let activeIDs = await PersistenceManager.shared.keyHolder.activeIDs
@@ -351,35 +317,52 @@ private extension Satellite {
                     self?.activeEndpointIDs = activeIDs
                 }
             }
+        }, PersistenceManager.shared.keyHolder.authorizationDidChange.sink { [weak self] authorized in
+            Task {
+                let didJoinVault = await PersistenceManager.shared.keyHolder.didJoinVault
+                
+                await MainActor.withAnimation {
+                    self?.authorized = PersistenceManager.shared.keyHolder.authorized
+                    self?.didJoinVault = didJoinVault
+                }
+            }
         }]
         #if !os(macOS)
         tokens += [NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification).sink { [weak self] _ in
             Task {
-                guard let endpoints = await Endpoint.all else {
-                    return
-                }
-                
-                for endpoint in endpoints {
-                    let status: VPNStatus
-                    
-                    switch await endpoint.status {
-                    case .connected:
-                        status = .connected(since: .now)
-                    case .connecting:
-                        status = .establishing
-                    default:
-                        status = .disconnected
-                    }
-                    
-                    await MainActor.withAnimation {
-                        self?.status[endpoint.id] = status
-                    }
+                for endpoint in await PersistenceManager.shared.endpoint.all {
+                    await self?.parseStatus(endpoint.status, for: endpoint.id, connectedSince: .now)
                 }
             }
         }]
         #endif
         
         return tokens
+    }
+    
+    func parseStatus(_ status: NEVPNStatus, for endpointID: UUID, connectedSince: Date?) {
+        let parsed: VPNStatus
+        
+        switch status {
+        case .connected:
+            parsed = .connected(since: connectedSince ?? .now)
+        case .connecting, .reasserting:
+            parsed = .establishing
+        case .disconnecting:
+            parsed = .disconnecting
+        default:
+            parsed = .disconnected
+        }
+        
+        Task { @MainActor in
+            if self.editingEndpoint?.id == endpointID && parsed != .disconnected {
+                self.editingEndpoint = nil
+            }
+            
+            if self.status[endpointID]?.priority != parsed.priority {
+                self.status[endpointID] = parsed
+            }
+        }
     }
 }
 

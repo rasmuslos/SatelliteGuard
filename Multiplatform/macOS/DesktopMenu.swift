@@ -10,10 +10,6 @@ import SwiftUI
 import SwiftData
 import SatelliteGuardKit
 
-#if os(macOS)
-import ServiceManagement
-#endif
-
 @available(iOS, unavailable)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
@@ -31,87 +27,31 @@ struct DesktopMenu: View {
         endpoints.filter { !satellite.activeEndpointIDs.contains($0.id) }
     }
     
-    private var isActive: Bool {
-        if case .connected = satellite.dominantStatus {
-            true
-        } else {
-            false
-        }
-    }
-    
     var body: some View {
-        @Bindable var satellite = satellite
-        
-        VStack(spacing: 8) {
-            HStack(alignment: .top, spacing: 0) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("home")
-                        .font(.headline)
+        if endpoints.isEmpty {
+            Button {
+                openWindow(id: "import-configuration")
+                satellite.importPickerVisible.toggle()
+            } label: {
+                HStack(spacing: 0) {
+                    Text("home.empty")
+                        .foregroundStyle(.secondary)
                     
-                    StatusLabel(status: nil)
-                        .labelStyle(.titleOnly)
-                        .bold()
-                        .font(.caption2)
+                    Spacer(minLength: 12)
+                    
+                    Image(systemName: "plus")
                 }
-                
-                Spacer(minLength: 12)
-                
-                Menu {
-                    ConfigurationImporter.Inner()
-                    
-                    Divider()
-                    
-                    #if os(macOS)
-                    Toggle("launch.login", isOn: .init(get: { SMAppService.mainApp.status == .enabled }, set: satellite.updateServiceRegistration))
-                    #endif
-                    
-                    Button("quit") {
-                        exit(0)
-                    }
-                    .keyboardShortcut("q", modifiers: .command)
-                } label: {
-                    Image("satellite.guard")
-                        .symbolEffect(.pulse, isActive: isActive)
-                        .symbolEffect(.wiggle, value: satellite.notifyError)
-                        .symbolEffect(.variableColor, isActive: satellite.pondering)
-                        .foregroundStyle(satellite.dominantStatus == .disconnected ? .secondary : isActive ? .green : Color.blue)
-                }
-                .menuStyle(.button)
-                .buttonStyle(.plain)
             }
-            .animation(.smooth, value: satellite.status)
-            
-            Divider()
-                .padding(.bottom, -4)
-            
-            if endpoints.isEmpty {
-                Button {
-                    openWindow(id: "import-configuration")
-                    satellite.importPickerVisible.toggle()
-                } label: {
-                    HStack(spacing: 0) {
-                        Text("home.empty")
-                            .foregroundStyle(.secondary)
-                        
-                        Spacer(minLength: 12)
-                        
-                        Image(systemName: "plus")
-                    }
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
-            }
-            
-            if !activeEndpoints.isEmpty {
-                StatusSection(title: "home.active", enableShortcuts: true, endpoints: activeEndpoints)
-            }
-            if !inactiveEndpoints.isEmpty {
-                StatusSection(title: "home.inactive", enableShortcuts: false, endpoints: inactiveEndpoints)
-            }
+            .buttonStyle(.plain)
+            .foregroundStyle(.secondary)
         }
-        .foregroundStyle(.primary)
-        .padding(12)
-        .frame(width: 300)
+        
+        if !activeEndpoints.isEmpty {
+            StatusSection(title: "home.active", enableShortcuts: true, endpoints: activeEndpoints)
+        }
+        if !inactiveEndpoints.isEmpty {
+            StatusSection(title: "home.inactive", enableShortcuts: false, endpoints: inactiveEndpoints)
+        }
     }
 }
 

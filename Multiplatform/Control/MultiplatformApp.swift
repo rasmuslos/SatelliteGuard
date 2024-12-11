@@ -11,15 +11,7 @@ import SatelliteGuardKit
 
 @main
 struct MultiplatformApp: App {
-    #if os(macOS)
-    @Environment(\.dismissWindow) private var dismissWindow
-    #endif
-    
     @State private var satellite = Satellite()
-    
-    #if os(macOS)
-    @State private var pickerPresented = false
-    #endif
     
     init() {
         WireGuardMonitor.shared.ping()
@@ -50,56 +42,13 @@ struct MultiplatformApp: App {
     var body: some Scene {
         #if os(macOS)
         MenuBarExtra(isInserted: inserted) {
-            DesktopMenu()
+            MenuBarItem()
                 .environment(satellite)
                 .modelContainer(PersistenceManager.shared.modelContainer)
         } label: {
-            switch satellite.dominantStatus {
-            case .connected:
-                Label("home", systemImage: "diamond.fill")
-            case .establishing:
-                Label("home", systemImage: "diamond.bottomhalf.filled")
-            case .disconnecting:
-                Label("home", systemImage: "diamond")
-            default:
-                Label("home", image: "satellite.guard")
-            }
+            MenuBarItem.LabelIcon(satellite: satellite)
         }
         .menuBarExtraStyle(.window)
-        
-        WindowGroup(for: Endpoint.ID.self) { $endpointID in
-            if let endpointID, let endpoint = Optional<Endpoint>(nil) {
-                Group {
-                    if endpointID == satellite.editingEndpoint?.id {
-                        EndpointEditView(endpoint)
-                            .padding(20)
-                    } else {
-                        EndpointView(endpoint)
-                    }
-                }
-                .environment(satellite)
-                .modelContainer(PersistenceManager.shared.modelContainer)
-            }
-        }
-        .windowLevel(.normal)
-        .defaultPosition(.center)
-        
-        Window("configuration.import", id: "import-configuration") {
-            ProgressView()
-                .modifier(ConfigurationImporter.ImporterModifier())
-                .environment(satellite)
-                .modelContainer(PersistenceManager.shared.modelContainer)
-                .onChange(of: satellite.importPickerVisible) {
-                    if !satellite.importPickerVisible {
-                        dismissWindow(id: "import-configuration")
-                    }
-                }
-        }
-        .commandsRemoved()
-        .defaultPosition(.center)
-        .restorationBehavior(.disabled)
-        .defaultSize(width: 300, height: 200)
-        
         #else
         WindowGroup {
             ContentView()
@@ -108,18 +57,6 @@ struct MultiplatformApp: App {
                 .environment(satellite)
                 .modelContainer(PersistenceManager.shared.modelContainer)
         }
-        #endif
-        
-        DocumentGroup(viewing: WireGuardConfigurationFile.self) {
-            ConfigurationImporter.ImportButton(configuration: $0)
-                .environment(satellite)
-                .modelContainer(PersistenceManager.shared.modelContainer)
-        }
-        .commandsRemoved()
-        .defaultSize(width: 300, height: 100)
-        #if os(macOS)
-        .defaultPosition(.center)
-        .restorationBehavior(.disabled)
         #endif
     }
 }

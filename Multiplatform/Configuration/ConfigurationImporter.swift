@@ -30,6 +30,7 @@ extension ConfigurationImporter {
         #if os(macOS)
         @Environment(\.openWindow) private var openWindow
         #endif
+        
         @Environment(Satellite.self) private var satellite
         
         var body: some View {
@@ -57,6 +58,26 @@ extension ConfigurationImporter {
 
 @available(tvOS, unavailable)
 extension ConfigurationImporter {
+    struct ImportButton: View {
+        @Environment(Satellite.self) private var satellite
+        
+        let configuration: FileDocumentConfiguration<WireGuardConfigurationFile>
+        
+        var body: some View {
+            if satellite.importing {
+                ProgressView()
+            } else {
+                Button("configuration.import") {
+                    satellite.handleFileImport(configuration.document.contents, name: configuration.document.fileName ?? "Unknown")
+                }
+                .disabled(satellite.importing)
+            }
+        }
+    }
+}
+
+@available(tvOS, unavailable)
+extension ConfigurationImporter {
     struct ImporterModifier: ViewModifier {
         @Environment(Satellite.self) private var satellite
         
@@ -68,36 +89,6 @@ extension ConfigurationImporter {
                               allowedContentTypes: [.init(exportedAs: "com.wireguard.config.quick")],
                               allowsMultipleSelection: true,
                               onCompletion: satellite.handleFileSelection)
-        }
-    }
-}
-
-@available(tvOS, unavailable)
-extension ConfigurationImporter {
-    struct ImportButton: View {
-        @Environment(Satellite.self) private var satellite
-        
-        let configuration: FileDocumentConfiguration<WireGuardConfigurationFile>
-        
-        @State private var importFired = 0
-        
-        var body: some View {
-            Group {
-                switch importFired {
-                case 0:
-                    Button("configuration.import") {
-                        satellite.handleFileImport(configuration.document.contents, name: configuration.document.fileName ?? "Unknown")
-                    }
-                    .disabled(importFired != 0)
-                case 1:
-                    ProgressView()
-                default:
-                    Text("import.success")
-                }
-            }
-            .onChange(of: satellite.importing) {
-                importFired += 1
-            }
         }
     }
 }

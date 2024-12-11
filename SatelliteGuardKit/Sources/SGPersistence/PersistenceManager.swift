@@ -16,7 +16,7 @@ public final class PersistenceManager {
     
     private(set) public var endpoint: EndpointSubsystem
     private(set) public var keyValue: KeyValueSubsystem
-    private(set) public var keyHolder: KeyHolderSubsystem!
+    private(set) public var keyHolder: KeyHolderSubsystem
     
     private init() {
         schema = .init([
