@@ -7,51 +7,84 @@
 
 import Foundation
 import SwiftData
+import OSLog
 @preconcurrency import Combine
 import CryptoKit
 
 extension PersistenceManager {
     public final actor KeyHolderSubsystem: ObservableObject {
-        public typealias ActivatedChangedPayload = UUID
-        
         private nonisolated(unsafe) var _deviceID: UUID?
         private(set) nonisolated(unsafe) var secret: SymmetricKey?
         
         private var keyHolders: [KeyHolder]
         
-        private nonisolated let authorizationChangedPublisher: PassthroughSubject<Never?, Never>
-        private nonisolated let activationChangedPublisher: PassthroughSubject<ActivatedChangedPayload, Never>
-        
+        private nonisolated let authorizationDidChangeSubject: CurrentValueSubject<AuthorizationStatus, Never>
         private let context: ModelContext
+        
+        private nonisolated(unsafe) var cancellable: AnyCancellable?
+        
+        public static let logger = Logger(subsystem: "SatelliteGuardKit", category: "KeyHolder")
         
         init(container: ModelContainer) {
             _deviceID = nil
             secret = nil
             
             context = ModelContext(container)
-            keyHolders = .init(try! context.fetch(FetchDescriptor<KeyHolder>()))
+            authorizationDidChangeSubject = .init(.establishing)
             
-            activationChangedPublisher = .init()
-            authorizationChangedPublisher = .init()
+            do {
+                keyHolders = try context.fetch(FetchDescriptor<KeyHolder>())
+            } catch {
+                keyHolders = []
+                authorizationDidChangeSubject.send(.establishingFailed)
+            }
+            
+            cancellable = nil
+            createObservers()
+            
+            Task {
+                await self.logInit()
+                await self.updateKeyHolders()
+            }
+            
+            // MARK: RESET
+
+            print(SecItemDelete([
+              kSecClass: kSecClassKey,
+              kSecAttrSynchronizable: kSecAttrSynchronizableAny
+            ] as CFDictionary))
+        }
+        
+        public enum AuthorizationStatus: CustomDebugStringConvertible {
+            case establishing
+            case establishingFailed
+            
+            case none
+            case authorized
+            case missingSecretCreateStrategy
+            case missingSecretRequestStrategy
+            
+            public var debugDescription: String {
+                switch self {
+                case .establishing:
+                    "establishing"
+                case .establishingFailed:
+                    "establishingFailed"
+                case .none:
+                    "none"
+                case .authorized:
+                    "authorized"
+                case .missingSecretCreateStrategy:
+                    "missingSecretCreateStrategy"
+                case .missingSecretRequestStrategy:
+                    "missingSecretRequestStrategy"
+                }
+            }
         }
     }
 }
 
 public extension PersistenceManager.KeyHolderSubsystem {
-    nonisolated var authorizationDidChange: AnyPublisher<Never?, Never> {
-        authorizationChangedPublisher.eraseToAnyPublisher()
-    }
-    nonisolated var activationDidChange: AnyPublisher<ActivatedChangedPayload, Never> {
-        activationChangedPublisher.eraseToAnyPublisher()
-    }
-    
-    var didJoinVault: Bool {
-        current != nil
-    }
-    nonisolated var authorized: Bool {
-        secret != nil
-    }
-    
     nonisolated var deviceID: UUID {
         if let _deviceID = _deviceID {
             return _deviceID
@@ -67,11 +100,11 @@ public extension PersistenceManager.KeyHolderSubsystem {
         return _deviceID!
     }
     
-    var activeIDs: [UUID] {
-        keyHolders.first { $0.id == deviceID }?.activeEndpointIDs ?? []
+    nonisolated var authorizationDidChange: AnyPublisher<AuthorizationStatus, Never> {
+        authorizationDidChangeSubject.eraseToAnyPublisher()
     }
     
-    func joinVault() {
+    func createKeyHolder() {
         guard current == nil else {
             return
         }
@@ -83,111 +116,104 @@ public extension PersistenceManager.KeyHolderSubsystem {
         let keyHolder = KeyHolder()
         
         context.insert(keyHolder)
-        self.keyHolders.append(keyHolder)
         
-        try! context.save()
-        
-        if keyHolders.count == 1 {
-            secret = SymmetricKey(size: .bits256)
-            
-            current.store(secret: secret!)
-            try! context.save()
-            
-            Task {
-                await PersistenceManager.shared.keyValue.set(.vaultSetup, .now)
-                await PersistenceManager.shared.keyValue.set(.vaultInitialDeviceID, deviceID)
-            }
-        }
-        
-        authorizationChangedPublisher.send(nil)
-    }
-    
-    func activate(_ id: Endpoint.ID) throws {
-        if !current.activeEndpointIDs.contains(id) {
-            current.activeEndpointIDs.append(id)
+        do {
             try context.save()
+        } catch {
+            authorizationDidChangeSubject.send(.establishingFailed)
+            return
         }
         
-        activationChangedPublisher.send(id)
-    }
-    func deactivate(_ id: Endpoint.ID) throws {
-        current.activeEndpointIDs.removeAll { $0 == id }
-        try context.save()
-        
-        activationChangedPublisher.send(id)
+        updateKeyHolders()
     }
     
-    subscript(id: Endpoint.ID) -> Bool {
-        current.activeEndpointIDs.contains(id)
+    func createSecret() {
+        guard keyHolders.count == 1 && secret == nil else {
+            return
+        }
+        
+        secret = SymmetricKey(size: .bits256)
+        
+        do {
+            try current.store(secret: secret!)
+            try context.save()
+        } catch {
+            authorizationDidChangeSubject.send(.establishingFailed)
+            return
+        }
+        
+        Task {
+            await PersistenceManager.shared.keyValue.set(.secretCreated, .now)
+            await PersistenceManager.shared.keyValue.set(.secretCreator, deviceID)
+        }
+        
+        updateAuthorization()
     }
-}
-
-extension PersistenceManager.KeyHolderSubsystem {
-    static let tag = "io.rfk.SatelliteGuard.keyHolder.privateKey"
     
-    static var privateKey: SecKey {
-        let query: [String: Any] = [kSecClass as String: kSecClassKey,
-                                       kSecAttrApplicationTag as String: tag,
-                                       kSecAttrKeyType as String: kSecAttrKeyTypeRSA,
-                                       kSecReturnRef as String: true]
-        
-        var item: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &item)
-        
-        if status == errSecSuccess {
-            return item as! SecKey
+    func reset() {
+        do {
+            try context.delete(model: KeyHolder.self)
+            try context.save()
+        } catch {
+            authorizationDidChangeSubject.send(.establishingFailed)
+            return
         }
         
-        let attributes: NSDictionary = [
-            kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
-            kSecAttrKeySizeInBits: 256,
-            kSecAttrTokenID: kSecAttrTokenIDSecureEnclave,
-            kSecPrivateKeyAttrs: [
-                kSecAttrIsPermanent: true,
-                kSecAttrApplicationTag: tag,
-                kSecAttrAccessControl: SecAccessControlCreateWithFlags(kCFAllocatorDefault, kSecAttrAccessibleAfterFirstUnlock, .privateKeyUsage, nil)!,
-            ],
-        ]
-        
-        var error: Unmanaged<CFError>?
-        
-        guard let privateKey = SecKeyCreateRandomKey(attributes, &error) else {
-            fatalError(error!.takeRetainedValue().localizedDescription)
-        }
-        
-        return privateKey
-    }
-    static var publicSecKey: SecKey {
-        guard let publicKey = SecKeyCopyPublicKey(privateKey) else {
-            fatalError("Could not extract public key from private key")
-        }
-        
-        return publicKey
-    }
-    static var publicSecKeyData: Data {
-        var error: Unmanaged<CFError>?
-        
-        guard let data = SecKeyCopyExternalRepresentation(publicSecKey, &error) as? Data else {
-            fatalError(error!.takeRetainedValue().localizedDescription)
-        }
-        
-        return data
+        updateKeyHolders()
     }
 }
-
 
 private extension PersistenceManager.KeyHolderSubsystem {
     var current: KeyHolder! {
         keyHolders.first { $0.id == deviceID }
     }
     
-    func updateKeyHolders(_ keyHolders: [KeyHolder]) {
-        self.keyHolders = keyHolders
+    func updateKeyHolders() {
+        self.keyHolders = try! context.fetch(FetchDescriptor<KeyHolder>())
+        
+        if let current, let sharedKey = current.sharedKey {
+            print(current.key)
+        }
+        
+        updateAuthorization()
     }
     
-    func setupObservers() {
-        NotificationCenter.default.addObserver(forName: ModelContext.didSave, object: nil, queue: nil) { _ in
-            print("abc")
+    func updateAuthorization() {
+        guard authorizationDidChangeSubject.value != .establishingFailed else {
+            return
+        }
+        
+        if current == nil {
+            authorizationDidChangeSubject.send(.none)
+        } else if secret != nil {
+            authorizationDidChangeSubject.send(.authorized)
+        } else if keyHolders.count == 1 {
+            authorizationDidChangeSubject.send(.missingSecretCreateStrategy)
+        } else {
+            authorizationDidChangeSubject.send(.missingSecretRequestStrategy)
+        }
+        
+        Self.logger.info("Authorization status: \(self.authorizationDidChangeSubject.value.debugDescription)")
+    }
+}
+
+private extension PersistenceManager.KeyHolderSubsystem {
+    nonisolated func createObservers() {
+        cancellable = NotificationCenter.default.publisher(for: ModelContext.didSave).sink { [weak self] _ in
+            Task { [weak self] in
+                await self?.updateKeyHolders()
+            }
+        }
+    }
+    
+    func logInit() {
+        Self.logger.info("KeyHolderSubsystem initialized (keyHolders: \(self.keyHolders.count), deviceID: \(self.deviceID))")
+        
+        Task {
+            if let secretCreated = await PersistenceManager.shared.keyValue[.secretCreated],
+               let secretCreator = await PersistenceManager.shared.keyValue[.secretCreator] {
+                Self.logger.info("Secret created: \(secretCreated), creator: \(secretCreator)")
+            }
         }
     }
 }

@@ -70,7 +70,7 @@ struct MenuBarItem: View {
             Divider()
                 .padding(.bottom, -4)
             
-            VaultView {
+            KeyHolderAuthorizationView {
                 DesktopMenu()
             }
         }

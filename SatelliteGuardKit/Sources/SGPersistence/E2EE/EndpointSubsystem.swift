@@ -7,48 +7,63 @@
 
 import Foundation
 import SwiftData
-import CryptoKit
+@preconcurrency import Combine
 
 extension PersistenceManager {
     public final actor EndpointSubsystem: ObservableObject {
+        private var endpoints: [Endpoint]
+        private(set) var activeEndpointIDs: Set<UUID> {
+            didSet {
+                self.activeEndpointIDsDidChangeSubject.send(activeEndpointIDs)
+                
+                Task {
+                    await PersistenceManager.shared.keyValue.set(.activeEndpoints(for: PersistenceManager.shared.keyHolder.deviceID), Array(self.activeEndpointIDs))
+                }
+            }
+        }
+        
+        private nonisolated let activeEndpointIDsDidChangeSubject: CurrentValueSubject<Set<UUID>, Never>
         private let context: ModelContext
         
-        private var endpoints: [EncryptedEndpoint]
-        
         init(container: ModelContainer) {
+            endpoints = []
+            activeEndpointIDs = .init()
+            
             context = ModelContext(container)
-            endpoints = try! context.fetch(FetchDescriptor<EncryptedEndpoint>())
+            activeEndpointIDsDidChangeSubject = .init(activeEndpointIDs)
+            
+            Task {
+                await self.updateActiveEndpointIDs()
+            }
         }
     }
 }
 
 public extension PersistenceManager.EndpointSubsystem {
     var all: [Endpoint] {
-        []
+        endpoints
     }
     
-    subscript (id: UUID) -> Endpoint? {
-        guard let endpoint = endpoints.first(where: { $0.id == id }) else {
-            return nil
-        }
-        
-        return decrypt(endpoint.contents)
+    var activeEndpointIDsDidChange: AnyPublisher<Set<UUID>, Never> {
+        activeEndpointIDsDidChangeSubject.eraseToAnyPublisher()
     }
     
-    func store(endpoint: Endpoint) async throws {
-        
+    subscript(id: UUID) -> Endpoint? {
+        endpoints.first(where: { $0.id == id })
+    }
+    subscript(id: UUID) -> Bool {
+        activeEndpointIDs.contains(id)
+    }
+    
+    func activate(_ id: UUID) {
+        activeEndpointIDs.insert(id)
     }
 }
 
 private extension PersistenceManager.EndpointSubsystem {
-    func decrypt(_ data: Data) -> Endpoint {
-        do {
-            let box = try ChaChaPoly.SealedBox(combined: data)
-            let contents = try ChaChaPoly.open(box, using: PersistenceManager.shared.keyHolder.secret!)
-            
-            return try JSONDecoder().decode(Endpoint.self, from: contents)
-        } catch {
-            fatalError("Could not decrypt \(data): \(error.localizedDescription)")
+    func updateActiveEndpointIDs() {
+        Task {
+            self.activeEndpointIDs = .init(await PersistenceManager.shared.keyValue[.activeEndpoints(for: PersistenceManager.shared.keyHolder.deviceID)] ?? [])
         }
     }
 }

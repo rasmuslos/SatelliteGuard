@@ -42,3 +42,16 @@ extension String: PersistenceManager.KeyValueSubsystem.DataRepresentable {
     }
 }
 
+extension Array: PersistenceManager.KeyValueSubsystem.DataRepresentable where Element: PersistenceManager.KeyValueSubsystem.DataRepresentable & Codable {
+    public var data: Data {
+        try! JSONEncoder().encode(self)
+    }
+    public init?(data: Data) {
+        guard let array = try? JSONDecoder().decode([Element].self, from: data) else {
+            return nil
+        }
+        
+        self.init(array)
+    }
+}
+

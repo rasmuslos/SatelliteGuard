@@ -23,7 +23,7 @@ struct ContentView: View {
     var body: some View {
         @Bindable var satellite = satellite
         
-        VaultView {
+        KeyHolderAuthorizationView {
             #if os(tvOS)
             SplitScreenView {
                 mainContent

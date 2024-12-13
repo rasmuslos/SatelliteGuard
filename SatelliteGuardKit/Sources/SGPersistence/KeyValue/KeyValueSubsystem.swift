@@ -68,6 +68,10 @@ extension PersistenceManager {
 }
 
 public extension PersistenceManager.KeyValueSubsystem.Key {
-    static var vaultSetup: Key<Date> { .init("vaultSetup") }
-    static var vaultInitialDeviceID: Key<UUID> { .init("vaultInitialDeviceID") }
+    static var secretCreated: Key<Date> { .init("secretCreated") }
+    static var secretCreator: Key<UUID> { .init("secretCreator") }
+    
+    static func activeEndpoints(for keyHolder: UUID) -> Key<[UUID]> {
+        .init("activeEndpoints_\(keyHolder)")
+    }
 }

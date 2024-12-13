@@ -50,12 +50,12 @@ internal extension Endpoint {
             let manager: NETunnelProviderManager
             
             if let existing = managers.first(where: { $0.identified(by: id) }) {
-                if !(await PersistenceManager.shared.keyHolder[id]) {
+                if !(await PersistenceManager.shared.endpoint[id]) {
                     Self.logger.fault("Manager found even though endpoint is not active")
                 }
                 
                 manager = existing
-            } else if await PersistenceManager.shared.keyHolder[id] {
+            } else if await PersistenceManager.shared.endpoint[id] {
                 manager = .init()
                 manager.isEnabled = true
                 
@@ -77,7 +77,7 @@ internal extension Endpoint {
 
 public extension Endpoint {
     func reassert() async throws {
-        try await PersistenceManager.shared.keyHolder.activate(id)
+        await PersistenceManager.shared.endpoint.activate(id)
         
         guard let manager = await manager else {
             Self.logger.fault("Could not create manager for \(self.id) while updating")
@@ -118,10 +118,10 @@ public extension Endpoint {
         var invalidActive = [Endpoint]()
         
         for endpoint in active {
-            if await PersistenceManager.shared.keyHolder[endpoint.id] && !active.contains(endpoint) {
+            if await PersistenceManager.shared.endpoint[endpoint.id] && !active.contains(endpoint) {
                 invalidInactive.append(endpoint)
             }
-            if !(await PersistenceManager.shared.keyHolder[endpoint.id]) && active.contains(endpoint) {
+            if !(await PersistenceManager.shared.endpoint[endpoint.id]) && active.contains(endpoint) {
                 invalidActive.append(endpoint)
             }
         }

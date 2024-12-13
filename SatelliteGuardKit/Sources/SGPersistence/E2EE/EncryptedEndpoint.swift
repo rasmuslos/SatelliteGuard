@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import CryptoKit
 
 @Model
 final class EncryptedEndpoint {
@@ -19,12 +20,37 @@ final class EncryptedEndpoint {
     private(set) var contents: Data!
     
     @Attribute(.allowsCloudEncryption)
-    private(set) var deviceID: String!
+    private(set) var deviceID: UUID!
     
-    init(id: UUID, name: String, contents: Data, deviceID: String) {
-        self.id = id
-        self.name = name
-        self.contents = contents
-        self.deviceID = deviceID
+    init(_ endpoint: Endpoint) {
+        id = endpoint.id
+        name = endpoint.name
+        
+        contents = encrypt(endpoint)
+        
+        deviceID = PersistenceManager.shared.keyHolder.deviceID
+    }
+    
+    var decrypted: Endpoint {
+        do {
+            let box = try ChaChaPoly.SealedBox(combined: contents)
+            let contents = try ChaChaPoly.open(box, using: PersistenceManager.shared.keyHolder.secret!)
+            
+            return try JSONDecoder().decode(Endpoint.self, from: contents)
+        } catch {
+            fatalError("Could not decrypt \(id!) (\(name!)): \(error.localizedDescription)")
+        }
+    }
+}
+
+// This function has been autocompleted in a single keystroke... Insane
+private func encrypt(_ endpoint: Endpoint) -> Data {
+    do {
+        let contents = try JSONEncoder().encode(endpoint)
+        let box = try ChaChaPoly.seal(contents, using: PersistenceManager.shared.keyHolder.secret!)
+        
+        return box.combined
+    } catch {
+        fatalError("Could not encrypt \(endpoint): \(error.localizedDescription)")
     }
 }

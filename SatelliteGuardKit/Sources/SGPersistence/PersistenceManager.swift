@@ -34,6 +34,10 @@ public final class PersistenceManager {
         
         modelContainer = try! ModelContainer(for: schema, configurations: [modelConfiguration])
         
+        // MARK: RESET
+        
+        try! ModelContext(modelContainer).delete(model: KeyHolder.self)
+        
         endpoint = .init(container: modelContainer)
         keyValue = .init(container: modelContainer)
         keyHolder = .init(container: modelContainer)

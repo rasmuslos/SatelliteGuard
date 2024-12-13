@@ -4,91 +4,6 @@
     "" : {
 
     },
-    "about" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Über"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "About"
-          }
-        }
-      }
-    },
-    "about.gitHub" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "GitHub"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "GitHub"
-          }
-        }
-      }
-    },
-    "about.satelliteGuard %@ %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "SatelliteGuard %1$@ (%2$@)"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "SatelliteGuard %1$@ (%2$@)"
-          }
-        }
-      }
-    },
-    "about.title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Über"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "About"
-          }
-        }
-      }
-    },
-    "about.wireGuard %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "WireGuard: %@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "WireGuard: %@"
-          }
-        }
-      }
-    },
     "configuration.import" : {
       "localizations" : {
         "de" : {
@@ -284,23 +199,6 @@
         }
       }
     },
-    "endpoint.edit.allowAccessToLocalNetwork" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zugriff auf lokales Netzwerk erlauben"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Allow access to local network"
-          }
-        }
-      }
-    },
     "endpoint.edit.appleTVDisclaimer" : {
       "localizations" : {
         "de" : {
@@ -329,108 +227,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cancel"
-          }
-        }
-      }
-    },
-    "endpoint.edit.disconnectsOnSleep" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trennt Verbindung bei Ruhezustand"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Disconnects on sleep"
-          }
-        }
-      }
-    },
-    "endpoint.edit.enforceRoutes" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Routes erzwingen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enforce Routes"
-          }
-        }
-      }
-    },
-    "endpoint.edit.excludeAPN" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "APN ausschließen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Exclude APN"
-          }
-        }
-      }
-    },
-    "endpoint.edit.excludeCellularServices" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mobiles Netz ausschließen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Exclude cellular services"
-          }
-        }
-      }
-    },
-    "endpoint.edit.excludeDeviceCommunication" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gerätkommunikation ausschließen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Exclude device communication"
-          }
-        }
-      }
-    },
-    "endpoint.edit.includeAllNetworks" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alle Netzwerke einschließen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Include all networks"
           }
         }
       }
@@ -742,6 +538,55 @@
         }
       }
     },
+    "keyHolder.authorize.description" : {
+
+    },
+    "keyHolder.authorize.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authorize"
+          }
+        }
+      }
+    },
+    "keyHolder.create.action" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create E2EE Vault"
+          }
+        }
+      }
+    },
+    "keyHolder.create.description" : {
+
+    },
+    "keyHolder.create.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setup"
+          }
+        }
+      }
+    },
+    "keyHolder.init.action" : {
+
+    },
+    "keyHolder.reset.action" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset Vault"
+          }
+        }
+      }
+    },
     "launch.login" : {
       "localizations" : {
         "de" : {
@@ -789,21 +634,6 @@
           }
         }
       }
-    },
-    "vault.authorize.description" : {
-
-    },
-    "vault.authorize.title" : {
-
-    },
-    "vault.join.action" : {
-
-    },
-    "vault.join.description" : {
-
-    },
-    "vault.join.title" : {
-
     }
   },
   "version" : "1.0"

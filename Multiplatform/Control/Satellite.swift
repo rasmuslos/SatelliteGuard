@@ -28,15 +28,14 @@ final class Satellite {
     @MainActor private(set) var importing: Bool
     @MainActor private(set) var transmitting: Int
     
-    @MainActor private(set) var authorized: Bool
-    @MainActor private(set) var didJoinVault: Bool
+    @MainActor private(set) var authorizationStatus: PersistenceManager.KeyHolderSubsystem.AuthorizationStatus
     
     @MainActor private(set) var notifyError: Bool
     @MainActor private(set) var notifySuccess: Bool
     
     @ObservationIgnored private var tokens: [Any]!
     
-    private static let logger = Logger(subsystem: "Satellite", category: "SatelliteGuard")
+    private static let logger = Logger(subsystem: "SatelliteGuard", category: "Sattelite")
     
     @MainActor
     init() {
@@ -48,8 +47,7 @@ final class Satellite {
         importing = false
         transmitting = 0
         
-        authorized = false
-        didJoinVault = PersistenceManager.shared.keyHolder.authorized
+        authorizationStatus = .establishing
         
         activeEndpointIDs = []
         
@@ -309,24 +307,12 @@ private extension Satellite {
     func setupObservers() -> [Any] {
         var tokens = [WireGuardMonitor.shared.statusPublisher.sink { [weak self] (id, status, connectedSince) in
             self?.parseStatus(status, for: id, connectedSince: connectedSince)
-        }, PersistenceManager.shared.keyHolder.activationDidChange.sink { [weak self] _ in
-            Task {
-                let activeIDs = await PersistenceManager.shared.keyHolder.activeIDs
-                
-                await MainActor.withAnimation {
-                    self?.activeEndpointIDs = activeIDs
-                }
-            }
-        }, PersistenceManager.shared.keyHolder.authorizationDidChange.sink { [weak self] authorized in
-            Task {
-                let didJoinVault = await PersistenceManager.shared.keyHolder.didJoinVault
-                
-                await MainActor.withAnimation {
-                    self?.authorized = PersistenceManager.shared.keyHolder.authorized
-                    self?.didJoinVault = didJoinVault
-                }
+        }, PersistenceManager.shared.keyHolder.authorizationDidChange.sink { authorizationStatus in
+            Task { @MainActor in
+                self.authorizationStatus = authorizationStatus
             }
         }]
+        
         #if !os(macOS)
         tokens += [NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification).sink { [weak self] _ in
             Task {
