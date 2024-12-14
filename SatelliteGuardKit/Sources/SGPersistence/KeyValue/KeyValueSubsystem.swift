@@ -9,23 +9,17 @@ import Foundation
 import SwiftData
 
 extension PersistenceManager {
+    @ModelActor
     public final actor KeyValueSubsystem {
-        private let context: ModelContext
-        
-        init(container: ModelContainer) {
-            context = ModelContext(container)
-        }
-        
         public func set<Value>(_ key: Key<Value>, _ value: Value?) {
             self[key] = value
         }
         
-        // TODO: BROKEN
         public subscript<Value: DataRepresentable>(_ key: Key<Value>) -> Value? {
             get {
                 let identifier = key.identifier
                 
-                guard let entities = try? context.fetch(FetchDescriptor<KeyValueEntity>(predicate: #Predicate { $0.key == identifier })) else {
+                guard let entities = try? modelContext.fetch(FetchDescriptor<KeyValueEntity>(predicate: #Predicate { $0.key == identifier })) else {
                     return nil
                 }
                 
@@ -39,13 +33,13 @@ extension PersistenceManager {
                 if let newValue {
                     let entity = KeyValueEntity(key: key.identifier, value: newValue.data)
                     
-                    context.insert(entity)
-                    try? context.save()
+                    modelContext.insert(entity)
+                    try? modelContext.save()
                 } else {
                     let identifier = key.identifier
                     
-                    try? context.delete(model: KeyValueEntity.self, where: #Predicate { $0.key == identifier })
-                    try? context.save()
+                    try? modelContext.delete(model: KeyValueEntity.self, where: #Predicate { $0.key == identifier })
+                    try? modelContext.save()
                 }
             }
         }

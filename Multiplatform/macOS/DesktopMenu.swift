@@ -18,17 +18,15 @@ struct DesktopMenu: View {
     @Environment(Satellite.self) private var satellite
     @Environment(\.openWindow) private var openWindow
     
-    let endpoints: [Endpoint] = []
-    
     private var activeEndpoints: [Endpoint] {
-        endpoints.filter { satellite.activeEndpointIDs.contains($0.id) }
+        satellite.endpoints.filter { satellite.activeEndpointIDs.contains($0.id) }
     }
     private var inactiveEndpoints: [Endpoint] {
-        endpoints.filter { !satellite.activeEndpointIDs.contains($0.id) }
+        satellite.endpoints.filter { !satellite.activeEndpointIDs.contains($0.id) }
     }
     
     var body: some View {
-        if endpoints.isEmpty {
+        if satellite.endpoints.isEmpty {
             Button {
                 openWindow(id: "import-configuration")
                 satellite.importPickerVisible.toggle()
@@ -51,6 +49,22 @@ struct DesktopMenu: View {
         }
         if !inactiveEndpoints.isEmpty {
             StatusSection(title: "home.inactive", enableShortcuts: false, endpoints: inactiveEndpoints)
+        }
+        
+        if !satellite.unauthorizedKeyHolderIDs.isEmpty {
+            Divider()
+            
+            HStack(spacing: 0) {
+                Text("keyHolders.unauthorized")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                
+                Spacer()
+            }
+            
+            ForEach(satellite.unauthorizedKeyHolderIDs, id: \.id) {
+                KeyHolderUnauthorizedRow(keyHolder: $0)
+            }
         }
     }
 }

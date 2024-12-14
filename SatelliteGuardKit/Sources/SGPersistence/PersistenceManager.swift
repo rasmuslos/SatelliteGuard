@@ -14,9 +14,9 @@ public final class PersistenceManager {
     
     public let modelContainer: ModelContainer
     
-    private(set) public var endpoint: EndpointSubsystem
     private(set) public var keyValue: KeyValueSubsystem
     private(set) public var keyHolder: KeyHolderSubsystem
+    private(set) public var endpoint: EndpointSubsystem
     
     private init() {
         schema = .init([
@@ -36,11 +36,11 @@ public final class PersistenceManager {
         
         // MARK: RESET
         
-        try! ModelContext(modelContainer).delete(model: KeyHolder.self)
+        // try! ModelContext(modelContainer).delete(model: KeyHolder.self)
         
-        endpoint = .init(container: modelContainer)
-        keyValue = .init(container: modelContainer)
-        keyHolder = .init(container: modelContainer)
+        keyValue = .init(modelContainer: modelContainer)
+        keyHolder = .init(modelContainer: modelContainer)
+        endpoint = .init(modelContainer: modelContainer)
     }
 }
 

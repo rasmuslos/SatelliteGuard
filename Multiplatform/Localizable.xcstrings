@@ -1,8 +1,21 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "" : {
-
+    "cancel" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abbrechen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        }
+      }
     },
     "configuration.import" : {
       "localizations" : {
@@ -99,9 +112,6 @@
           }
         }
       }
-    },
-    "Endpoint" : {
-
     },
     "endpoint.activate" : {
       "localizations" : {
@@ -211,22 +221,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Only the first option is available on AppleTV"
-          }
-        }
-      }
-    },
-    "endpoint.edit.cancel" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abbrechen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cancel"
           }
         }
       }
@@ -360,7 +354,20 @@
       }
     },
     "endpoint.info" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informationen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Info"
+          }
+        }
+      }
     },
     "endpoint.interface" : {
       "localizations" : {
@@ -538,51 +545,210 @@
         }
       }
     },
-    "keyHolder.authorize.description" : {
-
-    },
-    "keyHolder.authorize.title" : {
+    "keyHolder.authorize.description %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Genehmigen Sie dieses Gerät auf einem anderen autorisierten Gerät. Wenn Sie keinen Zugriff auf ein anderes Gerät haben, setzen Sie Ihre E2EE-Datenbank zurück (wodurch alle Konfigurationen gelöscht werden).\n\nNutze diese Emojis um die Anfrage zu verifizieren:\n%@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Authorize"
+            "value" : "Approve this device on another authorized device. If you don’t have access to another device, reset your E2EE database (which will delete all configurations)\n\nUse these emojis to verify the request:\n\n%@"
+          }
+        }
+      }
+    },
+    "keyHolder.authorize.title" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gerät autorisieren"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authorize device"
           }
         }
       }
     },
     "keyHolder.create.action" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gerät hinzufügen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create E2EE Vault"
+            "value" : "Add device"
           }
         }
       }
     },
     "keyHolder.create.description" : {
-
-    },
-    "keyHolder.create.title" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um loszulegen füge dieses Gerät zu deiner E2EE Datenbank hinzu."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Setup"
+            "value" : "To get started add this device to your E2EE database."
+          }
+        }
+      }
+    },
+    "keyHolder.create.title" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gerät konfigurieren"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configure device"
+          }
+        }
+      }
+    },
+    "keyHolder.created" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Am:"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Created:"
           }
         }
       }
     },
     "keyHolder.init.action" : {
-
-    },
-    "keyHolder.reset.action" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datenbank initialisieren"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Reset Vault"
+            "value" : "Setup database"
+          }
+        }
+      }
+    },
+    "keyHolder.init.description" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erstelle die erforderlichen Verschlüsselungs-Schlüssel, um Konfigurationen sicher auszutauschen. Warten Sie, bis CloudKit Ihre E2EE-Datenbank synchronisiert hat, wenn Sie dies bereits auf einem anderen Gerät getan haben."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create the necessary encryption keys to securely exchange configurations. Wait until CloudKit synchronizes your E2EE database if you already did this on another device."
+          }
+        }
+      }
+    },
+    "keyHolder.trust.action" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vertrauen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trust"
+          }
+        }
+      }
+    },
+    "keyHolder.trust.deny" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verweigern (Entfernen)"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deny (Remove)"
+          }
+        }
+      }
+    },
+    "keyHolder.trust.message %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stelle sicher, dass die gleichen Emojis auf dem anderen Gerät genau gleich angezeigt werden:\n\n%@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ensure that these emojis are the same as the ones displayed on your other device:\n\n%@"
+          }
+        }
+      }
+    },
+    "keyHolder.trust.title" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gerät vertrauen?"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trust Device?"
+          }
+        }
+      }
+    },
+    "keyHolders.unauthorized" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neue Geräte"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Devices"
           }
         }
       }
@@ -615,6 +781,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Quit"
+          }
+        }
+      }
+    },
+    "reset" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zurücksetzten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset"
           }
         }
       }

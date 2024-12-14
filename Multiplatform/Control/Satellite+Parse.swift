@@ -89,18 +89,30 @@ internal extension Satellite {
             throw SatelliteError.invalidConfiguration
         }
         
-        try await MainActor.run { [name, peerCache] in
-            let context = PersistenceManager.shared.modelContainer.mainContext
-            
-            let peers = peerCache.map { Peer(publicKey: $0.publicKey,
-                                             preSharedKey: $0.preSharedKey,
-                                             endpoint: $0.endpoint,
-                                             routes: $0.routes,
-                                             persistentKeepAlive: $0.persistentKeepAlive) }
-            
-            // TODO: INSERT ENDPOINT
-            
-        }
+        let peers = peerCache.map { Peer(publicKey: $0.publicKey,
+                                         preSharedKey: $0.preSharedKey,
+                                         endpoint: $0.endpoint,
+                                         routes: $0.routes,
+                                         persistentKeepAlive: $0.persistentKeepAlive) }
+        
+        let endpoint = SatelliteGuardKit.Endpoint(id: .init(),
+                                                  name: name,
+                                                  privateKey: interfaceCache.privateKey,
+                                                  addresses: interfaceCache.addresses,
+                                                  mtu: interfaceCache.mtu,
+                                                  listenPort: interfaceCache.listenPort,
+                                                  peers: peers,
+                                                  dns: interfaceCache.dns,
+                                                  
+                                                  disconnectsOnSleep: false,
+                                                  excludeAPN: true,
+                                                  excludeCellularServices: true,
+                                                  allowAccessToLocalNetwork: true,
+                                                  excludeDeviceCommunication: true,
+                                                  enforceRoutes: true,
+                                                  includeAllNetworks: false)
+        
+        await PersistenceManager.shared.endpoint.store(endpoint)
     }
 }
 

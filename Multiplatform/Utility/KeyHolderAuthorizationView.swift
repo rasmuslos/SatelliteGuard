@@ -15,15 +15,21 @@ struct KeyHolderAuthorizationView<Content: View>: View {
     
     @State private var loading = false
     
+    @ViewBuilder private var resetButton: some View {
+        Button(role: .destructive) {
+            reset()
+        } label: {
+            Label("reset", systemImage: "exclamationmark.triangle.fill")
+                #if os(macOS)
+                .labelStyle(.titleOnly)
+                #endif
+        }
+    }
+    
     var body: some View {
         switch satellite.authorizationStatus {
         case .none:
-            ContentUnavailableView {
-                Text("keyHolder.create.title")
-                    .bold()
-            } description: {
-                Text("keyHolder.create.description")
-            }
+            ContentUnavailableView("keyHolder.create.title", systemImage: "inset.filled.center.rectangle.badge.plus", description: Text("keyHolder.create.description"))
             
             if loading {
                 ProgressView()
@@ -41,19 +47,16 @@ struct KeyHolderAuthorizationView<Content: View>: View {
             ProgressView()
         case .establishingFailed:
             Image(systemName: "exclamationmark.triangle.fill")
+            
+            resetButton
         case .missingSecretCreateStrategy, .missingSecretRequestStrategy:
-            ContentUnavailableView {
-                Text("keyHolder.authorize.title")
-                    .bold()
-            } description: {
-                Text("keyHolder.authorize.description")
-            }
+            ContentUnavailableView("keyHolder.authorize.title", systemImage: "person.bust", description: Text(satellite.authorizationStatus == .missingSecretCreateStrategy ? "keyHolder.init.description" : "keyHolder.authorize.description \(PersistenceManager.shared.keyHolder.emojiCode.joined(separator: ""))"))
             
             if loading {
                 ProgressView()
             } else {
                 if satellite.authorizationStatus == .missingSecretCreateStrategy {
-                    Button(role: .destructive) {
+                    Button {
                         createSecret()
                     } label: {
                         Label("keyHolder.init.action", systemImage: "key.2.on.ring")
@@ -62,14 +65,7 @@ struct KeyHolderAuthorizationView<Content: View>: View {
                             #endif
                     }
                 } else {
-                    Button(role: .destructive) {
-                        reset()
-                    } label: {
-                        Label("keyHolder.reset.action", systemImage: "exclamationmark.triangle.fill")
-                            #if os(macOS)
-                            .labelStyle(.titleOnly)
-                            #endif
-                    }
+                    resetButton
                 }
             }
         case .authorized:
@@ -99,3 +95,12 @@ struct KeyHolderAuthorizationView<Content: View>: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    KeyHolderAuthorizationView {
+        Text(verbatim: "abc")
+    }
+    .previewEnvironment()
+}
+#endif

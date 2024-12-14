@@ -11,13 +11,17 @@ import SatelliteGuardKit
 
 @main
 struct MultiplatformApp: App {
+    #if os(macOS)
+    @NSApplicationDelegateAdaptor private var appDelegate: AppDelegate
+    #endif
     @State private var satellite = Satellite()
     
     init() {
         WireGuardMonitor.shared.ping()
         
-        Task {
-            await Endpoint.checkActive()
+        Task.detached {
+            try await Task.sleep(for: .seconds(1))
+            await PersistenceManager.shared.keyHolder.updateKeyHolders()
         }
         
         #if DEBUG && os(tvOS)
@@ -60,3 +64,14 @@ struct MultiplatformApp: App {
         #endif
     }
 }
+
+#if os(macOS)
+class AppDelegate: NSObject, NSApplicationDelegate {
+    func application(_ sender: NSApplication, openFile filename: String) -> Bool {
+        true
+    }
+    func application(_ sender: NSApplication, openFiles filenames: [String]) {
+        print(filenames)
+    }
+}
+#endif

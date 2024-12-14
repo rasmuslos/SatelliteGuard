@@ -10,7 +10,7 @@ import SwiftData
 @preconcurrency import Combine
 
 extension PersistenceManager {
-    public final actor EndpointSubsystem: ObservableObject {
+    public final actor EndpointSubsystem: ModelActor {
         private var endpoints: [Endpoint]
         private(set) var activeEndpointIDs: Set<UUID> {
             didSet {
@@ -22,17 +22,31 @@ extension PersistenceManager {
             }
         }
         
-        private nonisolated let activeEndpointIDsDidChangeSubject: CurrentValueSubject<Set<UUID>, Never>
-        private let context: ModelContext
+        public nonisolated let modelContainer: ModelContainer
+        public nonisolated let modelExecutor: any ModelExecutor
         
-        init(container: ModelContainer) {
+        private nonisolated let endpointsDidChangeSubject: CurrentValueSubject<[Endpoint], Never>
+        private nonisolated let activeEndpointIDsDidChangeSubject: CurrentValueSubject<Set<UUID>, Never>
+        
+        private nonisolated(unsafe) var cancellable: AnyCancellable?
+        
+        init(modelContainer: SwiftData.ModelContainer) {
             endpoints = []
             activeEndpointIDs = .init()
             
-            context = ModelContext(container)
+            endpointsDidChangeSubject = .init(endpoints)
             activeEndpointIDsDidChangeSubject = .init(activeEndpointIDs)
             
+            let modelContext = ModelContext(modelContainer)
+            self.modelExecutor = DefaultSerialModelExecutor(modelContext: modelContext)
+            self.modelContainer = modelContainer
+            
+            cancellable = nil
+            
             Task {
+                // This is here to run slightly after the init of `PersistenceManager`
+                createObservers()
+                
                 await self.updateActiveEndpointIDs()
             }
         }
@@ -44,8 +58,11 @@ public extension PersistenceManager.EndpointSubsystem {
         endpoints
     }
     
-    var activeEndpointIDsDidChange: AnyPublisher<Set<UUID>, Never> {
+    nonisolated var activeEndpointIDsDidChange: AnyPublisher<Set<UUID>, Never> {
         activeEndpointIDsDidChangeSubject.eraseToAnyPublisher()
+    }
+    nonisolated var endpointsDidChange: AnyPublisher<[Endpoint], Never> {
+        endpointsDidChangeSubject.eraseToAnyPublisher()
     }
     
     subscript(id: UUID) -> Endpoint? {
@@ -58,12 +75,54 @@ public extension PersistenceManager.EndpointSubsystem {
     func activate(_ id: UUID) {
         activeEndpointIDs.insert(id)
     }
+    func deactivate(_ id: UUID) {
+        activeEndpointIDs.remove(id)
+    }
+    
+    func store(_ endpoint: Endpoint) {
+        let encryptedEndpoint = EncryptedEndpoint(endpoint)
+        
+        modelContext.insert(encryptedEndpoint)
+        
+        do {
+            try modelContext.save()
+        } catch {
+            Task {
+                PersistenceManager.shared.keyHolder.failedToEstablishAuthorization()
+            }
+        }
+    }
 }
 
 private extension PersistenceManager.EndpointSubsystem {
+    func updateEndpoints() {
+        do {
+            let encryptedEndpoints = try modelContext.fetch(FetchDescriptor<EncryptedEndpoint>())
+            
+            endpoints = encryptedEndpoints.map(\.decrypted)
+            endpointsDidChangeSubject.value = endpoints
+        } catch {
+            Task {
+                PersistenceManager.shared.keyHolder.failedToEstablishAuthorization()
+            }
+        }
+    }
     func updateActiveEndpointIDs() {
         Task {
             self.activeEndpointIDs = .init(await PersistenceManager.shared.keyValue[.activeEndpoints(for: PersistenceManager.shared.keyHolder.deviceID)] ?? [])
+        }
+    }
+    
+    nonisolated func createObservers() {
+        cancellable = PersistenceManager.shared.keyHolder.authorizationDidChange.sink { [weak self] in
+            guard $0 == .authorized else {
+                return
+            }
+            
+            Task { [weak self] in
+                await self?.updateEndpoints()
+                await self?.updateActiveEndpointIDs()
+            }
         }
     }
 }

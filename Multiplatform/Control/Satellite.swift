@@ -20,10 +20,13 @@ import ServiceManagement
 final class Satellite {
     @MainActor private(set) var status: [UUID: VPNStatus]
     
+    @MainActor private(set) var endpoints: [Endpoint]
+    
+    @MainActor private(set) var activeEndpointIDs: Set<UUID>
+    @MainActor private(set) var unauthorizedKeyHolderIDs: [PersistenceManager.KeyHolderSubsystem.UnauthorizedKeyHolder]
+    
     @MainActor var editingEndpoint: Endpoint?
     @MainActor var importPickerVisible: Bool
-    
-    @MainActor private(set) var activeEndpointIDs: [UUID]
     
     @MainActor private(set) var importing: Bool
     @MainActor private(set) var transmitting: Int
@@ -41,6 +44,11 @@ final class Satellite {
     init() {
         status = [:]
         
+        endpoints = []
+        
+        activeEndpointIDs = []
+        unauthorizedKeyHolderIDs = []
+        
         editingEndpoint = nil
         importPickerVisible = false
         
@@ -48,8 +56,6 @@ final class Satellite {
         transmitting = 0
         
         authorizationStatus = .establishing
-        
-        activeEndpointIDs = []
         
         notifyError = false
         notifySuccess = false
@@ -311,11 +317,25 @@ private extension Satellite {
             Task { @MainActor in
                 self.authorizationStatus = authorizationStatus
             }
+        }, PersistenceManager.shared.keyHolder.unauthorizedKeyHolderIDsDidChange.sink { unauthorizedKeyHolderIDs in
+            Task { @MainActor in
+                self.unauthorizedKeyHolderIDs = unauthorizedKeyHolderIDs
+            }
+        }, PersistenceManager.shared.endpoint.endpointsDidChange.sink { endpoints in
+            Task { @MainActor in
+                self.endpoints = endpoints
+            }
+        }, PersistenceManager.shared.endpoint.activeEndpointIDsDidChange.sink { activeEndpointIDs in
+            Task { @MainActor in
+                self.activeEndpointIDs = activeEndpointIDs
+            }
         }]
         
         #if !os(macOS)
         tokens += [NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification).sink { [weak self] _ in
             Task {
+                await PersistenceManager.shared.keyHolder.updateKeyHolders()
+                
                 for endpoint in await PersistenceManager.shared.endpoint.all {
                     await self?.parseStatus(endpoint.status, for: endpoint.id, connectedSince: .now)
                 }

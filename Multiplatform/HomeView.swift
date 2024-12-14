@@ -13,13 +13,11 @@ import SatelliteGuardKit
 struct HomeView: View {
     @Environment(Satellite.self) private var satellite
     
-    let endpoints: [Endpoint] = []
-    
     @State private var editMode: EditMode = .inactive
     
     var body: some View {
         Group {
-            if endpoints.isEmpty {
+            if satellite.endpoints.isEmpty {
                 #if os(tvOS)
                 VStack(alignment: .leading, spacing: 12) {
                     Text("home.empty")
@@ -32,7 +30,9 @@ struct HomeView: View {
                 #endif
             } else {
                 List {
-                    
+                    ForEach(satellite.endpoints) {
+                        EndpointCell(endpoint: $0)
+                    }
                 }
                 #if os(tvOS)
                 .listStyle(.grouped)

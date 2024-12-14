@@ -36,6 +36,7 @@ struct ContentView: View {
                 }
             #endif
         }
+        .sensoryFeedback(.success, trigger: satellite.authorizationStatus)
     }
 }
 

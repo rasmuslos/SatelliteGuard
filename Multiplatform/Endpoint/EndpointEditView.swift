@@ -81,7 +81,7 @@ struct EndpointEditView: View {
                     Button {
                         satellite.editingEndpoint = nil
                     } label: {
-                        Text("endpoint.edit.cancel")
+                        Text("cancel")
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {

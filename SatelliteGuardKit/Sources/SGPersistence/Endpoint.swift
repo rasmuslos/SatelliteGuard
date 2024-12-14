@@ -37,7 +37,7 @@ public final class Endpoint: Sendable, ObservableObject {
     
     public static let logger = Logger(subsystem: "SatelliteGuardKit", category: "Endpoint")
     
-    init(id: UUID,
+    public init(id: UUID,
          name: String,
          privateKey: Data,
          addresses: [IPAddressRange],

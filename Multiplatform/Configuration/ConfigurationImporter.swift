@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SatelliteGuardKit
 
 @available(tvOS, unavailable)
 struct ConfigurationImporter: View {
@@ -51,6 +52,14 @@ extension ConfigurationImporter {
             
             Link(destination: .init(string: "https://github.com/rasmuslos/SatelliteGuard/blob/main/SECURITY.md")!) {
                 Label("security", systemImage: "lock")
+            }
+            
+            Button(role: .destructive) {
+                Task {
+                    await PersistenceManager.shared.keyHolder.reset()
+                }
+            } label: {
+                Label("reset", systemImage: "square.stack.3d.up.trianglebadge.exclamationmark.fill")
             }
         }
     }

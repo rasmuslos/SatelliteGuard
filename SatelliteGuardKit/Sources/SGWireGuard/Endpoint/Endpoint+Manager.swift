@@ -88,6 +88,8 @@ public extension Endpoint {
     }
     
     func deactivate() async throws {
+        await PersistenceManager.shared.endpoint.deactivate(id)
+        
         await disconnect()
         try await manager?.removeFromPreferences()
     }

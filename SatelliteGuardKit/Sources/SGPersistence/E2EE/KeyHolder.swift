@@ -26,7 +26,7 @@ final class KeyHolder {
     @Attribute(.allowsCloudEncryption)
     private(set) var added: Date!
     @Attribute(.allowsCloudEncryption)
-    private(set) var operatingSystem: OperatingSystem!
+    private(set) var operatingSystem: PersistenceManager.KeyHolderSubsystem.OperatingSystem!
     
     @Attribute(.allowsCloudEncryption)
     var sharedKey: Data?
@@ -41,22 +41,6 @@ final class KeyHolder {
         
         sharedKey = nil
         publicKey = Self.publicSecKeyData
-    }
-    
-    enum OperatingSystem: Int, Codable {
-        case iOS
-        case tvOS
-        case macOS
-        
-        static var current: OperatingSystem {
-            #if os(iOS)
-            .iOS
-            #elseif os(tvOS)
-            .tvOS
-            #elseif os(macOS)
-            .macOS
-            #endif
-        }
     }
 }
 
@@ -74,35 +58,7 @@ extension KeyHolder {
         return key
     }
     
-    func store(secret: SymmetricKey) throws {
-        guard SecKeyIsAlgorithmSupported(publicSecKey, .encrypt, Self.algorithm) else {
-            fatalError("Unsupported encryption algorithm")
-        }
-        
-        return secret.withUnsafeBytes {
-            var error: Unmanaged<CFError>?
-            let data = Data([
-                1, 2, 3, 4, 5, 6, 7, 8,
-                1, 2, 3, 4, 5, 6, 7, 8,
-                1, 2, 3, 4, 5, 6, 7, 8,
-                1, 2, 3, 4, 5, 6, 7, 8,
-            ])
-            
-            Data(Array($0))
-            
-            guard data.count <= SecKeyGetBlockSize(publicSecKey) else {
-                fatalError("Data too large")
-            }
-            
-            guard let cipher = SecKeyCreateEncryptedData(publicSecKey, Self.algorithm, data as CFData, &error) as Data? else {
-                fatalError("Couldn't encrypt data: \(error!.takeRetainedValue().localizedDescription)")
-            }
-            
-            self.sharedKey = cipher
-        }
-    }
-    
-    var key: SymmetricKey? {
+    var secret: SymmetricKey? {
         guard let sharedKey else {
             return nil
         }
@@ -125,7 +81,7 @@ extension KeyHolder {
 
 extension KeyHolder {
     static let tag = "io.rfk.SatelliteGuard.keyHolder.privateKey"
-    static let algorithm: SecKeyAlgorithm = .eciesEncryptionStandardX963SHA256AESGCM
+    static let algorithm: SecKeyAlgorithm = .eciesEncryptionStandardVariableIVX963SHA512AESGCM
     
     static var privateKey: SecKey {
         let query: NSDictionary = [
