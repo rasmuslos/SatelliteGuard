@@ -19,8 +19,8 @@ struct EndpointEditButton: View {
         self.endpoint = endpoint
     }
     
-    private var isActive: Bool {
-        satellite.connectedIDs.contains(endpoint.id)
+    private var isBlocked: Bool {
+        satellite.connectedIDs.contains(endpoint.id) || satellite.pondering
     }
     
     var body: some View {
@@ -29,7 +29,7 @@ struct EndpointEditButton: View {
         } label: {
             Label("endpoint.edit", systemImage: "pencil")
         }
-        .disabled(isActive)
-        .foregroundColor(isActive ? .secondary : .primary)
+        .disabled(isBlocked)
+        .foregroundColor(isBlocked ? .secondary : .primary)
     }
 }

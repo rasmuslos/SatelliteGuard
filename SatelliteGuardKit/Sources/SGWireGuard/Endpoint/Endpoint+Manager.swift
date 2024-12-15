@@ -97,7 +97,7 @@ public extension Endpoint {
     static func checkActive() async {
         let managers = (try? await NETunnelProviderManager.loadAllFromPreferences()) ?? []
         
-        let endpoints = await PersistenceManager.shared.endpoint.all
+        let endpoints = await PersistenceManager.shared.endpoint.endpoints
         
         let activeIDs = managers.compactMap(\.id)
         let endpointIDs = endpoints.map(\.id)

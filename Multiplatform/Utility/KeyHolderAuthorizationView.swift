@@ -46,7 +46,7 @@ struct KeyHolderAuthorizationView<Content: View>: View {
         case .establishing:
             ProgressView()
         case .establishingFailed:
-            Image(systemName: "exclamationmark.triangle.fill")
+            ContentUnavailableView("keyHolder.fault.title", systemImage: "exclamationmark.triangle.fill", description: Text("keyHolder.fault.description"))
             
             resetButton
         case .missingSecretCreateStrategy, .missingSecretRequestStrategy:
@@ -76,14 +76,14 @@ struct KeyHolderAuthorizationView<Content: View>: View {
     private func reset() {
         Task {
             loading = true
-            await PersistenceManager.shared.keyHolder.reset()
+            try! await PersistenceManager.shared.reset()
             loading = false
         }
     }
     private func createKeyHolder() {
         Task {
             loading = true
-            await PersistenceManager.shared.keyHolder.createKeyHolder()
+            try! await PersistenceManager.shared.keyHolder.createKeyHolder()
             loading = false
         }
     }

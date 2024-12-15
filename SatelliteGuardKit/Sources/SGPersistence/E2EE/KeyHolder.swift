@@ -8,6 +8,7 @@
 import Foundation
 import CryptoKit
 import SwiftData
+import OSLog
 
 #if canImport(UIKit)
 import UIKit
@@ -32,6 +33,8 @@ final class KeyHolder {
     var sharedKey: Data?
     @Attribute(.allowsCloudEncryption)
     private(set) var publicKey: Data!
+    
+    @Transient let logger = Logger(subsystem: "io.rfk.SatelliteGuardKit", category: "KeyHolder")
     
     init() {
         id = PersistenceManager.shared.keyHolder.deviceID
@@ -70,7 +73,8 @@ extension KeyHolder {
         var error: Unmanaged<CFError>?
         
         guard let key = SecKeyCreateDecryptedData(Self.privateKey, Self.algorithm, sharedKey as CFData, &error) as Data? else {
-            fatalError("Could not decrypt data")
+            logger.error("Could not decrypt secret: \(error!.takeRetainedValue().localizedDescription)")
+            return nil
         }
         
         return SymmetricKey(data: key)
@@ -114,7 +118,7 @@ extension KeyHolder {
         var error: Unmanaged<CFError>?
         
         guard let privateKey = SecKeyCreateRandomKey(attributes, &error) else {
-            fatalError(error!.takeRetainedValue().localizedDescription)
+            fatalError("Could not create private key: \(error!.takeRetainedValue().localizedDescription)")
         }
         
         return privateKey
@@ -131,7 +135,7 @@ extension KeyHolder {
         var error: Unmanaged<CFError>?
         
         guard let data = SecKeyCopyExternalRepresentation(publicSecKey, &error) as? Data else {
-            fatalError(error!.takeRetainedValue().localizedDescription)
+            fatalError("Could not extract public key data: \(error!.takeRetainedValue().localizedDescription)")
         }
         
         return data

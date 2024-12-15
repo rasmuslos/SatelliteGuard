@@ -10,7 +10,7 @@ import SwiftData
 
 extension PersistenceManager {
     @ModelActor
-    public final actor KeyValueSubsystem {
+    public final actor KeyValueSubsystem: Sendable {
         public func set<Value>(_ key: Key<Value>, _ value: Value?) {
             self[key] = value
         }
@@ -44,6 +44,10 @@ extension PersistenceManager {
             }
         }
         
+        func reset() throws {
+            try modelContext.delete(model: KeyValueEntity.self)
+        }
+        
         public protocol DataRepresentable: Sendable {
             init?(data: Data)
             var data: Data { get }
@@ -65,7 +69,7 @@ public extension PersistenceManager.KeyValueSubsystem.Key {
     static var secretCreated: Key<Date> { .init("secretCreated") }
     static var secretCreator: Key<UUID> { .init("secretCreator") }
     
-    static func activeEndpoints(for keyHolder: UUID) -> Key<[UUID]> {
+    static func activeEndpoints(for keyHolder: UUID) -> Key<Set<UUID>> {
         .init("activeEndpoints_\(keyHolder)")
     }
 }

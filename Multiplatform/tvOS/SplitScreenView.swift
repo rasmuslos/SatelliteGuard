@@ -38,7 +38,7 @@ struct SplitScreenView<Content: View>: View {
     }
     private var dominantStatus: Satellite.VPNStatus {
         if case .endpoint(let endpoint) = navigationContext {
-            satellite.status[endpoint.id] ?? .disconnected
+            satellite.endpointStatus[endpoint.id] ?? .disconnected
         } else {
             satellite.dominantStatus
         }
@@ -89,8 +89,10 @@ struct SplitScreenView<Content: View>: View {
                 }
             }
         }
-        .onPreferenceChange(NavigationContextPreferenceKey.self) {
-            navigationContext = $0
+        .onPreferenceChange(NavigationContextPreferenceKey.self) { navigationContext in
+            Task { @MainActor in
+                self.navigationContext = navigationContext
+            }
         }
     }
 }

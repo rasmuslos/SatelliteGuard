@@ -10,43 +10,41 @@ import Network
 import NetworkExtension
 import SwiftUI
 import OSLog
+import Combine
+import RFNotifications
 import SatelliteGuardKit
 
 #if os(macOS)
 import ServiceManagement
 #endif
 
-@Observable
-final class Satellite {
-    @MainActor private(set) var status: [UUID: VPNStatus]
+@Observable @MainActor
+final class Satellite: Sendable {
+    private(set) var endpoints: [Endpoint]
+    private(set) var activeEndpointIDs: Set<UUID>
+    private(set) var endpointStatus: [UUID: VPNStatus]
     
-    @MainActor private(set) var endpoints: [Endpoint]
+    private(set) var unauthorizedKeyHolderIDs: [PersistenceManager.KeyHolderSubsystem.UnauthorizedKeyHolder]
     
-    @MainActor private(set) var activeEndpointIDs: Set<UUID>
-    @MainActor private(set) var unauthorizedKeyHolderIDs: [PersistenceManager.KeyHolderSubsystem.UnauthorizedKeyHolder]
+    var editingEndpoint: Endpoint?
+    var importPickerVisible: Bool
     
-    @MainActor var editingEndpoint: Endpoint?
-    @MainActor var importPickerVisible: Bool
+    private(set) var importing: Bool
+    private(set) var transmitting: Int
     
-    @MainActor private(set) var importing: Bool
-    @MainActor private(set) var transmitting: Int
+    private(set) var authorizationStatus: PersistenceManager.KeyHolderSubsystem.AuthorizationStatus
     
-    @MainActor private(set) var authorizationStatus: PersistenceManager.KeyHolderSubsystem.AuthorizationStatus
+    var notifyError: Bool
+    var notifySuccess: Bool
     
-    @MainActor private(set) var notifyError: Bool
-    @MainActor private(set) var notifySuccess: Bool
+    @ObservationIgnored private var stash = RFNotification.MarkerStash()
+    @ObservationIgnored private nonisolated let logger = Logger(subsystem: "io.rfk.SatelliteGuard", category: "Satellite")
     
-    @ObservationIgnored private var tokens: [Any]!
-    
-    private static let logger = Logger(subsystem: "SatelliteGuard", category: "Sattelite")
-    
-    @MainActor
     init() {
-        status = [:]
-        
         endpoints = []
-        
         activeEndpointIDs = []
+        endpointStatus = [:]
+        
         unauthorizedKeyHolderIDs = []
         
         editingEndpoint = nil
@@ -60,10 +58,16 @@ final class Satellite {
         notifyError = false
         notifySuccess = false
         
-        tokens = setupObservers()
+        createObservers()
+        
+        // CloudKit takes some time to synchronise
+        Task.detached {
+            try await Task.sleep(for: .seconds(1))
+            await PersistenceManager.shared.update()
+        }
     }
     
-    enum VPNStatus: Equatable, Hashable {
+    enum VPNStatus: Sendable, Equatable, Hashable {
         case disconnecting
         case disconnected
         case establishing
@@ -83,26 +87,23 @@ final class Satellite {
         }
     }
     
-    enum SatelliteError: Error {
+    enum SatelliteError: Sendable, Error {
         case permissionDenied
         case invalidConfiguration
     }
 }
 
 extension Satellite {
-    @MainActor
     var pondering: Bool {
-        importing || transmitting > 0 || !status.filter { $1 == .establishing || $1 == .disconnecting }.isEmpty
+        importing || transmitting > 0 || !endpointStatus.filter { $1 == .establishing || $1 == .disconnecting }.isEmpty
     }
     
-    @MainActor
     var dominantStatus: VPNStatus {
-        Dictionary(status.map { ($1, [$0]) }, uniquingKeysWith: +).keys.reduce(.disconnected) { $0.priority < $1.priority ? $1 : $0 }
+        Dictionary(endpointStatus.map { ($1, [$0]) }, uniquingKeysWith: +).keys.reduce(.disconnected) { $0.priority < $1.priority ? $1 : $0 }
     }
     
-    @MainActor
     var connectedIDs: [UUID] {
-        status.filter { (_, status) in
+        endpointStatus.filter { (_, status) in
             if case .connected = status {
                 true
             } else {
@@ -111,7 +112,7 @@ extension Satellite {
         }.map(\.key)
     }
     
-    func handleFileSelection(_ result: Result<[URL], any Error>) {
+    nonisolated func handleFileSelection(_ result: Result<[URL], any Error>) {
         Task {
             await MainActor.withAnimation {
                 self.importing = true
@@ -126,10 +127,14 @@ extension Satellite {
                     try await importConfiguration(url)
                     url.stopAccessingSecurityScopedResource()
                     
+                    logger.info("Successfully imported configuration")
+                    
                     await MainActor.run {
                         self.notifySuccess.toggle()
                     }
                 } catch {
+                    logger.error("Failed to import configuration: \(error)")
+                    
                     await MainActor.run {
                         self.notifyError.toggle()
                     }
@@ -141,7 +146,7 @@ extension Satellite {
             }
         }
     }
-    func handleFileImport(_ contents: String, name: String) {
+    nonisolated func handleFileImport(_ contents: String, name: String) {
         Task {
             guard !(await self.importing) else {
                 return
@@ -170,7 +175,7 @@ extension Satellite {
     }
     
     #if os(macOS)
-    func updateServiceRegistration(_ register: Bool) {
+    nonisolated func updateServiceRegistration(_ register: Bool) {
         Task {
             await MainActor.withAnimation {
                 self.transmitting += 1
@@ -182,7 +187,11 @@ extension Satellite {
                 } else {
                     try await SMAppService.mainApp.unregister()
                 }
+                
+                logger.info("Service \(register ? "registered" : "unregistered")")
             } catch {
+                logger.error("Failed to update service registration: \(error)")
+                
                 await MainActor.run {
                     self.notifyError.toggle()
                 }
@@ -197,7 +206,7 @@ extension Satellite {
 }
 
 extension Satellite {
-    func launch(_ endpoint: Endpoint) {
+    nonisolated func launch(_ endpoint: Endpoint) {
         Task {
             await MainActor.withAnimation {
                 self.transmitting += 1
@@ -211,12 +220,15 @@ extension Satellite {
                 }
                 
                 try await endpoint.connect()
+                logger.info("Connected to \(endpoint.id)")
                 
                 await MainActor.withAnimation {
-                    self.status[endpoint.id] = .establishing
+                    self.endpointStatus[endpoint.id] = .establishing
                     self.notifySuccess.toggle()
                 }
             } catch {
+                logger.error("Failed to connect to \(endpoint.id): \(error)")
+                
                 await MainActor.withAnimation {
                     self.transmitting -= 1
                     self.notifyError.toggle()
@@ -228,7 +240,7 @@ extension Satellite {
             }
         }
     }
-    func land(_ endpoint: Endpoint?) {
+    nonisolated func land(_ endpoint: Endpoint?) {
         Task {
             await MainActor.withAnimation {
                 self.transmitting += 1
@@ -237,14 +249,14 @@ extension Satellite {
             if let endpoint {
                 await endpoint.disconnect()
                 await MainActor.withAnimation {
-                    self.status[endpoint.id] = .disconnecting
+                    self.endpointStatus[endpoint.id] = .disconnecting
                 }
             } else {
                 for connectedID in await self.connectedIDs {
                     if let current = await PersistenceManager.shared.endpoint[connectedID] {
                         await current.disconnect()
                         await MainActor.withAnimation {
-                            self.status[current.id] = .disconnecting
+                            self.endpointStatus[current.id] = .disconnecting
                         }
                     }
                 }
@@ -257,7 +269,7 @@ extension Satellite {
         }
     }
     
-    func activate(_ endpoint: Endpoint) {
+    nonisolated func activate(_ endpoint: Endpoint) {
         Task {
             await MainActor.withAnimation {
                 self.transmitting += 1
@@ -270,6 +282,8 @@ extension Satellite {
                     self.notifySuccess.toggle()
                 }
             } catch {
+                logger.error("Failed to active to \(endpoint.id): \(error)")
+                
                 await MainActor.withAnimation {
                     self.transmitting -= 1
                     self.notifyError.toggle()
@@ -282,7 +296,7 @@ extension Satellite {
             }
         }
     }
-    func deactivate(_ endpoint: Endpoint) {
+    nonisolated func deactivate(_ endpoint: Endpoint) {
         Task {
             await MainActor.withAnimation {
                 self.transmitting += 1
@@ -295,6 +309,8 @@ extension Satellite {
                     self.notifySuccess.toggle()
                 }
             } catch {
+                logger.error("Failed to deactivate to \(endpoint.id): \(error)")
+                
                 await MainActor.withAnimation {
                     self.transmitting -= 1
                     self.notifyError.toggle()
@@ -310,43 +326,43 @@ extension Satellite {
 }
 
 private extension Satellite {
-    func setupObservers() -> [Any] {
-        var tokens = [WireGuardMonitor.shared.statusPublisher.sink { [weak self] (id, status, connectedSince) in
+    func createObservers() {
+        /*
+        cancellables += [WireGuardMonitor.shared.statusPublisher.sink { [weak self] (id, status, connectedSince) in
             self?.parseStatus(status, for: id, connectedSince: connectedSince)
-        }, PersistenceManager.shared.keyHolder.authorizationDidChange.sink { authorizationStatus in
-            Task { @MainActor in
-                self.authorizationStatus = authorizationStatus
-            }
-        }, PersistenceManager.shared.keyHolder.unauthorizedKeyHolderIDsDidChange.sink { unauthorizedKeyHolderIDs in
-            Task { @MainActor in
-                self.unauthorizedKeyHolderIDs = unauthorizedKeyHolderIDs
-            }
-        }, PersistenceManager.shared.endpoint.endpointsDidChange.sink { endpoints in
-            Task { @MainActor in
-                self.endpoints = endpoints
-            }
-        }, PersistenceManager.shared.endpoint.activeEndpointIDsDidChange.sink { activeEndpointIDs in
-            Task { @MainActor in
-                self.activeEndpointIDs = activeEndpointIDs
-            }
         }]
+         */
         
-        #if !os(macOS)
-        tokens += [NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification).sink { [weak self] _ in
-            Task {
-                await PersistenceManager.shared.keyHolder.updateKeyHolders()
-                
-                for endpoint in await PersistenceManager.shared.endpoint.all {
-                    await self?.parseStatus(endpoint.status, for: endpoint.id, connectedSince: .now)
-                }
+        RFNotification[.authorizationChanged].subscribe { [weak self] in
+            guard let self else {
+                return
             }
-        }]
-        #endif
+            
+            let current = self.authorizationStatus
+            
+            self.logger.info("Updating authorization status to \($0.debugDescription) (current: \(current.debugDescription))")
+            
+            guard current != .establishingFailed else {
+                return
+            }
+            
+            self.authorizationStatus = $0
+        }.store(in: &stash)
         
-        return tokens
+        RFNotification[.unauthorizedKeyHoldersChanged].subscribe { [weak self] in
+            self?.unauthorizedKeyHolderIDs = $0
+        }.store(in: &stash)
+        
+        RFNotification[.endpointsChanged].subscribe { [weak self] in
+            self?.endpoints = $0
+        }.store(in: &stash)
+        
+        RFNotification[.activeEndpointIDsChanged].subscribe { [weak self] in
+            self?.activeEndpointIDs = $0
+        }.store(in: &stash)
     }
     
-    func parseStatus(_ status: NEVPNStatus, for endpointID: UUID, connectedSince: Date?) {
+    nonisolated func parseStatus(_ status: NEVPNStatus, for endpointID: UUID, connectedSince: Date?) {
         let parsed: VPNStatus
         
         switch status {
@@ -365,8 +381,8 @@ private extension Satellite {
                 self.editingEndpoint = nil
             }
             
-            if self.status[endpointID]?.priority != parsed.priority {
-                self.status[endpointID] = parsed
+            if self.endpointStatus[endpointID]?.priority != parsed.priority {
+                self.endpointStatus[endpointID] = parsed
             }
         }
     }

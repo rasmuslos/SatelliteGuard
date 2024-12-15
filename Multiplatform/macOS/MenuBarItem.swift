@@ -43,12 +43,14 @@ struct MenuBarItem: View {
                 Spacer(minLength: 12)
                 
                 Menu {
-                    ConfigurationImporter.Inner()
+                    ConfigurationImportMenu()
                     
                     Divider()
                     
                     #if os(macOS)
-                    Toggle("launch.login", isOn: .init(get: { SMAppService.mainApp.status == .enabled }, set: satellite.updateServiceRegistration))
+                    Toggle("launch.login", isOn: .init(get: { SMAppService.mainApp.status == .enabled }, set: {
+                        satellite.updateServiceRegistration($0)
+                    }))
                     #endif
                     
                     Button("quit") {
@@ -65,7 +67,7 @@ struct MenuBarItem: View {
                 .menuStyle(.button)
                 .buttonStyle(.plain)
             }
-            .animation(.smooth, value: satellite.status)
+            .animation(.smooth, value: satellite.endpointStatus)
             
             Divider()
                 .padding(.bottom, -4)

@@ -28,12 +28,14 @@ struct ContentView: View {
             SplitScreenView {
                 mainContent
             }
-            #else
+            #elseif os(iOS)
             mainContent
-                .modifier(ConfigurationImporter.ImporterModifier())
+                .modifier(ConfigurationImportMenu.ImporterModifier())
                 .sheet(item: $satellite.editingEndpoint) {
                     EndpointEditView($0)
                 }
+            #else
+            Text(verbatim: "Unsupported Platform")
             #endif
         }
         .sensoryFeedback(.success, trigger: satellite.authorizationStatus)

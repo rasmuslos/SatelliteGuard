@@ -14,7 +14,7 @@ import SatelliteGuardKit
 
 internal extension Satellite {
     /// Parses a WireGuard config file and stores the contents inside the database
-    func importConfiguration(_ configurationURL: URL) async throws {
+    nonisolated func importConfiguration(_ configurationURL: URL) async throws {
         let (data, _) = try await URLSession.shared.data(from: configurationURL)
         
         guard let contents = String(data: data, encoding: .utf8) else {
@@ -23,7 +23,7 @@ internal extension Satellite {
         
         return try await importConfiguration(contents, name: configurationURL.lastPathComponent)
     }
-    func importConfiguration(_ contents: String, name: String) async throws {
+    nonisolated func importConfiguration(_ contents: String, name: String) async throws {
         let lines = contents.split(separator: "\n")
         var name = name
         
@@ -112,7 +112,13 @@ internal extension Satellite {
                                                   enforceRoutes: true,
                                                   includeAllNetworks: false)
         
-        await PersistenceManager.shared.endpoint.store(endpoint)
+        do {
+            try await PersistenceManager.shared.endpoint.store(endpoint)
+        } catch {
+            await MainActor.run {
+                notifyError.toggle()
+            }
+        }
     }
 }
 

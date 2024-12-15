@@ -20,6 +20,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         
         connection = .init(provider: self, endpoint: endpoint)
         
+        self.protocolConfiguration.passwordReference
+        
         try await connection.activate()
     }
     

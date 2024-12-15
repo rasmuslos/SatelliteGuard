@@ -42,7 +42,7 @@ extension String: PersistenceManager.KeyValueSubsystem.DataRepresentable {
     }
 }
 
-extension Array: PersistenceManager.KeyValueSubsystem.DataRepresentable where Element: PersistenceManager.KeyValueSubsystem.DataRepresentable & Codable {
+extension Set: PersistenceManager.KeyValueSubsystem.DataRepresentable where Element: PersistenceManager.KeyValueSubsystem.DataRepresentable & Codable {
     public var data: Data {
         try! JSONEncoder().encode(self)
     }

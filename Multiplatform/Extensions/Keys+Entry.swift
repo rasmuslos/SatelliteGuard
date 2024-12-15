@@ -9,13 +9,13 @@ import SwiftUI
 import SatelliteGuardKit
 
 struct NavigationContextPreferenceKey: PreferenceKey {
-    static var defaultValue: NavigationContext = .unknown
+    nonisolated(unsafe) static var defaultValue: NavigationContext = .unknown
     
     static func reduce(value: inout Value, nextValue: () -> Value) {
         value = nextValue()
     }
     
-    enum NavigationContext: Equatable {
+    enum NavigationContext: Equatable, Sendable {
         case unknown
         case home
         case endpoint(_ endpoint: Endpoint)

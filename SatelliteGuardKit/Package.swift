@@ -3,6 +3,8 @@
 
 import PackageDescription
 
+let RESET = false
+
 let package = Package(
     name: "SatelliteGuardKit",
     platforms: [
@@ -15,6 +17,7 @@ let package = Package(
     ],
     dependencies: [
         .package(name: "WireGuard", path: "../WireGuard"),
+        .package(url: "https://github.com/rasmuslos/RFKit", branch: "main"),
     ],
     targets: [
         .target(name: "SatelliteGuardKit", dependencies: [
@@ -23,7 +26,8 @@ let package = Package(
         ]),
         .target(name: "SGPersistence", dependencies: [
             .product(name: "WireGuardKit", package: "WireGuard"),
-        ]),
+            .product(name: "RFKit", package: "RFKit"),
+        ], swiftSettings: RESET ? [.define("RESET")] : []),
         .target(name: "SGWireGuard", dependencies: [
             .target(name: "SGPersistence"),
             .product(name: "WireGuardKit", package: "WireGuard")

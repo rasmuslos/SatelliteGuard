@@ -194,6 +194,7 @@
       }
     },
     "endpoint.edit.active" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -210,6 +211,7 @@
       }
     },
     "endpoint.edit.appleTVDisclaimer" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -226,6 +228,7 @@
       }
     },
     "endpoint.edit.key.malformed" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -242,6 +245,7 @@
       }
     },
     "endpoint.edit.listenPort" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -258,6 +262,7 @@
       }
     },
     "endpoint.edit.listenPort.malformed" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -274,6 +279,7 @@
       }
     },
     "endpoint.edit.mtu" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -290,6 +296,7 @@
       }
     },
     "endpoint.edit.mtu.malformed" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -306,6 +313,7 @@
       }
     },
     "endpoint.edit.name" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -322,6 +330,7 @@
       }
     },
     "endpoint.edit.privateKey" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -338,6 +347,7 @@
       }
     },
     "endpoint.edit.save" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -637,6 +647,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Created:"
+          }
+        }
+      }
+    },
+    "keyHolder.fault.description" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine kryptografische Operation konnte nicht ausgeführt werden. Entweder existieren mehrere Datenbanken oder die Integrität der Verschlüsselung ist kompromittiert."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not perform cryptographic operation. This is caused by either caused by multiple databases existing at the same time or the security of the vault is compromised."
+          }
+        }
+      }
+    },
+    "keyHolder.fault.title" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fehler"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error"
           }
         }
       }

@@ -10,6 +10,8 @@ import SwiftData
 
 @Model
 final class KeyValueEntity {
+    #Index<KeyValueEntity>([\.key])
+    
     @Attribute(.allowsCloudEncryption)
     private(set) var key: String!
     

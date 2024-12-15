@@ -11,7 +11,7 @@ import Network
 import OSLog
 import WireGuardKit
 
-public final class Endpoint: Sendable, ObservableObject {
+public final class Endpoint {
     public let id: UUID
     public let name: String
     
@@ -108,6 +108,7 @@ public extension Endpoint {
 }
 
 extension Endpoint: Codable {}
+extension Endpoint: Sendable {}
 extension Endpoint: Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)

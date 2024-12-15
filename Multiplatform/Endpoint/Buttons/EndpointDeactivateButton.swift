@@ -18,27 +18,22 @@ struct EndpointDeactivateButton: View {
         self.endpoint = endpoint
     }
     
-    private var isActive: Bool {
-        satellite.connectedIDs.contains(endpoint.id)
+    private var isBlocked: Bool {
+        satellite.connectedIDs.contains(endpoint.id) || satellite.pondering
     }
     
     var body: some View {
-        Button(role: .destructive) {
-            satellite.deactivate(endpoint)
-        } label: {
-            Label("endpoint.deactivate", systemImage: "minus.diamond")
-                #if os(tvOS)
-                .labelStyle(.titleOnly)
-                #endif
-        }
-        .modify {
-            if satellite.connectedIDs.contains(endpoint.id) {
-                $0
-                    .foregroundStyle(.secondary)
-            } else {
-                $0
+        if satellite.activeEndpointIDs.contains(endpoint.id) {
+            Button(role: .destructive) {
+                satellite.deactivate(endpoint)
+            } label: {
+                Label("endpoint.deactivate", systemImage: "minus.diamond")
+                    #if os(tvOS)
+                    .labelStyle(.titleOnly)
+                    #endif
             }
+            .foregroundStyle(isBlocked ? .secondary : .primary)
+            .disabled(isBlocked)
         }
-        .disabled(isActive)
     }
 }

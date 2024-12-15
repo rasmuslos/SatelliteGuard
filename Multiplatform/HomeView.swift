@@ -62,7 +62,11 @@ struct HomeView: View {
                 if satellite.pondering {
                     ProgressView()
                 } else {
-                    ConfigurationImporter()
+                    Menu {
+                        ConfigurationImportMenu()
+                    } label: {
+                        Label("configuration.import", systemImage: "plus")
+                    }
                 }
             }
         }

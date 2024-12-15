@@ -19,13 +19,8 @@ struct MultiplatformApp: App {
     init() {
         WireGuardMonitor.shared.ping()
         
-        Task.detached {
-            try await Task.sleep(for: .seconds(1))
-            await PersistenceManager.shared.keyHolder.updateKeyHolders()
-        }
-        
         #if DEBUG && os(tvOS)
-        Task.detached {
+        Task {
             if await Endpoint.all?.isEmpty ?? true {
                 await MainActor.run {
                     PersistenceManager.shared.modelContainer.mainContext.insert(Endpoint.fixture)

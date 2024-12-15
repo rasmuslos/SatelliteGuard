@@ -7,17 +7,21 @@
 
 import Foundation
 import SwiftData
-@preconcurrency import Combine
+import RFNotifications
 
 extension PersistenceManager {
-    public final actor EndpointSubsystem: ModelActor {
-        private var endpoints: [Endpoint]
-        private(set) var activeEndpointIDs: Set<UUID> {
+    public final actor EndpointSubsystem: ModelActor, Sendable {
+        private(set) public var endpoints: [Endpoint] {
             didSet {
-                self.activeEndpointIDsDidChangeSubject.send(activeEndpointIDs)
+                RFNotification[.endpointsChanged].send(endpoints)
+            }
+        }
+        private(set) public var activeEndpointIDs: Set<UUID> {
+            didSet {
+                RFNotification[.activeEndpointIDsChanged].send(activeEndpointIDs)
                 
                 Task {
-                    await PersistenceManager.shared.keyValue.set(.activeEndpoints(for: PersistenceManager.shared.keyHolder.deviceID), Array(self.activeEndpointIDs))
+                    await PersistenceManager.shared.keyValue.set(.activeEndpoints(for: PersistenceManager.shared.keyHolder.deviceID), self.activeEndpointIDs)
                 }
             }
         }
@@ -25,46 +29,59 @@ extension PersistenceManager {
         public nonisolated let modelContainer: ModelContainer
         public nonisolated let modelExecutor: any ModelExecutor
         
-        private nonisolated let endpointsDidChangeSubject: CurrentValueSubject<[Endpoint], Never>
-        private nonisolated let activeEndpointIDsDidChangeSubject: CurrentValueSubject<Set<UUID>, Never>
-        
-        private nonisolated(unsafe) var cancellable: AnyCancellable?
+        private var stash: RFNotification.MarkerStash
         
         init(modelContainer: SwiftData.ModelContainer) {
             endpoints = []
             activeEndpointIDs = .init()
             
-            endpointsDidChangeSubject = .init(endpoints)
-            activeEndpointIDsDidChangeSubject = .init(activeEndpointIDs)
-            
             let modelContext = ModelContext(modelContainer)
             self.modelExecutor = DefaultSerialModelExecutor(modelContext: modelContext)
             self.modelContainer = modelContainer
             
-            cancellable = nil
+            stash = .init()
             
             Task {
-                // This is here to run slightly after the init of `PersistenceManager`
-                createObservers()
-                
-                await self.updateActiveEndpointIDs()
+                await createObservers()
             }
+        }
+        
+        func update() throws {
+            try updateEndpoints()
+            updateActiveEndpointIDs()
+        }
+        
+        func updateEndpoints() throws {
+            guard PersistenceManager.shared.keyHolder.secret != nil else {
+                self.endpoints = []
+                return
+            }
+            
+            let encryptedEndpoints = try modelContext.fetch(FetchDescriptor<EncryptedEndpoint>())
+            
+            let endpoints = encryptedEndpoints.map(\.decrypted)
+            let valid = endpoints.compactMap { $0 }
+            
+            if endpoints.count != valid.count {
+                self.endpoints = []
+                throw PersistenceError.cryptographicOperationFailed
+            } else {
+                self.endpoints = valid
+            }
+        }
+        
+        func reset() throws {
+            try modelContext.delete(model: EncryptedEndpoint.self)
+            try modelContext.save()
+            
+            activeEndpointIDs = []
+            
+            try updateEndpoints()
         }
     }
 }
 
 public extension PersistenceManager.EndpointSubsystem {
-    var all: [Endpoint] {
-        endpoints
-    }
-    
-    nonisolated var activeEndpointIDsDidChange: AnyPublisher<Set<UUID>, Never> {
-        activeEndpointIDsDidChangeSubject.eraseToAnyPublisher()
-    }
-    nonisolated var endpointsDidChange: AnyPublisher<[Endpoint], Never> {
-        endpointsDidChangeSubject.eraseToAnyPublisher()
-    }
-    
     subscript(id: UUID) -> Endpoint? {
         endpoints.first(where: { $0.id == id })
     }
@@ -79,50 +96,34 @@ public extension PersistenceManager.EndpointSubsystem {
         activeEndpointIDs.remove(id)
     }
     
-    func store(_ endpoint: Endpoint) {
-        let encryptedEndpoint = EncryptedEndpoint(endpoint)
+    func store(_ endpoint: Endpoint) throws {
+        let encryptedEndpoint = try EncryptedEndpoint(endpoint)
         
         modelContext.insert(encryptedEndpoint)
-        
-        do {
-            try modelContext.save()
-        } catch {
-            Task {
-                PersistenceManager.shared.keyHolder.failedToEstablishAuthorization()
-            }
-        }
+        try modelContext.save()
     }
 }
 
 private extension PersistenceManager.EndpointSubsystem {
-    func updateEndpoints() {
-        do {
-            let encryptedEndpoints = try modelContext.fetch(FetchDescriptor<EncryptedEndpoint>())
-            
-            endpoints = encryptedEndpoints.map(\.decrypted)
-            endpointsDidChangeSubject.value = endpoints
-        } catch {
-            Task {
-                PersistenceManager.shared.keyHolder.failedToEstablishAuthorization()
-            }
-        }
-    }
     func updateActiveEndpointIDs() {
         Task {
             self.activeEndpointIDs = .init(await PersistenceManager.shared.keyValue[.activeEndpoints(for: PersistenceManager.shared.keyHolder.deviceID)] ?? [])
         }
     }
     
-    nonisolated func createObservers() {
-        cancellable = PersistenceManager.shared.keyHolder.authorizationDidChange.sink { [weak self] in
+    func createObservers() {
+        RFNotification[.authorizationChanged].subscribe(queue: .current) {
             guard $0 == .authorized else {
                 return
             }
             
-            Task { [weak self] in
-                await self?.updateEndpoints()
-                await self?.updateActiveEndpointIDs()
+            Task {
+                do {
+                    try await self.updateEndpoints()
+                } catch {
+                    PersistenceManager.shared.keyHolder.authenticationFailed()
+                }
             }
-        }
+        }.store(in: &stash)
     }
 }

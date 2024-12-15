@@ -64,21 +64,6 @@ final class EndpointEditViewModel {
 }
 
 extension EndpointEditViewModel {
-    func save() {
-        Task {
-            await MainActor.run {
-                isSaving = true
-            }
-            
-            await saveMainModelContext()
-            try await endpoint.reassert()
-            await dismissAction()
-            
-            await MainActor.run {
-                isSaving = false
-            }
-        }
-    }
     func dismiss() {
         
     }

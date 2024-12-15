@@ -1,0 +1,15 @@
+{
+  "originHash" : "828f9df74cc166cbf53727fcc83fe3cb9c14987ed3ef3581a09da6cbf9d87184",
+  "pins" : [
+    {
+      "identity" : "rfkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/rasmuslos/RFKit",
+      "state" : {
+        "branch" : "main",
+        "revision" : "587b76c8cc509cb4e81fc9ce69eba634d698c984"
+      }
+    }
+  ],
+  "version" : 3
+}

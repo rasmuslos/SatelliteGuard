@@ -18,19 +18,8 @@ struct EndpointPrimaryButton: View {
         self.endpoint = endpoint
     }
     
-    private var isLoading: Bool {
-        #if os(macOS)
-        false
-        #else
-        satellite.pondering
-        #endif
-    }
-    private var isActive: Bool {
-        satellite.connectedIDs.contains(endpoint.id)
-    }
-    
     private var label: LocalizedStringKey {
-        if isActive {
+        if satellite.connectedIDs.contains(endpoint.id) {
             "disconnect"
         } else if satellite.activeEndpointIDs.contains(endpoint.id) {
             "connect"
@@ -39,7 +28,7 @@ struct EndpointPrimaryButton: View {
         }
     }
     private var icon: String {
-        if isActive {
+        if satellite.connectedIDs.contains(endpoint.id) {
             "diamond.fill"
         } else if satellite.activeEndpointIDs.contains(endpoint.id) {
             "diamond.bottomhalf.filled"
@@ -49,16 +38,16 @@ struct EndpointPrimaryButton: View {
     }
     
     var body: some View {
-        if isLoading {
+        if satellite.pondering {
             ProgressView()
         } else {
             Button {
-                if isActive {
+                if satellite.connectedIDs.contains(endpoint.id) {
                     satellite.land(endpoint)
                 } else if satellite.activeEndpointIDs.contains(endpoint.id) {
-                    satellite.activate(endpoint)
-                } else {
                     satellite.launch(endpoint)
+                } else {
+                    satellite.activate(endpoint)
                 }
             } label: {
                 Label(label, systemImage: icon)

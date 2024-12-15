@@ -35,7 +35,7 @@ struct EndpointView: View {
     
     @ViewBuilder
     private var statusLabel: some View {
-        if let status = satellite.status[endpoint.id], status != .disconnected {
+        if let status = satellite.endpointStatus[endpoint.id], status != .disconnected {
             StatusLabel(status: status, color: true)
         }
     }

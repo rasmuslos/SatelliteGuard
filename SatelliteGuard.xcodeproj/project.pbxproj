@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3A293F8F2CE1F7870052D6BF /* WireGuardExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3AF173172CE10749002D8B1C /* WireGuardExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		3A47BF302D0F57540084209A /* RFKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3A47BF2F2D0F57540084209A /* RFKit */; };
 		3AF173192CE10749002D8B1C /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AF173182CE10749002D8B1C /* NetworkExtension.framework */; };
 		3AF173782CE117B8002D8B1C /* WireGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3AF173772CE117B8002D8B1C /* WireGuardKit */; };
 		3AF1737A2CE117CB002D8B1C /* SatelliteGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3AF173792CE117CB002D8B1C /* SatelliteGuardKit */; };
@@ -132,6 +133,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3AF1737A2CE117CB002D8B1C /* SatelliteGuardKit in Frameworks */,
+				3A47BF302D0F57540084209A /* RFKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -271,6 +273,7 @@
 			name = Multiplatform;
 			packageProductDependencies = (
 				3AF173792CE117CB002D8B1C /* SatelliteGuardKit */,
+				3A47BF2F2D0F57540084209A /* RFKit */,
 			);
 			productName = Multiplatform;
 			productReference = 3AF1735A2CE11530002D8B1C /* SatelliteGuard.app */;
@@ -284,7 +287,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1610;
-				LastUpgradeCheck = 1610;
+				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					3A2E12D52CE0F8F700A6060F = {
 						CreatedOnToolsVersion = 16.1;
@@ -311,6 +314,7 @@
 			mainGroup = 3A2E12B92CE0F75900A6060F;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				3A47BF2E2D0F57540084209A /* XCRemoteSwiftPackageReference "RFKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3A2E12C32CE0F75900A6060F /* Products */;
@@ -429,6 +433,7 @@
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -458,6 +463,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -487,6 +493,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
@@ -496,6 +503,7 @@
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -525,6 +533,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -546,6 +555,7 @@
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -585,6 +595,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUGGING_SYMBOLS = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = N8AA4S3S96;
@@ -602,6 +613,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = N8AA4S3S96;
 				OTHER_CFLAGS = "";
@@ -618,6 +630,7 @@
 				CODE_SIGN_ENTITLEMENTS = WireguardExtension/WireguardExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = DEVELOPMENT;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = N8AA4S3S96;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -651,6 +664,7 @@
 				CODE_SIGN_ENTITLEMENTS = WireguardExtension/WireguardExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = DEVELOPMENT;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = N8AA4S3S96;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -715,7 +729,6 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,3";
 				TVOS_DEPLOYMENT_TARGET = 18.0;
 			};
@@ -758,7 +771,6 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,3";
 				TVOS_DEPLOYMENT_TARGET = 18.0;
 			};
@@ -858,7 +870,23 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		3A47BF2E2D0F57540084209A /* XCRemoteSwiftPackageReference "RFKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/rasmuslos/RFKit";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		3A47BF2F2D0F57540084209A /* RFKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3A47BF2E2D0F57540084209A /* XCRemoteSwiftPackageReference "RFKit" */;
+			productName = RFKit;
+		};
 		3AF173772CE117B8002D8B1C /* WireGuardKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = WireGuardKit;
