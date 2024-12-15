@@ -1,5 +1,5 @@
 {
-  "originHash" : "828f9df74cc166cbf53727fcc83fe3cb9c14987ed3ef3581a09da6cbf9d87184",
+  "originHash" : "ae075554db33728a8be0806e3b129ffa8facab59da9ec5819822d05f3083b043",
   "pins" : [
     {
       "identity" : "rfkit",
@@ -7,7 +7,7 @@
       "location" : "https://github.com/rasmuslos/RFKit",
       "state" : {
         "branch" : "main",
-        "revision" : "587b76c8cc509cb4e81fc9ce69eba634d698c984"
+        "revision" : "0aad100f886b5277ff6e121825d3ef3ad0183994"
       }
     }
   ],

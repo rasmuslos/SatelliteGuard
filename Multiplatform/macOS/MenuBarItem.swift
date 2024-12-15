@@ -79,6 +79,9 @@ struct MenuBarItem: View {
         .foregroundStyle(.primary)
         .padding(12)
         .frame(width: 300)
+        .task {
+            await PersistenceManager.shared.keyHolder.updateKeyHolders()
+        }
     }
 }
 

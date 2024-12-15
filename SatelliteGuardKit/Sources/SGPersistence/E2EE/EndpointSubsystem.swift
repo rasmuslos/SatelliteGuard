@@ -101,6 +101,8 @@ public extension PersistenceManager.EndpointSubsystem {
         
         modelContext.insert(encryptedEndpoint)
         try modelContext.save()
+        
+        try updateEndpoints()
     }
 }
 

@@ -20,9 +20,7 @@ struct KeyHolderAuthorizationView<Content: View>: View {
             reset()
         } label: {
             Label("reset", systemImage: "exclamationmark.triangle.fill")
-                #if os(macOS)
                 .labelStyle(.titleOnly)
-                #endif
         }
     }
     
@@ -38,9 +36,6 @@ struct KeyHolderAuthorizationView<Content: View>: View {
                     createKeyHolder()
                 } label: {
                     Label("keyHolder.create.action", systemImage: "plus")
-                        #if os(macOS)
-                        .labelStyle(.titleOnly)
-                        #endif
                 }
             }
         case .establishing:
@@ -60,12 +55,20 @@ struct KeyHolderAuthorizationView<Content: View>: View {
                         createSecret()
                     } label: {
                         Label("keyHolder.init.action", systemImage: "key.2.on.ring")
-                            #if os(macOS)
-                            .labelStyle(.titleOnly)
-                            #endif
                     }
                 } else {
+                    Button {
+                        Task {
+                            await PersistenceManager.shared.update()
+                        }
+                    } label: {
+                        Text("update")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .padding(.bottom, 8)
+                    
                     resetButton
+                        .buttonStyle(.bordered)
                 }
             }
         case .authorized:

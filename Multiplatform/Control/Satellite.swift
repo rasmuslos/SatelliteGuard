@@ -61,7 +61,7 @@ final class Satellite: Sendable {
         createObservers()
         
         // CloudKit takes some time to synchronise
-        Task.detached {
+        Task.detached(priority: .high) {
             try await Task.sleep(for: .seconds(1))
             await PersistenceManager.shared.update()
         }
@@ -360,6 +360,14 @@ private extension Satellite {
         RFNotification[.activeEndpointIDsChanged].subscribe { [weak self] in
             self?.activeEndpointIDs = $0
         }.store(in: &stash)
+        
+        #if canImport(UIKit)
+        RFNotification[.didBecomeActive].subscribe {
+            Task {
+                await PersistenceManager.shared.keyHolder.updateKeyHolders()
+            }
+        }.store(in: &stash)
+        #endif
     }
     
     nonisolated func parseStatus(_ status: NEVPNStatus, for endpointID: UUID, connectedSince: Date?) {

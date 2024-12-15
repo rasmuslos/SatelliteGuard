@@ -38,6 +38,14 @@ struct ConfigurationImportMenu: View {
         
         Button(role: .destructive) {
             Task {
+                await PersistenceManager.shared.update()
+            }
+        } label: {
+            Label("update", systemImage: "server.rack")
+        }
+        
+        Button(role: .destructive) {
+            Task {
                 try! await PersistenceManager.shared.reset()
             }
         } label: {

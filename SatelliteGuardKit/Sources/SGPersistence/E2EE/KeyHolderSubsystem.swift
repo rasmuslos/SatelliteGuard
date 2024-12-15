@@ -130,6 +130,23 @@ public extension PersistenceManager.KeyHolderSubsystem {
             return
         }
         
+        let duplicates = Dictionary(keyHolders.map { ($0.id, [$0]) }, uniquingKeysWith: { $0 + [$1] }).filter { $0.value.count > 1 } as! [UUID: [KeyHolder]]
+        if !duplicates.isEmpty {
+            logger.fault( "Found \(duplicates.count) key holders with duplicate IDs: \(duplicates)")
+            
+            for keyHolders in duplicates.values {
+                for keyHolder in keyHolders {
+                    modelContext.delete(keyHolder)
+                }
+            }
+            
+            do {
+                try modelContext.save()
+            } catch {
+                authenticationFailed()
+            }
+        }
+        
         if let current {
             secret = current.secret
         }
@@ -137,6 +154,8 @@ public extension PersistenceManager.KeyHolderSubsystem {
         let unauthorized = keyHolders.filter { $0.sharedKey == nil }.map {
             ($0.id!, $0.added!, $0.operatingSystem!, EmojiConverter.convert([UInt8]($0.publicKey)))
         }
+        
+        logger.info("\(self.keyHolders.count) key holders found (unauthorized: \(unauthorized.count))")
         
         Task { [unauthorized] in
             await self.updateAuthorization()
