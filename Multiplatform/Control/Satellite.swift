@@ -61,10 +61,10 @@ final class Satellite: Sendable {
         createObservers()
         
         // CloudKit takes some time to synchronise
-        Task.detached(priority: .high) {
-            try await Task.sleep(for: .seconds(1))
-            await PersistenceManager.shared.update()
-        }
+        // Task.detached(priority: .medium) {
+        //     try? await Task.sleep(for: .seconds(1))
+        //     await PersistenceManager.shared.update()
+        // }
     }
     
     enum VPNStatus: Sendable, Equatable, Hashable {
@@ -323,15 +323,40 @@ extension Satellite {
             }
         }
     }
+    nonisolated func delete(_ endpointID: UUID) {
+        Task {
+            await MainActor.withAnimation {
+                self.transmitting += 1
+            }
+            
+            do {
+                try await PersistenceManager.shared.endpoint.delete(endpointID)
+                
+                await MainActor.withAnimation {
+                    self.notifySuccess.toggle()
+                }
+            } catch {
+                logger.error("Failed to delete to \(endpointID): \(error)")
+                
+                await MainActor.withAnimation {
+                    self.transmitting -= 1
+                    self.notifyError.toggle()
+                }
+            }
+            
+            await MainActor.withAnimation {
+                self.transmitting -= 1
+                self.notifySuccess.toggle()
+            }
+        }
+    }
 }
 
 private extension Satellite {
     func createObservers() {
-        /*
-        cancellables += [WireGuardMonitor.shared.statusPublisher.sink { [weak self] (id, status, connectedSince) in
-            self?.parseStatus(status, for: id, connectedSince: connectedSince)
-        }]
-         */
+        RFNotification[.vpnStatusUpdate].subscribe { [weak self] in
+            self?.parseStatus($0.1, for: $0.0, connectedSince: $0.2)
+        }.store(in: &stash)
         
         RFNotification[.authorizationChanged].subscribe { [weak self] in
             guard let self else {
@@ -355,19 +380,12 @@ private extension Satellite {
         
         RFNotification[.endpointsChanged].subscribe { [weak self] in
             self?.endpoints = $0
+            self?.logger.info("Updating endpoints to \(self?.endpoints.debugDescription ?? "nil")")
         }.store(in: &stash)
         
         RFNotification[.activeEndpointIDsChanged].subscribe { [weak self] in
             self?.activeEndpointIDs = $0
         }.store(in: &stash)
-        
-        #if canImport(UIKit)
-        RFNotification[.didBecomeActive].subscribe {
-            Task {
-                await PersistenceManager.shared.keyHolder.updateKeyHolders()
-            }
-        }.store(in: &stash)
-        #endif
     }
     
     nonisolated func parseStatus(_ status: NEVPNStatus, for endpointID: UUID, connectedSince: Date?) {

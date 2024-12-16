@@ -13,6 +13,7 @@ import SatelliteGuardKit
 struct MultiplatformApp: App {
     #if os(macOS)
     @NSApplicationDelegateAdaptor private var appDelegate: AppDelegate
+    @Environment(\.dismissWindow) private var dismissWindow
     #endif
     @State private var satellite = Satellite()
     
@@ -30,17 +31,9 @@ struct MultiplatformApp: App {
         #endif
     }
     
-    private var inserted: Binding<Bool> {
-        .init() { true } set: {
-            if !$0 {
-                exit(0)
-            }
-        }
-    }
-    
     var body: some Scene {
         #if os(macOS)
-        MenuBarExtra(isInserted: inserted) {
+        MenuBarExtra(isInserted: .constant(true)) {
             MenuBarItem()
                 .environment(satellite)
                 .modelContainer(PersistenceManager.shared.modelContainer)
@@ -48,6 +41,43 @@ struct MultiplatformApp: App {
             MenuBarItem.LabelIcon(satellite: satellite)
         }
         .menuBarExtraStyle(.window)
+        
+        WindowGroup(Text("configuration.import"), id: "import-configuration") {
+            VStack {
+                Spacer()
+                
+                Text("configuration.import")
+                    .font(.largeTitle)
+                
+                Spacer()
+                
+                if satellite.importing || satellite.importPickerVisible {
+                    ProgressView()
+                } else {
+                    Image(systemName: "baseball.diamond.bases")
+                        .foregroundStyle(.green)
+                        .onAppear {
+                            Task {
+                                try await Task.sleep(for: .seconds(10))
+                                dismissWindow(id: "import-configuration")
+                            }
+                        }
+                }
+                
+                Spacer()
+            }
+            .frame(width: 400, height: 150)
+            .modifier(ConfigurationImportMenu.ImporterModifier())
+            .environment(satellite)
+            .modelContainer(PersistenceManager.shared.modelContainer)
+        }
+        .defaultPosition(.center)
+        .defaultLaunchBehavior(.suppressed)
+        .restorationBehavior(.disabled)
+        .windowLevel(.floating)
+        .windowStyle(.hiddenTitleBar)
+        .windowResizability(.contentSize)
+        
         #else
         WindowGroup {
             ContentView()

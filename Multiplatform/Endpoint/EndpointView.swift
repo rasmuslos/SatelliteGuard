@@ -50,9 +50,7 @@ struct EndpointView: View {
                 statusLabel
                 #endif
                 
-                if satellite.activeEndpointIDs.contains(endpoint.id) {
-                    EndpointDeactivateButton(endpoint)
-                }
+                EndpointDestructiveButton(endpoint)
                 #endif
                 
                 Section("endpoint.addresses") {
@@ -120,7 +118,7 @@ struct EndpointView: View {
                     #endif
                     
                     EndpointPrimaryButton(endpoint)
-                    EndpointDeactivateButton(endpoint)
+                    EndpointDestructiveButton(endpoint)
                 }
             }
             #endif

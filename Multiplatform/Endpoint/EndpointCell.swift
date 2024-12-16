@@ -15,10 +15,8 @@ struct EndpointCell: View {
     
     let endpoint: Endpoint
     
-    @State private var pondering = false
-    
     private var icon: String {
-        if isActive {
+        if satellite.connectedIDs.contains(endpoint.id) {
             "diamond.fill"
         } else if satellite.activeEndpointIDs.contains(endpoint.id) {
             "diamond.bottomhalf.filled"
@@ -38,13 +36,8 @@ struct EndpointCell: View {
     }
     
     @MainActor
-    private var isActive: Bool {
-        satellite.connectedIDs.contains(endpoint.id)
-    }
-    
-    @MainActor
     private var toggle: Binding<Bool> {
-        .init() { isActive } set: { $0 ? satellite.launch(endpoint) : satellite.land(endpoint) }
+        .init() { satellite.connectedIDs.contains(endpoint.id) } set: { $0 ? satellite.launch(endpoint) : satellite.land(endpoint) }
     }
     
     var body: some View {
@@ -77,14 +70,19 @@ struct EndpointCell: View {
         .listRowInsets(.init(top: 0, leading: 4, bottom: 0, trailing: 12))
         #if !os(tvOS)
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            if satellite.activeEndpointIDs.contains(endpoint.id) {
-                EndpointDeactivateButton(endpoint)
-            }
+            EndpointDestructiveButton(endpoint)
+        }
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            EndpointEditButton(endpoint)
+                .tint(.accentColor)
+        }
+        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+            EndpointPrimaryButton(endpoint)
         }
         #endif
         .contextMenu {
             EndpointPrimaryButton(endpoint)
-            EndpointDeactivateButton(endpoint)
+            EndpointDestructiveButton(endpoint)
             
             #if !os(tvOS)
             EndpointEditButton(endpoint)

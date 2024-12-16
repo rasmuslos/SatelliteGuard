@@ -28,6 +28,9 @@ struct EndpointEditButton: View {
             satellite.editingEndpoint = endpoint
         } label: {
             Label("endpoint.edit", systemImage: "pencil")
+                #if os(tvOS) || os(macOS)
+                .labelStyle(.titleOnly)
+                #endif
         }
         .disabled(isBlocked)
         .foregroundColor(isBlocked ? .secondary : .primary)

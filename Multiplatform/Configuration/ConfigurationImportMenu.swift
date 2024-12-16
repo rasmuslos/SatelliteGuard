@@ -36,7 +36,7 @@ struct ConfigurationImportMenu: View {
             Label("security", systemImage: "lock")
         }
         
-        Button(role: .destructive) {
+        Button {
             Task {
                 await PersistenceManager.shared.update()
             }

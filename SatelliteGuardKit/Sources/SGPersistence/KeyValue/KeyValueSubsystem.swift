@@ -19,25 +19,25 @@ extension PersistenceManager {
             get {
                 let identifier = key.identifier
                 
-                guard let entities = try? modelContext.fetch(FetchDescriptor<KeyValueEntity>(predicate: #Predicate { $0.key == identifier })) else {
-                    return nil
-                }
-                
-                guard let entity = entities.first else {
+                guard let entity = try? modelContext.fetch(FetchDescriptor<KeyValueEntity>(predicate: #Predicate { $0.key == identifier })).first else {
                     return nil
                 }
                 
                 return Value(data: entity.value)
             }
             set {
+                let identifier = key.identifier
+                
                 if let newValue {
-                    let entity = KeyValueEntity(key: key.identifier, value: newValue.data)
+                    if let existing = try? modelContext.fetch(FetchDescriptor<KeyValueEntity>(predicate: #Predicate { $0.key == identifier })).first {
+                        existing.value = newValue.data
+                    } else {
+                        let entity = KeyValueEntity(key: key.identifier, value: newValue.data)
+                        modelContext.insert(entity)
+                    }
                     
-                    modelContext.insert(entity)
                     try? modelContext.save()
                 } else {
-                    let identifier = key.identifier
-                    
                     try? modelContext.delete(model: KeyValueEntity.self, where: #Predicate { $0.key == identifier })
                     try? modelContext.save()
                 }

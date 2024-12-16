@@ -14,13 +14,14 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var connection: WireGuardConnection!
     
     override func startTunnel(options: [String : NSObject]?) async throws {
+        await PersistenceManager.shared.update()
+        
         guard let protocolConfiguration = protocolConfiguration as? NETunnelProviderProtocol, let id = protocolConfiguration.id, let endpoint = await PersistenceManager.shared.endpoint[id] else {
-                  throw TunnelError.invalidEndpoint
+            fatalError("PENIS")
+              // throw TunnelError.invalidEndpoint
         }
         
         connection = .init(provider: self, endpoint: endpoint)
-        
-        self.protocolConfiguration.passwordReference
         
         try await connection.activate()
     }

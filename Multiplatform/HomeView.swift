@@ -72,9 +72,6 @@ struct HomeView: View {
         }
         #endif
         .animation(.smooth, value: editMode)
-        .task {
-            await Endpoint.checkActive()
-        }
     }
 }
 

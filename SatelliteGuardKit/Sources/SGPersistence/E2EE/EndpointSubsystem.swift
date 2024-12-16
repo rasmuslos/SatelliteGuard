@@ -29,8 +29,6 @@ extension PersistenceManager {
         public nonisolated let modelContainer: ModelContainer
         public nonisolated let modelExecutor: any ModelExecutor
         
-        private var stash: RFNotification.MarkerStash
-        
         init(modelContainer: SwiftData.ModelContainer) {
             endpoints = []
             activeEndpointIDs = .init()
@@ -38,12 +36,6 @@ extension PersistenceManager {
             let modelContext = ModelContext(modelContainer)
             self.modelExecutor = DefaultSerialModelExecutor(modelContext: modelContext)
             self.modelContainer = modelContainer
-            
-            stash = .init()
-            
-            Task {
-                await createObservers()
-            }
         }
         
         func update() throws {
@@ -53,6 +45,8 @@ extension PersistenceManager {
         
         func updateEndpoints() throws {
             guard PersistenceManager.shared.keyHolder.secret != nil else {
+                print("a")
+                
                 self.endpoints = []
                 return
             }
@@ -104,6 +98,21 @@ public extension PersistenceManager.EndpointSubsystem {
         
         try updateEndpoints()
     }
+    func delete(_ endpointID: UUID) throws {
+        let descriptor = FetchDescriptor<EncryptedEndpoint>(predicate: #Predicate {
+            $0.id == endpointID
+        })
+        let endpoint = try modelContext.fetch(descriptor).first
+        
+        guard let endpoint else {
+            throw PersistenceManager.PersistenceError.endpointNotFound
+        }
+        
+        modelContext.delete(endpoint)
+        try modelContext.save()
+        
+        self.endpoints.removeAll { $0.id == endpointID }
+    }
 }
 
 private extension PersistenceManager.EndpointSubsystem {
@@ -111,21 +120,5 @@ private extension PersistenceManager.EndpointSubsystem {
         Task {
             self.activeEndpointIDs = .init(await PersistenceManager.shared.keyValue[.activeEndpoints(for: PersistenceManager.shared.keyHolder.deviceID)] ?? [])
         }
-    }
-    
-    func createObservers() {
-        RFNotification[.authorizationChanged].subscribe(queue: .current) {
-            guard $0 == .authorized else {
-                return
-            }
-            
-            Task {
-                do {
-                    try await self.updateEndpoints()
-                } catch {
-                    PersistenceManager.shared.keyHolder.authenticationFailed()
-                }
-            }
-        }.store(in: &stash)
     }
 }

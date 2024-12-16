@@ -11,7 +11,6 @@ import OSLog
 
 public final class PersistenceManager: Sendable {
     private let logger: Logger
-    private let signPoster: OSSignposter
     
     public let modelContainer: ModelContainer
     
@@ -19,12 +18,14 @@ public final class PersistenceManager: Sendable {
     public let keyHolder: KeyHolderSubsystem
     public let endpoint: EndpointSubsystem
     
+    #if os(macOS)
+    public nonisolated(unsafe) let defaults = UserDefaults(suiteName: "N8AA4S3S96.io.rfk.SatelliteGuard")!
+    #else
+    public nonisolated(unsafe) let defaults = UserDefaults(suiteName: "group.io.rfk.SatelliteGuard")!
+    #endif
+    
     private init() {
         logger = .init(subsystem: "io.rfk.SatelliteGuardKit", category: "PersistenceManager")
-        signPoster = .init(logger: logger)
-        
-        let signPostID = signPoster.makeSignpostID()
-        let signPostState = signPoster.beginInterval("init", id: signPostID)
         
         let schema = Schema([
             KeyHolder.self,
@@ -32,22 +33,24 @@ public final class PersistenceManager: Sendable {
             EncryptedEndpoint.self,
         ], version: .init(2, 0, 0))
         
+        #if os(macOS)
+        let identifier: ModelConfiguration.GroupContainer = .identifier("N8AA4S3S96.io.rfk.SatelliteGuard")
+        #else
+        let identifier: ModelConfiguration.GroupContainer = .identifier("group.io.rfk.SatelliteGuard")
+        #endif
+        
         let modelConfiguration = ModelConfiguration("SatelliteGuard",
-                                   schema: schema,
-                                   isStoredInMemoryOnly: false,
-                                   allowsSave: true,
-                                   groupContainer: .identifier("group.io.rfk.SatelliteGuard"),
-                                   cloudKitDatabase: .private("iCloud.SatelliteGuard"))
+                                                    schema: schema,
+                                                    isStoredInMemoryOnly: false,
+                                                    allowsSave: true,
+                                                    groupContainer: identifier,
+                                                    cloudKitDatabase: .private("iCloud.SatelliteGuard"))
         
         modelContainer = try! ModelContainer(for: schema, configurations: [modelConfiguration])
-        
-        signPoster.emitEvent("Created model container", id: signPostID)
         
         keyValue = .init(modelContainer: modelContainer)
         keyHolder = .init(modelContainer: modelContainer)
         endpoint = .init(modelContainer: modelContainer)
-        
-        signPoster.endInterval("init", signPostState)
         
         // MARK: RESET
         
@@ -63,18 +66,13 @@ public final class PersistenceManager: Sendable {
     }
     
     public func update() async {
-        let signPostID = signPoster.makeSignpostID()
-        let signPostState = self.signPoster.beginInterval("update", id: signPostID)
-        
-        await self.keyHolder.updateKeyHolders()
+        await PersistenceManager.shared.keyHolder.updateKeyHolders()
         
         do {
             try await self.endpoint.update()
         } catch {
             self.keyHolder.authenticationFailed()
         }
-        
-        self.signPoster.endInterval("update", signPostState)
     }
     
     public func reset() async throws {
@@ -89,6 +87,7 @@ public final class PersistenceManager: Sendable {
     }
     
     public enum PersistenceError: Error {
+        case endpointNotFound
         case cryptographicOperationFailed
     }
 }

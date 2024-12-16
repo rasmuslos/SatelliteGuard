@@ -181,16 +181,7 @@ private struct StatusMenuCell: View {
             Divider()
             
             EndpointPrimaryButton(endpoint)
-            
-            if satellite.activeEndpointIDs.contains(endpoint.id) {
-                EndpointDeactivateButton(endpoint)
-            } else {
-                Button(role: .destructive) {
-                    
-                } label: {
-                    Text("endpoint.remove")
-                }
-            }
+            EndpointDestructiveButton(endpoint)
         }
         .disabled(satellite.pondering)
         .padding(4)

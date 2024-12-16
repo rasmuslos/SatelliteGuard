@@ -627,7 +627,8 @@
 		3AF173242CE10749002D8B1C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = WireguardExtension/WireguardExtension.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=*]" = "WireguardExtension/WireguardExtension iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "WireguardExtension/WireguardExtension macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = DEVELOPMENT;
 				DEAD_CODE_STRIPPING = YES;
@@ -661,7 +662,8 @@
 		3AF173252CE10749002D8B1C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = WireguardExtension/WireguardExtension.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=*]" = "WireguardExtension/WireguardExtension iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "WireguardExtension/WireguardExtension macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = DEVELOPMENT;
 				DEAD_CODE_STRIPPING = YES;
@@ -697,7 +699,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Multiplatform/Multiplatform.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=*]" = "Multiplatform/Multiplatform iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Multiplatform/Multiplatform macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = DEVELOPMENT;
 				DEVELOPMENT_TEAM = N8AA4S3S96;
@@ -739,7 +742,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Multiplatform/Multiplatform.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=*]" = "Multiplatform/Multiplatform iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Multiplatform/Multiplatform macOS.entitlements\n";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = DEVELOPMENT;
 				DEVELOPMENT_TEAM = N8AA4S3S96;

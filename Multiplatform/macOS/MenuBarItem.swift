@@ -62,7 +62,7 @@ struct MenuBarItem: View {
                         .symbolEffect(.pulse, isActive: isActive)
                         .symbolEffect(.wiggle, value: satellite.notifyError)
                         .symbolEffect(.variableColor, isActive: satellite.pondering)
-                        .foregroundStyle(satellite.dominantStatus == .disconnected ? .secondary : isActive ? .green : Color.blue)
+                        .foregroundStyle(satellite.dominantStatus == .establishing || satellite.dominantStatus == .disconnecting ? .blue : .secondary)
                 }
                 .menuStyle(.button)
                 .buttonStyle(.plain)
@@ -79,9 +79,6 @@ struct MenuBarItem: View {
         .foregroundStyle(.primary)
         .padding(12)
         .frame(width: 300)
-        .task {
-            await PersistenceManager.shared.keyHolder.updateKeyHolders()
-        }
     }
 }
 

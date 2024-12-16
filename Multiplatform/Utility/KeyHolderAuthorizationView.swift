@@ -23,6 +23,17 @@ struct KeyHolderAuthorizationView<Content: View>: View {
                 .labelStyle(.titleOnly)
         }
     }
+    @ViewBuilder private var updateButton: some View {
+        if loading {
+            ProgressView()
+        } else {
+            Button {
+                update()
+            } label: {
+                Text("update")
+            }
+        }
+    }
     
     var body: some View {
         switch satellite.authorizationStatus {
@@ -40,6 +51,8 @@ struct KeyHolderAuthorizationView<Content: View>: View {
             }
         case .establishing:
             ProgressView()
+            
+            updateButton
         case .establishingFailed:
             ContentUnavailableView("keyHolder.fault.title", systemImage: "exclamationmark.triangle.fill", description: Text("keyHolder.fault.description"))
             
@@ -57,15 +70,9 @@ struct KeyHolderAuthorizationView<Content: View>: View {
                         Label("keyHolder.init.action", systemImage: "key.2.on.ring")
                     }
                 } else {
-                    Button {
-                        Task {
-                            await PersistenceManager.shared.update()
-                        }
-                    } label: {
-                        Text("update")
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .padding(.bottom, 8)
+                    updateButton
+                        .buttonStyle(.borderedProminent)
+                        .padding(.bottom, 8)
                     
                     resetButton
                         .buttonStyle(.bordered)
@@ -73,6 +80,14 @@ struct KeyHolderAuthorizationView<Content: View>: View {
             }
         case .authorized:
             content
+        }
+    }
+    
+    private func update() {
+        Task {
+            loading = true
+            await PersistenceManager.shared.update()
+            loading = false
         }
     }
     

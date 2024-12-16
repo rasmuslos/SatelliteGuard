@@ -22,11 +22,9 @@ extension PersistenceManager {
         public nonisolated let modelExecutor: any ModelExecutor
         
         private let logger: Logger
-        private let signPoster: OSSignposter
         
         init(modelContainer: ModelContainer) {
             logger = Logger(subsystem: "SatelliteGuardKit", category: "KeyHolder")
-            signPoster = OSSignposter(logger: logger)
             
             keyHolders = []
             
@@ -38,6 +36,10 @@ extension PersistenceManager {
             self.modelContainer = modelContainer
             
             logger.info("Initialized KeyHolderSubsystem")
+            
+            Task {
+                await removeDuplicates()
+            }
         }
         
         nonisolated func authenticationFailed() {
@@ -106,13 +108,13 @@ public extension PersistenceManager.KeyHolderSubsystem {
             return _deviceID
         }
         
-        if let deviceID = UserDefaults.standard.string(forKey: "deviceID") {
+        if let deviceID = PersistenceManager.shared.defaults.string(forKey: "deviceID") {
             _deviceID = UUID(uuidString: deviceID)!
         } else {
             _deviceID = .init()
             logger.info( "Generating new device ID: \(self._deviceID!)")
             
-            UserDefaults.standard.set(_deviceID?.uuidString, forKey: "deviceID")
+            PersistenceManager.shared.defaults.set(_deviceID?.uuidString, forKey: "deviceID")
         }
         
         return _deviceID!
@@ -128,23 +130,6 @@ public extension PersistenceManager.KeyHolderSubsystem {
         } catch {
             authenticationFailed()
             return
-        }
-        
-        let duplicates = Dictionary(keyHolders.map { ($0.id, [$0]) }, uniquingKeysWith: { $0 + [$1] }).filter { $0.value.count > 1 } as! [UUID: [KeyHolder]]
-        if !duplicates.isEmpty {
-            logger.fault( "Found \(duplicates.count) key holders with duplicate IDs: \(duplicates)")
-            
-            for keyHolders in duplicates.values {
-                for keyHolder in keyHolders {
-                    modelContext.delete(keyHolder)
-                }
-            }
-            
-            do {
-                try modelContext.save()
-            } catch {
-                authenticationFailed()
-            }
         }
         
         if let current {
@@ -236,12 +221,33 @@ public extension PersistenceManager.KeyHolderSubsystem {
         } catch {
             authenticationFailed()
         }
+        
+        updateKeyHolders()
     }
 }
 
 private extension PersistenceManager.KeyHolderSubsystem {
     var current: KeyHolder! {
         keyHolders.first { $0.id == deviceID }
+    }
+    
+    func removeDuplicates() {
+        let duplicates = Dictionary(keyHolders.map { ($0.id, [$0]) }, uniquingKeysWith: { $0 + [$1] }).filter { $0.value.count > 1 } as! [UUID: [KeyHolder]]
+        if !duplicates.isEmpty {
+            logger.fault( "Found \(duplicates.count) key holders with duplicate IDs: \(duplicates)")
+            
+            for keyHolders in duplicates.values {
+                for keyHolder in keyHolders {
+                    modelContext.delete(keyHolder)
+                }
+            }
+            
+            do {
+                try modelContext.save()
+            } catch {
+                authenticationFailed()
+            }
+        }
     }
     
     func encryptSecret(_ publicKey: SecKey) -> Data? {

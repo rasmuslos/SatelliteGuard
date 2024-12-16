@@ -67,6 +67,7 @@ internal extension Endpoint {
                     return nil
                 }
             } else {
+                Self.logger.error("Could not create manager for \(self.id): missing")
                 return nil
             }
             
@@ -77,14 +78,19 @@ internal extension Endpoint {
 
 public extension Endpoint {
     func reassert() async throws {
-        await PersistenceManager.shared.endpoint.activate(id)
-        
-        guard let manager = await manager else {
-            Self.logger.fault("Could not create manager for \(self.id) while updating")
-            throw EndpointError.managerMissing
+        do {
+            await PersistenceManager.shared.endpoint.activate(id)
+            
+            guard let manager = await manager else {
+                Self.logger.fault("Could not create manager for \(self.id) while updating")
+                throw EndpointError.managerMissing
+            }
+            
+            try await updateManager(manager)
+        } catch {
+            await PersistenceManager.shared.endpoint.deactivate(id)
+            throw error
         }
-        
-        try await updateManager(manager)
     }
     
     func deactivate() async throws {
@@ -92,47 +98,5 @@ public extension Endpoint {
         
         await disconnect()
         try await manager?.removeFromPreferences()
-    }
-    
-    static func checkActive() async {
-        let managers = (try? await NETunnelProviderManager.loadAllFromPreferences()) ?? []
-        
-        let endpoints = await PersistenceManager.shared.endpoint.endpoints
-        
-        let activeIDs = managers.compactMap(\.id)
-        let endpointIDs = endpoints.map(\.id)
-        
-        let outdated = managers.filter {
-            guard let id = $0.id else {
-                return true
-            }
-            
-            return !endpointIDs.contains(id)
-        }
-        
-        for manager in outdated {
-            try? await manager.removeFromPreferences()
-        }
-        
-        let active = endpoints.filter { activeIDs.contains($0.id) }
-        
-        var invalidInactive = [Endpoint]()
-        var invalidActive = [Endpoint]()
-        
-        for endpoint in active {
-            if await PersistenceManager.shared.endpoint[endpoint.id] && !active.contains(endpoint) {
-                invalidInactive.append(endpoint)
-            }
-            if !(await PersistenceManager.shared.endpoint[endpoint.id]) && active.contains(endpoint) {
-                invalidActive.append(endpoint)
-            }
-        }
-        
-        for endpoint in invalidInactive {
-            try? await endpoint.deactivate()
-        }
-        for endpoint in invalidActive {
-            try? await endpoint.reassert()
-        }
     }
 }
