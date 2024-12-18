@@ -34,9 +34,12 @@ struct EndpointView: View {
     #endif
     
     @ViewBuilder
-    private var statusLabel: some View {
+    @available(tvOS, unavailable)
+    private var status: some View {
         if let status = satellite.endpointStatus[endpoint.id], status != .disconnected {
             StatusLabel(status: status, color: true)
+        } else {
+            EndpointEditButton(endpoint)
         }
     }
     
@@ -44,10 +47,14 @@ struct EndpointView: View {
         Group {
             List {
                 #if !os(macOS)
-                EndpointPrimaryButton(endpoint)
+                if satellite.pondering {
+                    ProgressView()
+                } else {
+                    EndpointPrimaryButton(endpoint)
+                }
                 
                 #if !os(tvOS)
-                statusLabel
+                status
                 #endif
                 
                 EndpointDestructiveButton(endpoint)

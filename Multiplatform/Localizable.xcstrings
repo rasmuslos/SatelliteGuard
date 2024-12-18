@@ -326,6 +326,7 @@
       }
     },
     "home.edit" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

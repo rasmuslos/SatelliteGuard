@@ -12,9 +12,9 @@ import SatelliteGuardKit
 @main
 struct MultiplatformApp: App {
     #if os(macOS)
-    @NSApplicationDelegateAdaptor private var appDelegate: AppDelegate
     @Environment(\.dismissWindow) private var dismissWindow
     #endif
+    
     @State private var satellite = Satellite()
     
     init() {
@@ -37,10 +37,23 @@ struct MultiplatformApp: App {
             MenuBarItem()
                 .environment(satellite)
                 .modelContainer(PersistenceManager.shared.modelContainer)
+                .onOpenURL { url in
+                    Task {
+                        try await satellite.importConfiguration(url)
+                    }
+                }
         } label: {
             MenuBarItem.LabelIcon(satellite: satellite)
         }
         .menuBarExtraStyle(.window)
+        
+        WindowGroup(for: Endpoint.self) {
+            if let endpoint = $0.wrappedValue {
+                EndpointView(endpoint)
+                    .environment(satellite)
+                    .modelContainer(PersistenceManager.shared.modelContainer)
+            }
+        }
         
         WindowGroup(Text("configuration.import"), id: "import-configuration") {
             VStack {
@@ -77,7 +90,6 @@ struct MultiplatformApp: App {
         .windowLevel(.floating)
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentSize)
-        
         #else
         WindowGroup {
             ContentView()
@@ -85,18 +97,12 @@ struct MultiplatformApp: App {
                 .sensoryFeedback(.success, trigger: satellite.notifySuccess)
                 .environment(satellite)
                 .modelContainer(PersistenceManager.shared.modelContainer)
+                .onOpenURL { url in
+                    Task {
+                        try await satellite.importConfiguration(url)
+                    }
+                }
         }
         #endif
     }
 }
-
-#if os(macOS)
-class AppDelegate: NSObject, NSApplicationDelegate {
-    func application(_ sender: NSApplication, openFile filename: String) -> Bool {
-        true
-    }
-    func application(_ sender: NSApplication, openFiles filenames: [String]) {
-        print(filenames)
-    }
-}
-#endif

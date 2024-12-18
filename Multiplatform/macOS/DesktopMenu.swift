@@ -173,7 +173,7 @@ private struct StatusMenuCell: View {
         }
         .contextMenu {
             Button {
-                openWindow(value: endpoint.id)
+                openWindow(value: endpoint)
             } label: {
                 Text("endpoint.info")
             }

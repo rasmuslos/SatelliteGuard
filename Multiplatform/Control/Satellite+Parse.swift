@@ -109,7 +109,7 @@ internal extension Satellite {
                                                   excludeCellularServices: true,
                                                   allowAccessToLocalNetwork: true,
                                                   excludeDeviceCommunication: true,
-                                                  enforceRoutes: true,
+                                                  enforceRoutes: false,
                                                   includeAllNetworks: false)
         
         do {

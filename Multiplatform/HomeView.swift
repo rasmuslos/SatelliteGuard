@@ -13,8 +13,6 @@ import SatelliteGuardKit
 struct HomeView: View {
     @Environment(Satellite.self) private var satellite
     
-    @State private var editMode: EditMode = .inactive
-    
     var body: some View {
         Group {
             if satellite.endpoints.isEmpty {
@@ -39,7 +37,6 @@ struct HomeView: View {
                 .scrollClipDisabled()
                 #else
                 .listStyle(.insetGrouped)
-                .environment(\.editMode, $editMode)
                 #endif
             }
         }
@@ -49,16 +46,6 @@ struct HomeView: View {
         .navigationTitle("home")
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
-                Button {
-                    if editMode == .active {
-                        editMode = .inactive
-                    } else {
-                        editMode = .active
-                    }
-                } label: {
-                    Label("home.edit", systemImage: "pencil")
-                }
-                
                 if satellite.pondering {
                     ProgressView()
                 } else {
@@ -71,7 +58,6 @@ struct HomeView: View {
             }
         }
         #endif
-        .animation(.smooth, value: editMode)
     }
 }
 
