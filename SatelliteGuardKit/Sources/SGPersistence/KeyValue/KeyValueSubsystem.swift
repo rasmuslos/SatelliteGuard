@@ -7,15 +7,18 @@
 
 import Foundation
 import SwiftData
+import OSLog
 
 extension PersistenceManager {
     @ModelActor
     public final actor KeyValueSubsystem: Sendable {
+        private let logger = Logger(subsystem: "SatelliteGuardKit", category: "KeyValue")
+        
         public func set<Value>(_ key: Key<Value>, _ value: Value?) {
             self[key] = value
         }
         
-        public subscript<Value: DataRepresentable>(_ key: Key<Value>) -> Value? {
+        public subscript<Value: Codable>(_ key: Key<Value>) -> Value? {
             get {
                 let identifier = key.identifier
                 
@@ -23,20 +26,32 @@ extension PersistenceManager {
                     return nil
                 }
                 
-                return Value(data: entity.value)
+                do {
+                    return try JSONDecoder().decode(Value.self, from: entity.value)
+                } catch {
+                    logger.error("Failed to decode \(Value.self): \(error)")
+                    return nil
+                }
             }
             set {
                 let identifier = key.identifier
                 
                 if let newValue {
-                    if let existing = try? modelContext.fetch(FetchDescriptor<KeyValueEntity>(predicate: #Predicate { $0.key == identifier })).first {
-                        existing.value = newValue.data
-                    } else {
-                        let entity = KeyValueEntity(key: key.identifier, value: newValue.data)
-                        modelContext.insert(entity)
+                    do {
+                        let data = try JSONEncoder().encode(newValue)
+                        
+                        if let existing = try? modelContext.fetch(FetchDescriptor<KeyValueEntity>(predicate: #Predicate { $0.key == identifier })).first {
+                            existing.value = data
+                        } else {
+                            let entity = KeyValueEntity(key: key.identifier, value: data)
+                            modelContext.insert(entity)
+                        }
+                        
+                        try modelContext.save()
+                    } catch {
+                        logger.error("Failed to encode \(Value.self) or save: \(error)")
+                        return
                     }
-                    
-                    try? modelContext.save()
                 } else {
                     try? modelContext.delete(model: KeyValueEntity.self, where: #Predicate { $0.key == identifier })
                     try? modelContext.save()
@@ -53,7 +68,7 @@ extension PersistenceManager {
             var data: Data { get }
         }
         
-        public struct Key<Value: DataRepresentable>: Sendable {
+        public struct Key<Value: Codable>: Sendable {
             public typealias Key = PersistenceManager.KeyValueSubsystem.Key
             
             let identifier: String

@@ -32,7 +32,7 @@ struct ContentView: View {
             mainContent
                 .modifier(ConfigurationImportMenu.ImporterModifier())
                 .sheet(item: $satellite.editingEndpoint) {
-                    EndpointEditView($0)
+                    Text(verbatim: $0.name)
                 }
             #else
             Text(verbatim: "Unsupported Platform")
