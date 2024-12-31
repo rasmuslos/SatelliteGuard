@@ -44,6 +44,7 @@ struct MenuBarItem: View {
                 
                 Menu {
                     ConfigurationImportMenu()
+                        .disabled(satellite.authorizationStatus != .authorized)
                     
                     Divider()
                     

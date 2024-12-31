@@ -63,11 +63,6 @@ extension PersistenceManager {
             try modelContext.delete(model: KeyValueEntity.self)
         }
         
-        public protocol DataRepresentable: Sendable {
-            init?(data: Data)
-            var data: Data { get }
-        }
-        
         public struct Key<Value: Codable>: Sendable {
             public typealias Key = PersistenceManager.KeyValueSubsystem.Key
             

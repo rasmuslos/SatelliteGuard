@@ -33,7 +33,10 @@ version-header: $(DESTDIR)/wireguard-go-version.h
 // @if [ $(1) = "appletvos" ]; then export CGO_ENABLED := 1 fi
 
 REAL_GOROOT := $(shell go env GOROOT 2>/dev/null)
+
 export GOROOT := $(BUILDDIR)/goroot
+export GOPATH := $(BUILDDIR)/gopath
+
 $(GOROOT)/.prepared:
 	[ -n "$(REAL_GOROOT)" ]
 	mkdir -p "$(GOROOT)"

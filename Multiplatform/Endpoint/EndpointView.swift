@@ -58,6 +58,7 @@ struct EndpointView: View {
                 #endif
                 
                 EndpointDestructiveButton(endpoint)
+                    .foregroundStyle(.red)
                 #endif
                 
                 Section("endpoint.addresses") {
@@ -118,7 +119,6 @@ struct EndpointView: View {
             .toolbar {
                 ToolbarItemGroup(placement: toolbarPlacement) {
                     EndpointEditButton(endpoint)
-                    
                     
                     #if !os(macOS)
                     Divider()
